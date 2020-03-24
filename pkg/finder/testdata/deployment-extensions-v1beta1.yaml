@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: utilities
+  labels:
+    app: utilities
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: utilities
+  template:
+    metadata:
+      labels:
+        app: utilities
+    spec:
+      containers:
+      - name: utilities
+        image: quay.io/sudermanjr/utilities:latest
+        # Just spin & wait forever
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 10324
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 30m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi

@@ -45,18 +45,14 @@ var detectCmd = &cobra.Command{
 	Long:  `Detect Kubernetes apiVersions in a directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Thank you for using the tool. Running....")
-		if directory == "" {
-			directory, err := os.Getwd()
-			if err != nil {
-				klog.Fatal(err)
-			}
-			klog.V(3).Infof("using working directory: %s", directory)
-		}
-		err := finder.FindFiles(directory)
+
+		app := finder.NewFinder(directory)
+		err := app.Execute()
 		if err != nil {
-			fmt.Printf("There was an error: %s", err)
+			fmt.Printf("Error running finder: %s", err.Error())
 			os.Exit(1)
 		}
+		fmt.Println("Complete. TODO: Output results.")
 	},
 }
 

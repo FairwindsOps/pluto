@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"k8s.io/klog"
+
+	"github.com/fairwindsops/api-version-finder/pkg/versions"
 )
 
 // App is the finder application
@@ -20,22 +22,7 @@ type App struct {
 // File is a file that has an apiVersion in it
 type File struct {
 	Name       string
-	APIVersion *APIVersion
-}
-
-// APIVersion is a file that has an apiVersion in it
-type APIVersion struct {
-	// Name is the name of the api version
-	Name string
-	// Deprecated is a boolean that indicates if the apiVersion is deprecated
-	Deprecated bool
-}
-
-// APIVersionList is a map of apiVersions and if they are deprecated or not.
-// TODO: Find a better way to generate this.
-var APIVersionList = []APIVersion{
-	{"extensions/v1beta1", true},
-	{"apps/v1", false},
+	APIVersion *versions.APIVersion
 }
 
 // NewFinder returns a new struct with config portions complete.
@@ -129,8 +116,8 @@ func checkForAPIVersion(file string) (*File, error) {
 	return nil, nil
 }
 
-func lineContainsVersion(line string) *APIVersion {
-	for _, version := range APIVersionList {
+func lineContainsVersion(line string) *versions.APIVersion {
+	for _, version := range versions.APIVersionList {
 		if strings.Contains(line, version.Name) {
 			return &version
 		}

@@ -8,7 +8,7 @@ import (
 
 	"k8s.io/klog"
 
-	"github.com/fairwindsops/api-version-finder/pkg/versions"
+	"github.com/fairwindsops/api-version-finder/pkg/api"
 )
 
 // App is the finder application
@@ -21,7 +21,7 @@ type App struct {
 // File is a file that has an apiVersion in it
 type File struct {
 	Name       string
-	APIVersion *versions.APIVersion
+	APIVersion *api.Version
 }
 
 // NewFinder returns a new struct with config portions complete.
@@ -100,7 +100,7 @@ func checkForAPIVersion(file string) (*File, error) {
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		version := versions.StringContainsVersion(scanner.Text())
+		version := api.StringContainsVersion(scanner.Text())
 		if version != nil {
 			apiFile := &File{
 				Name:       file,

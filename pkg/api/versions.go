@@ -12,14 +12,14 @@ type Version struct {
 
 // VersionList is a map of apiVersions and if they are deprecated or not.
 // TODO: Find a better way to generate this.
-var VersionList = []APIVersion{
+var VersionList = []Version{
 	{"extensions/v1beta1", true},
 	{"apps/v1", false},
 }
 
 // StringContainsVersion returns an api version if it is in the string
-func StringContainsVersion(line string) *APIVersion {
-	for _, version := range APIVersionList {
+func StringContainsVersion(line string) *Version {
+	for _, version := range VersionList {
 		if strings.Contains(line, version.Name) {
 			return &version
 		}

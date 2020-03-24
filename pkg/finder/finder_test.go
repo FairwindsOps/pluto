@@ -1,0 +1,223 @@
+// Copyright 2020 Fairwinds
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License
+
+package finder
+
+import (
+	"os"
+	"testing"
+
+	"github.com/fairwindsops/api-version-finder/pkg/api"
+	"github.com/stretchr/testify/assert"
+)
+
+var testPath = "testdata"
+
+var deploymentAppsV1Yaml = "testdata/deployment-apps-v1.yaml"
+var deploymentAppsV1YamlFile = &File{
+	Name: deploymentAppsV1Yaml,
+	APIVersion: &api.Version{
+		Name:       "apps/v1",
+		Kind:       "Deployment",
+		Deprecated: false,
+	},
+}
+
+var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
+var deploymentExtensionsV1YamlFile = &File{
+	Name: deploymentExtensionsV1Yaml,
+	APIVersion: &api.Version{
+		Name:       "extensions/v1beta1",
+		Kind:       "Deployment",
+		Deprecated: true,
+	},
+}
+
+var deploymentExtensionsV1JSON = "testdata/deployment-extensions-v1beta1.json"
+var deploymentExtensionsV1JSONFile = &File{
+	Name: deploymentExtensionsV1JSON,
+	APIVersion: &api.Version{
+		Name:       "extensions/v1beta1",
+		Kind:       "Deployment",
+		Deprecated: true,
+	},
+}
+
+var testFiles = []string{
+	deploymentAppsV1Yaml,
+	deploymentExtensionsV1JSON,
+	deploymentExtensionsV1Yaml,
+	"testdata/other.txt",
+}
+
+var testOutput = []*File{
+	deploymentAppsV1YamlFile,
+	deploymentExtensionsV1JSONFile,
+	deploymentExtensionsV1YamlFile,
+}
+
+func TestNewFinder(t *testing.T) {
+
+	wd, _ := os.Getwd()
+	tests := []struct {
+		name string
+		path string
+		want *Dir
+	}{
+		{
+			name: "basic",
+			path: testPath,
+			want: &Dir{RootPath: testPath},
+		},
+		{
+			// This is a bit silly, but it does test the return of the function.
+			name: "empty",
+			path: "",
+			want: &Dir{RootPath: wd},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewFinder(tt.path)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestDir_listFiles(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		wantErr   bool
+		fileList  []string
+		directory string
+	}{
+		{
+			name:      "pass",
+			wantErr:   false,
+			fileList:  testFiles,
+			directory: testPath,
+		},
+		{
+			name:      "fail",
+			wantErr:   true,
+			fileList:  []string{},
+			directory: "foo",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := NewFinder(tt.directory)
+			err := dir.listFiles()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, tt.fileList, dir.FileList)
+			}
+		})
+	}
+}
+
+func Test_checkForAPIVersion(t *testing.T) {
+	tests := []struct {
+		name    string
+		file    string
+		want    *File
+		wantErr bool
+	}{
+		{
+			name:    "deployments extensions/v1beta1",
+			file:    deploymentAppsV1Yaml,
+			wantErr: false,
+			want:    deploymentAppsV1YamlFile,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkForAPIVersion(tt.file)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, tt.want, got)
+			}
+		})
+	}
+}
+
+func TestDir_scanFiles(t *testing.T) {
+
+	tests := []struct {
+		name     string
+		wantErr  bool
+		fileList []string
+		want     []*File
+	}{
+		{
+			name:     "pass",
+			wantErr:  false,
+			fileList: []string{deploymentAppsV1Yaml},
+			want:     []*File{deploymentAppsV1YamlFile},
+		},
+	}
+	dir := &Dir{
+		RootPath: testPath,
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir.FileList = tt.fileList
+			err := dir.scanFiles()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, tt.fileList, dir.FileList)
+				assert.EqualValues(t, tt.want, dir.APIFiles)
+			}
+		})
+	}
+}
+
+func TestDir_FindVersions(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		wantErr bool
+		path    string
+		want    []*File
+	}{
+		{
+			name:    "pass",
+			wantErr: false,
+			path:    testPath,
+			want:    testOutput,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := &Dir{
+				RootPath: tt.path,
+			}
+			err := dir.FindVersions()
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, tt.want, dir.APIFiles)
+			}
+		})
+	}
+}

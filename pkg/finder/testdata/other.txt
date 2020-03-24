@@ -1,0 +1,3 @@
+This is a dummy file.
+There shouldn't be anything to get here.
+extensions/v1beta1

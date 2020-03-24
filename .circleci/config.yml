@@ -1,0 +1,88 @@
+version: 2.1
+
+orbs:
+  rok8s-scripts: fairwinds/rok8s-scripts@11
+
+executors:
+  golang-exec:
+    docker:
+      - image: circleci/golang:1.14-stretch
+
+references:
+  install_goreleaser: &install_goreleaser
+    run:
+      name: Install GoReleaser
+      command: |
+        curl -fsSLo goreleaser.deb https://github.com/goreleaser/goreleaser/releases/download/v0.94.0/goreleaser_amd64.deb
+        echo "8dbad6683d6fc9367e637e6eed8e01a0d63c9660  goreleaser.deb" | sha1sum -c
+        sudo dpkg -i goreleaser.deb
+        rm goreleaser.deb
+  e2e_config: &e2e_config
+    command_runner_image: quay.io/reactiveops/ci-images:v11-stretch
+    executor: golang-exec
+    pre_script: e2e/pre.sh
+    store-test-results: /tmp/test-results
+    script: e2e/test.sh
+    requires:
+      - test
+    filters:
+      branches:
+        only: /.*/
+      tags:
+        ignore: /.*/
+
+jobs:
+  test:
+    working_directory: /go/src/github.com/fairwindsops/api-version-finder
+
+    docker:
+      - image: circleci/golang:1.14
+        environment:
+          GO111MODULE: "on"
+    steps:
+      - checkout
+      - run: go mod download && go mod verify
+      - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+      - run: bash <(curl -s https://codecov.io/bash)
+
+  release:
+    working_directory: /go/src/github.com/fairwindsops/api-version-finder
+    docker:
+      - image: circleci/golang:1.13
+        environment:
+          GO111MODULE: "on"
+    steps:
+      - checkout
+      - run: go mod download && go mod verify
+      - *install_goreleaser
+      - run: goreleaser
+
+workflows:
+  version: 2
+  test-and-release:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: /.*/
+      #- rok8s-scripts/kubernetes_e2e_tests:
+      #    name: e2e test kube 1.15.7
+      #    kind_node_image: >-
+      #      "kindest/node:v1.15.7@sha256:e2df133f80ef633c53c0200114fce2ed5e1f6947477dbc83261a6a921169488d"
+      #    <<: *e2e_config
+      #- rok8s-scripts/kubernetes_e2e_tests:
+      #    name: e2e test kube 1.16.4
+      #    kind_node_image: >-
+      #      "kindest/node:v1.16.4@sha256:b91a2c2317a000f3a783489dfb755064177dbc3a0b2f4147d50f04825d016f55"
+      #    <<: *e2e_config
+      #- rok8s-scripts/kubernetes_e2e_tests:
+      #    name: e2e test kube 1.17.0
+      #    kind_node_image: >-
+      #      "kindest/node:v1.17.0@sha256:9512edae126da271b66b990b6fff768fbb7cd786c7d39e86bdf55906352fdf62"
+      #    <<: *e2e_config
+      - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/

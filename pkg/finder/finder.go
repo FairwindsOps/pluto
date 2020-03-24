@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"k8s.io/klog"
 
@@ -101,7 +100,7 @@ func checkForAPIVersion(file string) (*File, error) {
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		version := lineContainsVersion(scanner.Text())
+		version := versions.StringContainsVersion(scanner.Text())
 		if version != nil {
 			apiFile := &File{
 				Name:       file,
@@ -114,13 +113,4 @@ func checkForAPIVersion(file string) (*File, error) {
 		return nil, err
 	}
 	return nil, nil
-}
-
-func lineContainsVersion(line string) *versions.APIVersion {
-	for _, version := range versions.APIVersionList {
-		if strings.Contains(line, version.Name) {
-			return &version
-		}
-	}
-	return nil
 }

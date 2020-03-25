@@ -1,0 +1,62 @@
+{
+  "apiVersion": "extensions/v1beta1",
+  "kind": "Deployment",
+  "metadata": {
+    "labels": {
+      "app": "utilities"
+    },
+    "name": "utilities"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "utilities"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "utilities"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "args": [
+              "while true; do sleep 30; done;"
+            ],
+            "command": [
+              "/bin/bash",
+              "-c",
+              "--"
+            ],
+            "image": "quay.io/sudermanjr/utilities:latest",
+            "name": "utilities",
+            "resources": {
+              "limits": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "requests": {
+                "cpu": "30m",
+                "memory": "64Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "readOnlyRootFilesystem": true,
+              "runAsNonRoot": true,
+              "runAsUser": 10324
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/FairwindsOps/api-version-finder.svg?style=svg)](https://circleci.com/gh/FairwindsOps/api-version-finder)[![codecov](https://codecov.io/gh/FairwindsOps/api-version-finder/branch/master/graph/badge.svg?token=A23F79JTNA)](https://codecov.io/gh/FairwindsOps/api-version-finder)
+
 # api-version-finder
 
 This is a very simple utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.

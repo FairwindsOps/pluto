@@ -2,6 +2,8 @@
 
 This is a very simple utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.
 
+**Want to learn more?** Reach out on [the Slack channel](https://fairwindscommunity.slack.com/messages/goldilocks), send an email to `opensource@fairwinds.com`, or join us for [office hours on Zoom](https://fairwindscommunity.slack.com/messages/office-hours)
+
 ## QuickStart
 
 Install the binary from our [releases](https://github.com/FairwindsOps/api-version-finder/releases) page.

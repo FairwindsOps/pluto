@@ -27,7 +27,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 
-	"github.com/fairwindsops/api-version-finder/pkg/api"
+	"github.com/fairwindsops/pluto/pkg/api"
 )
 
 type Helm struct {

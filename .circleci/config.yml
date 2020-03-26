@@ -33,7 +33,7 @@ references:
 
 jobs:
   test:
-    working_directory: /go/src/github.com/fairwindsops/api-version-finder
+    working_directory: /go/src/github.com/fairwindsops/pluto
 
     docker:
       - image: circleci/golang:1.14
@@ -46,7 +46,7 @@ jobs:
       - run: bash <(curl -s https://codecov.io/bash)
 
   release:
-    working_directory: /go/src/github.com/fairwindsops/api-version-finder
+    working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
       - image: circleci/golang:1.13
         environment:

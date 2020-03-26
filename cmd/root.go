@@ -23,9 +23,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/fairwindsops/api-version-finder/pkg/api"
-	"github.com/fairwindsops/api-version-finder/pkg/finder"
-	"github.com/fairwindsops/api-version-finder/pkg/helm"
+	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/pkg/finder"
+	"github.com/fairwindsops/pluto/pkg/helm"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -61,8 +61,8 @@ type Checker interface {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "api-version-finder",
-	Short: "api-version-finder",
+	Use:   "pluto",
+	Short: "pluto",
 	Long:  `A tool to detect Kubernetes apiVersions`,
 	Run: func(cmd *cobra.Command, args []string) {
 		klog.Error("You must specify a sub-command.")

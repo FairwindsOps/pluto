@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/fairwindsops/api-version-finder/cmd"
+	"github.com/fairwindsops/pluto/cmd"
 )
 
 var (

@@ -3,7 +3,7 @@ GOCMD=GO111MODULE=on go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
-BINARY_NAME=api-version-finder
+BINARY_NAME=pluto
 COMMIT := $(shell git rev-parse HEAD)
 VERSION := "local-dev"
 

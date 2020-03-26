@@ -48,7 +48,7 @@ func init() {
 	detectFilesCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 
 	rootCmd.AddCommand(detectHelmCmd)
-	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "2", "Helm version in current cluster (2|3)")
+	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
 	detectHelmCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 
 	klog.InitFlags(nil)

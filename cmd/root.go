@@ -15,13 +15,9 @@
 package cmd
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
-	"text/tabwriter"
-
-	"gopkg.in/yaml.v3"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
@@ -91,7 +87,7 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		err = parseOutput(dir.Outputs)
+		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
@@ -110,7 +106,7 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-		err = parseOutput(h.Outputs)
+		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
@@ -126,51 +122,4 @@ func Execute(VERSION string, COMMIT string) {
 		klog.Error(err)
 		os.Exit(1)
 	}
-}
-
-func parseOutput(outputs []*api.Output) error {
-	var err error
-	var outData []byte
-	switch outputFormat {
-	case "tabular":
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 0, 8, 2, ' ', 0)
-		_, err = fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
-		if err != nil {
-			return err
-		}
-		for _, output := range outputs {
-			// Don't show non-deprecated apis if we have them disabled
-			if !showNonDeprecated {
-				if !output.APIVersion.Deprecated {
-					continue
-				}
-			}
-			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.APIVersion.Deprecated)
-			version := output.APIVersion.Name
-			fileName := output.Name
-
-			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
-			if err != nil {
-				return err
-			}
-		}
-		err = w.Flush()
-		if err != nil {
-			return err
-		}
-	case "json":
-		outData, err = json.Marshal(outputs)
-		if err != nil {
-			return err
-		}
-	case "yaml":
-		outData, err = yaml.Marshal(outputs)
-		if err != nil {
-			return err
-		}
-	}
-	fmt.Println(string(outData))
-	return nil
 }

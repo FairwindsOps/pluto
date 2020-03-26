@@ -598,6 +598,7 @@ modernc.org/golex v1.0.0/go.mod h1:b/QX9oBD/LhixY6NDh+IdGv17hgB+51fET1i2kPSmvk=
 modernc.org/mathutil v1.0.0/go.mod h1:wU0vUrJsVWBZ4P6e7xtFJEhFSNsfRLJ8H458uRjg03k=
 modernc.org/strutil v1.0.0/go.mod h1:lstksw84oURvj9y3tn8lGvRxyRC1S2+g5uuIzNfIOBs=
 modernc.org/xc v1.0.0/go.mod h1:mRNCo0bvLjGhHO9WsyuKVU4q0ceiDDDoEeWDJHrNx8I=
+sigs.k8s.io/controller-runtime v0.2.0-alpha.0 h1:WM6lu3SNU4SsMlDYvjJyLsG9nW3ffb/4/FpE2ZGrtnc=
 sigs.k8s.io/controller-runtime v0.2.0-alpha.0/go.mod h1:HFAYoOh6XMV+jKF1UjFwrknPbowfyHEHHRdJMf2jMX8=
 sigs.k8s.io/controller-runtime v0.2.0-alpha.1/go.mod h1:TSH2R0nSz4WAlUUlNnOFcOR/VUhfwBLlmtq2X6AiQCA=
 sigs.k8s.io/controller-runtime v0.2.0-beta.0/go.mod h1:TSH2R0nSz4WAlUUlNnOFcOR/VUhfwBLlmtq2X6AiQCA=

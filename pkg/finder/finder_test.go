@@ -25,33 +25,33 @@ import (
 var testPath = "testdata"
 
 var deploymentAppsV1Yaml = "testdata/deployment-apps-v1.yaml"
-var deploymentAppsV1YamlFile = &File{
-	Name: deploymentAppsV1Yaml,
+var deploymentAppsV1YamlFile = []*api.Output{{
+	Name: "utilities",
 	APIVersion: &api.Version{
 		Name:       "apps/v1",
 		Kind:       "Deployment",
 		Deprecated: false,
-	},
+	}},
 }
 
 var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
-var deploymentExtensionsV1YamlFile = &File{
-	Name: deploymentExtensionsV1Yaml,
+var deploymentExtensionsV1YamlFile = []*api.Output{{
+	Name: "utilities",
 	APIVersion: &api.Version{
 		Name:       "extensions/v1beta1",
 		Kind:       "Deployment",
 		Deprecated: true,
-	},
+	}},
 }
 
 var deploymentExtensionsV1JSON = "testdata/deployment-extensions-v1beta1.json"
-var deploymentExtensionsV1JSONFile = &File{
-	Name: deploymentExtensionsV1JSON,
+var deploymentExtensionsV1JSONFile = []*api.Output{{
+	Name: "utilities",
 	APIVersion: &api.Version{
 		Name:       "extensions/v1beta1",
 		Kind:       "Deployment",
 		Deprecated: true,
-	},
+	}},
 }
 
 var testFiles = []string{
@@ -61,10 +61,10 @@ var testFiles = []string{
 	"testdata/other.txt",
 }
 
-var testOutput = []*File{
-	deploymentAppsV1YamlFile,
-	deploymentExtensionsV1JSONFile,
-	deploymentExtensionsV1YamlFile,
+var testOutput = []*api.Output{
+	deploymentAppsV1YamlFile[0],
+	deploymentExtensionsV1JSONFile[0],
+	deploymentExtensionsV1YamlFile[0],
 }
 
 func TestNewFinder(t *testing.T) {
@@ -134,7 +134,7 @@ func Test_checkForAPIVersion(t *testing.T) {
 	tests := []struct {
 		name    string
 		file    string
-		want    *File
+		want    []*api.Output
 		wantErr bool
 	}{
 		{
@@ -163,13 +163,13 @@ func TestDir_scanFiles(t *testing.T) {
 		name     string
 		wantErr  bool
 		fileList []string
-		want     []*File
+		want     []*api.Output
 	}{
 		{
 			name:     "pass",
 			wantErr:  false,
 			fileList: []string{deploymentAppsV1Yaml},
-			want:     []*File{deploymentAppsV1YamlFile},
+			want:     deploymentAppsV1YamlFile,
 		},
 	}
 	dir := &Dir{
@@ -184,7 +184,7 @@ func TestDir_scanFiles(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.EqualValues(t, tt.fileList, dir.FileList)
-				assert.EqualValues(t, tt.want, dir.APIFiles)
+				assert.EqualValues(t, tt.want, dir.Outputs)
 			}
 		})
 	}
@@ -196,7 +196,7 @@ func TestDir_FindVersions(t *testing.T) {
 		name    string
 		wantErr bool
 		path    string
-		want    []*File
+		want    []*api.Output
 	}{
 		{
 			name:    "pass",
@@ -216,7 +216,7 @@ func TestDir_FindVersions(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.EqualValues(t, tt.want, dir.APIFiles)
+				assert.EqualValues(t, tt.want, dir.Outputs)
 			}
 		})
 	}

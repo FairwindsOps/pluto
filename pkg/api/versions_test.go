@@ -25,13 +25,13 @@ func Test_jsonToStub(t *testing.T) {
 	tests := []struct {
 		name    string
 		data    []byte
-		want    *Stub
+		want    []*Stub
 		wantErr bool
 	}{
 		{
 			name:    "json not stub",
 			data:    []byte("{}"),
-			want:    &Stub{},
+			want:    []*Stub{&Stub{}},
 			wantErr: false,
 		},
 		{
@@ -43,7 +43,7 @@ func Test_jsonToStub(t *testing.T) {
 		{
 			name:    "json is stub",
 			data:    []byte(`{"kind": "foo", "apiVersion": "bar"}`),
-			want:    &Stub{Kind: "foo", APIVersion: "bar"},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
 			wantErr: false,
 		},
 	}
@@ -65,13 +65,13 @@ func Test_yamlToStub(t *testing.T) {
 	tests := []struct {
 		name    string
 		data    []byte
-		want    *Stub
+		want    []*Stub
 		wantErr bool
 	}{
 		{
 			name:    "yaml not stub",
 			data:    []byte("foo: bar"),
-			want:    &Stub{},
+			want:    []*Stub{{}},
 			wantErr: false,
 		},
 		{
@@ -83,7 +83,7 @@ func Test_yamlToStub(t *testing.T) {
 		{
 			name:    "yaml is stub",
 			data:    []byte("kind: foo\napiVersion: bar"),
-			want:    &Stub{Kind: "foo", APIVersion: "bar"},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
 			wantErr: false,
 		},
 	}
@@ -105,13 +105,13 @@ func Test_containsStub(t *testing.T) {
 	tests := []struct {
 		name    string
 		data    []byte
-		want    *Stub
+		want    []*Stub
 		wantErr bool
 	}{
 		{
 			name:    "yaml not stub",
 			data:    []byte("foo: bar"),
-			want:    &Stub{},
+			want:    []*Stub{{}},
 			wantErr: false,
 		},
 		{
@@ -123,31 +123,31 @@ func Test_containsStub(t *testing.T) {
 		{
 			name:    "yaml is stub",
 			data:    []byte("kind: foo\napiVersion: bar"),
-			want:    &Stub{Kind: "foo", APIVersion: "bar"},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
 			wantErr: false,
 		},
 		{
 			name:    "json not stub",
 			data:    []byte("{}"),
-			want:    &Stub{},
+			want:    []*Stub{{}},
 			wantErr: false,
 		},
 		{
 			name:    "empty string",
 			data:    []byte(""),
-			want:    &Stub{},
+			want:    nil,
 			wantErr: false,
 		},
 		{
 			name:    "no data",
 			data:    []byte{},
-			want:    &Stub{},
+			want:    nil,
 			wantErr: false,
 		},
 		{
 			name:    "json is stub",
 			data:    []byte(`{"kind": "foo", "apiVersion": "bar"}`),
-			want:    &Stub{Kind: "foo", APIVersion: "bar"},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
 			wantErr: false,
 		},
 	}
@@ -169,14 +169,14 @@ func Test_IsVersioned(t *testing.T) {
 	tests := []struct {
 		name    string
 		data    []byte
-		want    *Version
+		want    []*Output
 		wantErr bool
 	}{
 		{
 			name:    "yaml no version",
 			data:    []byte("foo: bar"),
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "not json or yaml",
@@ -187,14 +187,14 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "yaml has version",
 			data:    []byte("kind: Deployment\napiVersion: apps/v1"),
-			want:    &Version{Name: "apps/v1", Kind: "Deployment", Deprecated: false},
+			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", Deprecated: false}}},
 			wantErr: false,
 		},
 		{
 			name:    "json no version",
 			data:    []byte("{}"),
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "empty string",
@@ -211,7 +211,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
-			want:    &Version{Kind: "Deployment", Name: "extensions/v1beta1", Deprecated: true},
+			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", Deprecated: true}}},
 			wantErr: false,
 		},
 	}

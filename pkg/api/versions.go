@@ -15,8 +15,10 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog"
@@ -24,8 +26,19 @@ import (
 
 // Stub is a stub of a Kubernetes manifest that has just the name and apiVersion
 type Stub struct {
-	Kind       string `json:"kind" yaml:"kind"`
-	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
+	Kind       string   `json:"kind" yaml:"kind"`
+	APIVersion string   `json:"apiVersion" yaml:"apiVersion"`
+	Metadata   StubMeta `json:"metadata" yaml:"metadata"`
+}
+
+type StubMeta struct {
+	Name string `json:"name" yaml:"name"`
+}
+
+// Output is a thing that has an apiVersion in it
+type Output struct {
+	Name       string   `json:"file,omitempty" yaml:"file,omitempty"`
+	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
 }
 
 // Version is an apiVersion and a flag for deprecation
@@ -42,7 +55,7 @@ type Version struct {
 // TODO: Find a better way to generate this.
 // Currently using the list for 1.16 from here: https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/
 var VersionList = []Version{
-	// Depoyments
+	// Deployments
 	{"apps/v1", "Deployment", false},
 	{"extensions/v1beta1", "Deployment", true},
 	{"apps/v1beta2", "Deployment", true},
@@ -84,22 +97,31 @@ func checkVersion(stub *Stub) *Version {
 // IsVersioned returns a version if the file data sent
 // can be unmarshaled into a stub and matches a known
 // version in the VersionList
-func IsVersioned(data []byte) (*Version, error) {
-	stub, err := containsStub(data)
+func IsVersioned(data []byte) ([]*Output, error) {
+	var outputs []*Output
+	stubs, err := containsStub(data)
 	if err != nil {
 		return nil, err
 	}
-	if stub != nil {
-		version := checkVersion(stub)
-		if version != nil {
-			return version, nil
+	if len(stubs) > 0 {
+		for _, stub := range stubs {
+			var output Output
+			version := checkVersion(stub)
+			if version != nil {
+				output.Name = stub.Metadata.Name
+				output.APIVersion = version
+			} else {
+				continue
+			}
+			outputs = append(outputs, &output)
 		}
+		return outputs, nil
 	}
 	return nil, fmt.Errorf("no version found in data")
 }
 
 // containsStub checks to see if a []byte has a stub in it
-func containsStub(data []byte) (*Stub, error) {
+func containsStub(data []byte) ([]*Stub, error) {
 	klog.V(10).Infof("\n%s", string(data))
 	stub, err := jsonToStub(data)
 	if err != nil {
@@ -113,23 +135,34 @@ func containsStub(data []byte) (*Stub, error) {
 	} else {
 		return stub, nil
 	}
-	return nil, fmt.Errorf("no matches for file to stub")
+	return nil, fmt.Errorf("no matches for stub, error: %v", err)
 }
 
-func jsonToStub(data []byte) (*Stub, error) {
+func jsonToStub(data []byte) ([]*Stub, error) {
+	var stubs []*Stub
 	stub := &Stub{}
 	err := json.Unmarshal(data, stub)
 	if err != nil {
 		return nil, err
 	}
-	return stub, nil
+	// sort of hacky just to get us a slice. json parse will always return a single element
+	stubs = append(stubs, stub)
+	return stubs, nil
 }
 
-func yamlToStub(data []byte) (*Stub, error) {
-	stub := &Stub{}
-	err := yaml.Unmarshal(data, stub)
-	if err != nil {
-		return nil, err
+func yamlToStub(data []byte) ([]*Stub, error) {
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	var stubs []*Stub
+	for {
+		stub := &Stub{}
+		err := decoder.Decode(stub)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return stubs, err
+		}
+		stubs = append(stubs, stub)
 	}
-	return stub, nil
+	return stubs, nil
 }

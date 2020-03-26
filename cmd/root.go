@@ -136,7 +136,9 @@ func parseOutput(outputs []*api.Output) error {
 		w := new(tabwriter.Writer)
 		w.Init(os.Stdout, 0, 8, 2, ' ', 0)
 		_, err = fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
-
+		if err != nil {
+			return err
+		}
 		for _, output := range outputs {
 			// Don't show non-deprecated apis if we have them disabled
 			if !showNonDeprecated {
@@ -150,15 +152,24 @@ func parseOutput(outputs []*api.Output) error {
 			fileName := output.Name
 
 			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
+			if err != nil {
+				return err
+			}
 		}
 		err = w.Flush()
+		if err != nil {
+			return err
+		}
 	case "json":
 		outData, err = json.Marshal(outputs)
+		if err != nil {
+			return err
+		}
 	case "yaml":
 		outData, err = yaml.Marshal(outputs)
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 	fmt.Println(string(outData))
 	return nil

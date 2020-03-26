@@ -103,7 +103,6 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Running helm check: version", helmVersion)
 		h := helm.NewHelm(helmVersion)
 		err := h.FindVersions()
 		if err != nil {

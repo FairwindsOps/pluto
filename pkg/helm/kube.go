@@ -15,16 +15,16 @@
 package helm
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog"
-
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
 type Kube struct {
-	Client    kubernetes.Interface
+	Client kubernetes.Interface
 }
 
 var kubeClient *Kube
@@ -45,11 +45,13 @@ func getConfigInstance() *Kube {
 func getKubeClient() kubernetes.Interface {
 	kubeConf, err := config.GetConfig()
 	if err != nil {
-		klog.Fatalf("Error getting kubeconfig: %v", err)
+		fmt.Println("Error getting kubeconfig:", err)
+		os.Exit(1)
 	}
 	clientset, err := kubernetes.NewForConfig(kubeConf)
 	if err != nil {
-		klog.Fatalf("Error creating kubernetes client: %v", err)
+		fmt.Println("Error creating kubernetes client:", err)
+		os.Exit(1)
 	}
 	return clientset
 }

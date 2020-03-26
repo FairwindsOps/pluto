@@ -82,7 +82,7 @@ var detectFilesCmd = &cobra.Command{
 		dir := finder.NewFinder(directory)
 		err := dir.FindVersions()
 		if err != nil {
-			fmt.Printf("Error running finder: %s\n", err.Error())
+			fmt.Println("Error running finder:", err)
 			os.Exit(1)
 		}
 
@@ -93,7 +93,8 @@ var detectFilesCmd = &cobra.Command{
 
 		err = parseOutput(dir.Outputs)
 		if err != nil {
-			klog.Errorf("Error Parsing Output: %v", err)
+			fmt.Println("Error Parsing Output:", err)
+			os.Exit(1)
 		}
 	},
 }
@@ -106,12 +107,13 @@ var detectHelmCmd = &cobra.Command{
 		h := helm.NewHelm(helmVersion)
 		err := h.FindVersions()
 		if err != nil {
-			fmt.Printf("Error running helm-detect: %s\n", err.Error()"
+			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
 		err = parseOutput(h.Outputs)
 		if err != nil {
-			klog.Errorf("Error Parsing Output: %v", err)
+			fmt.Println("Error Parsing Output:", err)
+			os.Exit(1)
 		}
 	},
 }

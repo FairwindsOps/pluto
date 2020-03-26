@@ -106,7 +106,8 @@ var detectHelmCmd = &cobra.Command{
 		h := helm.NewHelm(helmVersion)
 		err := h.FindVersions()
 		if err != nil {
-			klog.Fatalf("ERROR: %v", err)
+			fmt.Printf("Error running helm-detect: %s\n", err.Error()"
+			os.Exit(1)
 		}
 		err = parseOutput(h.Outputs)
 		if err != nil {

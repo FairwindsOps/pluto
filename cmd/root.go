@@ -17,6 +17,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/fairwindsops/pluto/pkg/api"
@@ -39,19 +40,22 @@ var (
 
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
+	rootCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
-	detectFilesCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
-	detectHelmCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+
+	rootCmd.AddCommand(detectCmd)
 
 	klog.InitFlags(nil)
 	flag.Parse()
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 }
 
+// Checker is an interface to find versions
 type Checker interface {
 	FindVersions() error
 }
@@ -114,6 +118,54 @@ var detectHelmCmd = &cobra.Command{
 	},
 }
 
+var detectCmd = &cobra.Command{
+	Use:   "detect [file to check or -]",
+	Short: "Checks a single file or stdin for deprecated apiVersions.",
+	Long:  `Detect deprecated apiVersion in a specific file or other input. Accepts multi-document yaml files and/or - for stdin. Useful for helm testing.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return fmt.Errorf("requires a file argument")
+		}
+		if isFileOrStdin(args[0]) {
+			return nil
+		}
+		return fmt.Errorf("invalid file specified: %s", args[0])
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		klog.V(3).Infof("arg0: %s", args[0])
+
+		if args[0] == "-" {
+			//stdin
+			fileData, err := ioutil.ReadAll(os.Stdin)
+			if err != nil {
+				fmt.Println("Error reading stdin:", err)
+				os.Exit(1)
+			}
+			output, err := api.IsVersioned(fileData)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+			if err != nil {
+				fmt.Println("Error parsing output:", err)
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+		output, err := finder.CheckForAPIVersion(args[0])
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			os.Exit(1)
+		}
+		err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+		if err != nil {
+			fmt.Println("Error parsing output:", err)
+			os.Exit(1)
+		}
+	},
+}
+
 // Execute the stuff
 func Execute(VERSION string, COMMIT string) {
 	version = VERSION
@@ -122,4 +174,15 @@ func Execute(VERSION string, COMMIT string) {
 		klog.Error(err)
 		os.Exit(1)
 	}
+}
+
+func isFileOrStdin(name string) bool {
+	if name == "-" {
+		return true
+	}
+	info, err := os.Stat(name)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

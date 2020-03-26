@@ -91,7 +91,7 @@ func (dir *Dir) listFiles() error {
 func (dir *Dir) scanFiles() error {
 	for _, file := range dir.FileList {
 		klog.V(8).Infof("processing file: %s", file)
-		apiFile, err := checkForAPIVersion(file)
+		apiFile, err := CheckForAPIVersion(file)
 		if err != nil {
 			klog.V(2).Infof("error scanning file %s: %s", file, err.Error())
 		}
@@ -102,10 +102,10 @@ func (dir *Dir) scanFiles() error {
 	return nil
 }
 
-// checkForAPIVersion checks a filename to see if
+// CheckForAPIVersion checks a filename to see if
 // it is an api-versioned Kubernetes object.
 // Returns the File object if it is.
-func checkForAPIVersion(file string) ([]*api.Output, error) {
+func CheckForAPIVersion(file string) ([]*api.Output, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err

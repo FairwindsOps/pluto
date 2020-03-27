@@ -48,7 +48,6 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 
 func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error) {
 	var usableOutputs []*Output
-
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 8, 2, ' ', 0)
 

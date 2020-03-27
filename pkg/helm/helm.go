@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"strconv"
 
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/klog"
 
@@ -35,6 +36,7 @@ type Helm struct {
 	CurrentReleases []*Release
 	Outputs         []*api.Output
 	Version         string
+	Kube            *kube
 }
 
 // Release is a single version of a chart release
@@ -47,18 +49,19 @@ type Release struct {
 func NewHelm(version string) *Helm {
 	return &Helm{
 		Version: version,
+		Kube:    getConfigInstance(),
 	}
 }
 
 // FindVersions is the primary method in the package. It ties together all the functionality
 func (h *Helm) FindVersions() error {
 	var err error
-	var k = getConfigInstance()
+
 	switch h.Version {
 	case "2":
-		err = h.getManifestsVersionTwo(k)
+		err = h.getManifestsVersionTwo()
 	case "3":
-		err = h.getManifestsVersionThree(k)
+		err = h.getManifestsVersionThree()
 	default:
 		err = fmt.Errorf("helm version either not specified or incorrect (use 2 or 3)")
 	}
@@ -67,28 +70,24 @@ func (h *Helm) FindVersions() error {
 }
 
 // getManifestsVersionTwo retrieves helm 2 manifests from ConfigMaps
-func (h *Helm) getManifestsVersionTwo(k *kube) error {
+func (h *Helm) getManifestsVersionTwo() error {
+	if h.Version != "2" {
+		return fmt.Errorf("helm 2 function called without helm 2 version set")
+	}
 	return fmt.Errorf("helm 2 check not implemented")
 }
 
 // getManifestsVersionThree retrieves helm 3 manifests from Secrets
-func (h *Helm) getManifestsVersionThree(k *kube) error {
-	secrets, err := k.Client.CoreV1().Secrets("").List(metav1.ListOptions{})
+func (h *Helm) getManifestsVersionThree() error {
+
+	secrets, err := h.getHelmSecrets()
 	if err != nil {
 		return err
 	}
-	var releases []*Release
-	for _, secret := range secrets.Items {
-		if secret.Type != "helm.sh/release.v1" {
-			continue
-		}
-		thisRelease, err := decodeReleaseSecret(string(secret.Data["release"]))
-		if err != nil {
-			klog.Error("Failed parsing secret release data for helm 3: ", err)
-			return err
-		}
-		thisRelease.Name = secret.Name
-		releases = append(releases, thisRelease)
+
+	releases, err := h.getReleases(secrets)
+	if err != nil {
+		return err
 	}
 	err = h.setCurrentReleases(releases)
 	if err != nil {
@@ -102,6 +101,38 @@ func (h *Helm) getManifestsVersionThree(k *kube) error {
 		h.Outputs = append(h.Outputs, outList...)
 	}
 	return nil
+}
+
+func (h *Helm) getReleases(secrets []*v1.Secret) ([]*Release, error) {
+	var releases []*Release
+	for _, secret := range secrets {
+		thisRelease, err := decodeReleaseSecret(string(secret.Data["release"]))
+		if err != nil {
+			return nil, err
+		}
+		thisRelease.Name = secret.Name
+		releases = append(releases, thisRelease)
+	}
+	return releases, nil
+}
+
+func (h *Helm) getHelmSecrets() ([]*v1.Secret, error) {
+	if h.Version != "3" {
+		return nil, fmt.Errorf("helm 3 function called without helm 3 version set")
+	}
+	secrets, err := h.Kube.Client.CoreV1().Secrets("").List(metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	helmSecrets := []*v1.Secret{}
+	for _, secret := range secrets.Items {
+		if secret.Type != "helm.sh/release.v1" {
+			klog.V(8).Infof("skipping secret %s because it is not a helm release", secret.ObjectMeta.Name)
+			continue
+		}
+		helmSecrets = append(helmSecrets, &secret)
+	}
+	return helmSecrets, nil
 }
 
 // setCurrentReleases parses all the releases we found and makes sure we only return the most recent

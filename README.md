@@ -1,6 +1,6 @@
-![CircleCI](https://img.shields.io/circleci/build/github/FairwindsOps/pluto) [![codecov](https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg?token=A23F79JTNA)](https://codecov.io/gh/FairwindsOps/pluto) [![Go Report Card](https://goreportcard.com/badge/github.com/FairwindsOps/pluto)](https://goreportcard.com/report/github.com/FairwindsOps/pluto) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/FairwindsOps/pluto)
+# Pluto
 
-# pluto
+![CircleCI](https://img.shields.io/circleci/build/github/FairwindsOps/pluto) [![codecov](https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg?token=A23F79JTNA)](https://codecov.io/gh/FairwindsOps/pluto) [![Go Report Card](https://goreportcard.com/badge/github.com/FairwindsOps/pluto)](https://goreportcard.com/report/github.com/FairwindsOps/pluto) ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/FairwindsOps/pluto)
 
 This is a very simple utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.
 

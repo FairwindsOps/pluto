@@ -17,43 +17,17 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	}
 	var err error
 	var outData []byte
-	var usableOutputs []*Output
 	switch outputFormat {
 	case "tabular":
-		if showNonDeprecated {
-			usableOutputs = outputs
-		} else {
-			for _, output := range outputs {
-				if output.APIVersion.Deprecated {
-					usableOutputs = append(usableOutputs, output)
-				}
-			}
-		}
-		if len(usableOutputs) == 0 {
-			fmt.Println("APIVersions were found, but none were deprecated. Try --show-non-deprecated.")
-			return nil
-		}
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 0, 8, 2, ' ', 0)
-		_, err = fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
+		t, err := tabOut(outputs, showNonDeprecated)
 		if err != nil {
 			return err
 		}
-		for _, output := range usableOutputs {
-			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.APIVersion.Deprecated)
-			version := output.APIVersion.Name
-			fileName := output.Name
-
-			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
-			if err != nil {
-				return err
-			}
-		}
-		err = w.Flush()
+		err = t.Flush()
 		if err != nil {
 			return err
 		}
+		return nil
 	case "json":
 		outData, err = json.Marshal(outputs)
 		if err != nil {
@@ -70,4 +44,43 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		fmt.Println("output format should be one of (json,yaml,tabular)")
 	}
 	return nil
+}
+
+func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error) {
+	var usableOutputs []*Output
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 8, 2, ' ', 0)
+
+	if showNonDeprecated {
+		usableOutputs = outputs
+	} else {
+		for _, output := range outputs {
+			if output.APIVersion.Deprecated {
+				usableOutputs = append(usableOutputs, output)
+			}
+		}
+	}
+	if len(usableOutputs) == 0 {
+		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-non-deprecated.")
+		if err != nil {
+			return nil, err
+		}
+		return w, nil
+	}
+	_, err := fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
+	if err != nil {
+		return nil, err
+	}
+	for _, output := range usableOutputs {
+		kind := output.APIVersion.Kind
+		deprecated := fmt.Sprintf("%t", output.APIVersion.Deprecated)
+		version := output.APIVersion.Name
+		fileName := output.Name
+
+		_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return w, nil
 }

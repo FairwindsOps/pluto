@@ -30,23 +30,27 @@ import (
 	"github.com/fairwindsops/pluto/pkg/api"
 )
 
+// Helm represents all current releases that we can find in the cluster
 type Helm struct {
 	CurrentReleases []*Release
 	Outputs         []*api.Output
 	Version         string
 }
 
+// Release is a single version of a chart release
 type Release struct {
 	Name     string `json:"metadata.name" yaml:"metadata.name"`
 	Manifest string `json:"manifest,omitempty"`
 }
 
+// NewHelm returns a basic helm struct with the version of helm requested
 func NewHelm(version string) *Helm {
 	return &Helm{
 		Version: version,
 	}
 }
 
+// FindVersions is the primary method in the package. It ties together all the functionality
 func (h *Helm) FindVersions() error {
 	var err error
 	var k = getConfigInstance()
@@ -63,12 +67,12 @@ func (h *Helm) FindVersions() error {
 }
 
 // getManifestsVersionTwo retrieves helm 2 manifests from ConfigMaps
-func (h *Helm) getManifestsVersionTwo(k *Kube) error {
+func (h *Helm) getManifestsVersionTwo(k *kube) error {
 	return fmt.Errorf("helm 2 check not implemented")
 }
 
 // getManifestsVersionThree retrieves helm 3 manifests from Secrets
-func (h *Helm) getManifestsVersionThree(k *Kube) error {
+func (h *Helm) getManifestsVersionThree(k *kube) error {
 	secrets, err := k.Client.CoreV1().Secrets("").List(metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -107,8 +111,11 @@ func (h *Helm) setCurrentReleases(allReleases []*Release) error {
 	regex := regexp.MustCompile(`^(sh\.helm\.release)\.(v[0-9]+)\.([\w\-]+)\.v([0-9]+)$`)
 	for _, release := range allReleases {
 		parts := regex.FindStringSubmatch(release.Name)
+		if len(parts) < 5 {
+			return fmt.Errorf("unexpected helm release name: %s", release.Name)
+		}
 		releaseName := parts[3]
-		thisVersion, err := strconv.Atoi(parts[4])
+		releaseVersion, err := strconv.Atoi(parts[4])
 		if err != nil {
 			return err
 		}
@@ -118,7 +125,7 @@ func (h *Helm) setCurrentReleases(allReleases []*Release) error {
 			if err != nil {
 				return err
 			}
-			if thisVersion > storedVersion {
+			if releaseVersion > storedVersion {
 				found[releaseName] = release
 			}
 		} else {
@@ -134,6 +141,9 @@ func (h *Helm) setCurrentReleases(allReleases []*Release) error {
 // This function is ripped straight out of the helm 3 codebase with slight modification
 // https://github.com/helm/helm/blob/193850a9e2c509acf1a499d98e8d23c12c134f11/pkg/storage/driver/util.go#L56-L84
 func decodeReleaseSecret(data string) (*Release, error) {
+	if len(data) < 1 {
+		return nil, fmt.Errorf("no secret data to decode")
+	}
 	var magicGzip = []byte{0x1f, 0x8b, 0x08}
 	var b64 = base64.StdEncoding
 	// base64 decode string
@@ -141,7 +151,9 @@ func decodeReleaseSecret(data string) (*Release, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if len(b) < 4 {
+		return nil, fmt.Errorf("not valid secret data")
+	}
 	// For backwards compatibility with releases that were stored before
 	// compression was introduced we skip decompression if the
 	// gzip magic header is not found

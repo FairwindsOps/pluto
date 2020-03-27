@@ -31,6 +31,7 @@ type Stub struct {
 	Metadata   StubMeta `json:"metadata" yaml:"metadata"`
 }
 
+// StubMeta will catch kube resource metadata
 type StubMeta struct {
 	Name string `json:"name" yaml:"name"`
 }
@@ -145,7 +146,6 @@ func jsonToStub(data []byte) ([]*Stub, error) {
 	if err != nil {
 		return nil, err
 	}
-	// sort of hacky just to get us a slice. json parse will always return a single element
 	stubs = append(stubs, stub)
 	return stubs, nil
 }

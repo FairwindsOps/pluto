@@ -1,0 +1,18 @@
+version: "2"
+name: "Basic Files"
+vars:
+  timeout: 60s
+  vpa-wait: 30
+testcases:
+- name: Apply Manifests
+  steps:
+  - script: kubectl apply -f 00_assets/
+- name: Rbac Lookup
+  steps:
+  - script: /pluto/pluto e2e-test
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemerr ShouldNotEqual "No RBAC Bindings found"
+- name: Cleanup
+  steps:
+  - script: kubectl delete -f 00_assets/

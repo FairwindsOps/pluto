@@ -49,7 +49,7 @@ var (
 	decodedRelease              = &Release{
 		Manifest: "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: utilities\n  labels:\n    app: utilities\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: utilities\n  template:\n    metadata:\n      labels:\n        app: utilities\n    spec:\n      containers:\n      - name: utilities\n        image: quay.io/sudermanjr/utilities:latest\n        # Just spin & wait forever\n        command: [ \"/bin/bash\", \"-c\", \"--\" ]\n        args: [ \"while true; do sleep 30; done;\" ]\n        securityContext:\n          readOnlyRootFilesystem: true\n          allowPrivilegeEscalation: false\n          runAsNonRoot: true\n          runAsUser: 10324\n          capabilities:\n            drop:\n              - ALL\n        resources:\n          requests:\n            cpu: 30m\n            memory: 64Mi\n          limits:\n            cpu: 100m\n            memory: 128Mi",
 	}
-	kubeSecret = &v1.Secret{
+	kubeSecret = v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "utilities",
 			Namespace: "test-namespace",
@@ -242,20 +242,20 @@ func TestHelm_getHelmSecrets(t *testing.T) {
 	tests := []struct {
 		name        string
 		helmVersion string
-		want        []*v1.Secret
+		want        []v1.Secret
 		mockSecrets []*v1.Secret
 		wantErr     bool
 	}{
 		{
 			name:        "basic",
 			helmVersion: "2",
-			want:        []*v1.Secret{},
+			want:        []v1.Secret{},
 			wantErr:     true,
 		},
 		{
 			name:        "empty",
 			helmVersion: "3",
-			want:        []*v1.Secret{&kubeSecretHelm},
+			want:        []v1.Secret{kubeSecretHelm},
 			mockSecrets: []*v1.Secret{&kubeSecretNonHelm, &kubeSecretHelm},
 			wantErr:     false,
 		},
@@ -289,25 +289,25 @@ func TestHelm_getHelmSecrets(t *testing.T) {
 func TestHelm_getReleases(t *testing.T) {
 	tests := []struct {
 		name    string
-		secrets []*v1.Secret
+		secrets []v1.Secret
 		want    []*Release
 		wantErr bool
 	}{
 		{
 			name:    "functional",
-			secrets: []*v1.Secret{kubeSecret},
+			secrets: []v1.Secret{kubeSecret},
 			want:    []*Release{&Release{Name: "utilities", Manifest: decodedRelease.Manifest}},
 			wantErr: false,
 		},
 		{
 			name:    "empty",
-			secrets: []*v1.Secret{},
+			secrets: []v1.Secret{},
 			want:    nil,
 			wantErr: false,
 		},
 		{
 			name: "error",
-			secrets: []*v1.Secret{&v1.Secret{
+			secrets: []v1.Secret{v1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "bad",
 				},

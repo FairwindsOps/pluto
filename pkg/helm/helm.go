@@ -26,7 +26,6 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/klog"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 )
@@ -103,7 +102,7 @@ func (h *Helm) getManifestsVersionThree() error {
 	return nil
 }
 
-func (h *Helm) getReleases(secrets []*v1.Secret) ([]*Release, error) {
+func (h *Helm) getReleases(secrets []v1.Secret) ([]*Release, error) {
 	var releases []*Release
 	for _, secret := range secrets {
 		thisRelease, err := decodeReleaseSecret(string(secret.Data["release"]))
@@ -116,7 +115,7 @@ func (h *Helm) getReleases(secrets []*v1.Secret) ([]*Release, error) {
 	return releases, nil
 }
 
-func (h *Helm) getHelmSecrets() ([]*v1.Secret, error) {
+func (h *Helm) getHelmSecrets() ([]v1.Secret, error) {
 	if h.Version != "3" {
 		return nil, fmt.Errorf("helm 3 function called without helm 3 version set")
 	}
@@ -124,13 +123,11 @@ func (h *Helm) getHelmSecrets() ([]*v1.Secret, error) {
 	if err != nil {
 		return nil, err
 	}
-	helmSecrets := []*v1.Secret{}
+	helmSecrets := []v1.Secret{}
 	for _, secret := range secrets.Items {
-		if secret.Type != "helm.sh/release.v1" {
-			klog.V(8).Infof("skipping secret %s because it is not a helm release", secret.ObjectMeta.Name)
-			continue
+		if secret.Type == "helm.sh/release.v1" {
+			helmSecrets = append(helmSecrets, secret)
 		}
-		helmSecrets = append(helmSecrets, &secret)
 	}
 	return helmSecrets, nil
 }

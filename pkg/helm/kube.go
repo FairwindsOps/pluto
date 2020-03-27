@@ -20,21 +20,23 @@ import (
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
+	// This is required to auth to various managed kube clusters (i.e. GKE)
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 
-type Kube struct {
+type kube struct {
 	Client kubernetes.Interface
 }
 
-var kubeClient *Kube
+var kubeClient *kube
 var once sync.Once
 
 // GetConfigInstance returns a Kubernetes interface based on the current configuration
-func getConfigInstance() *Kube {
+func getConfigInstance() *kube {
 	once.Do(func() {
 		if kubeClient == nil {
-			kubeClient = &Kube{
+			kubeClient = &kube{
 				Client: getKubeClient(),
 			}
 		}

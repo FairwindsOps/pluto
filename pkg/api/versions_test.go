@@ -31,7 +31,7 @@ func Test_jsonToStub(t *testing.T) {
 		{
 			name:    "json not stub",
 			data:    []byte("{}"),
-			want:    []*Stub{&Stub{}},
+			want:    []*Stub{{}},
 			wantErr: false,
 		},
 		{

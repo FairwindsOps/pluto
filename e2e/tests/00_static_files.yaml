@@ -3,7 +3,7 @@ name: "Static Code Files (including helm)"
 testcases:
 - name: static files show all
   steps:
-  - script: pluto detect-files -d 00_assets/ -A
+  - script: pluto detect-files -d assets/ -A
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
@@ -12,7 +12,7 @@ testcases:
 
 - name: static files
   steps:
-  - script: pluto detect-files -d 00_assets/
+  - script: pluto detect-files -d assets/
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
@@ -21,7 +21,7 @@ testcases:
 
 - name: helm template show all
   steps:
-  - script: helm template 00_assets/helmchartest | pluto detect -A -
+  - script: helm template assets/helmchartest | pluto detect -A -
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
@@ -30,7 +30,7 @@ testcases:
 
 - name: helm template
   steps:
-  - script: helm template 00_assets/helmchartest | pluto detect -
+  - script: helm template assets/helmchartest | pluto detect -
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"

@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ include "helmchartest.fullname" . }}
+  name: {{ include "helmchartest.fullname" . }}-v1beta1
   labels:
     {{- include "helmchartest.labels" . | nindent 4 }}
 spec:

@@ -143,7 +143,7 @@ var detectCmd = &cobra.Command{
 			}
 			output, err := api.IsVersioned(fileData)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("Error checking for versions:", err)
 				os.Exit(1)
 			}
 			err = api.DisplayOutput(output, outputFormat, showNonDeprecated)

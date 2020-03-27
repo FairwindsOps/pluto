@@ -59,15 +59,15 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		if err != nil {
 			return err
 		}
+		fmt.Println(string(outData))
 	case "yaml":
 		outData, err = yaml.Marshal(outputs)
 		if err != nil {
 			return err
 		}
+		fmt.Println(string(outData))
 	default:
 		fmt.Println("output format should be one of (json,yaml,tabular)")
 	}
-
-	fmt.Println(string(outData))
 	return nil
 }

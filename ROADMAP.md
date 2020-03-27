@@ -3,4 +3,4 @@
 Roadmap will mostly be tracked in issues and feature requests. We expect this project to remain fairly stable, since it is a single-purpose CLI tool. Planned features include:
 
 - Helm 2 support (maybe)
-- DeprecatedIn vs. purt Deprecated. Will support multiple versions of Kubernetes deprecations
+- DeprecatedIn vs. pure Deprecated. Will support multiple versions of Kubernetes deprecations

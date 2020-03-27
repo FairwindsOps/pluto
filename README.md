@@ -59,7 +59,7 @@ This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deploye
 
 ### Helm Chart Checking (local files)
 
-You can run `helm template <chart-dir> | pluto detect --show-non-deprecated -`
+You can run `helm template <chart-dir> | pluto detect --show-all -`
 
 This will output something like so:
 

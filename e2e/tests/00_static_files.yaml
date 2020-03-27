@@ -1,0 +1,38 @@
+version: "2"
+name: "Static Code Files (including helm)"
+testcases:
+- name: static files show all
+  steps:
+  - script: pluto detect-files -d assets/ -A
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        utilities"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         utilities"
+
+- name: static files
+  steps:
+  - script: pluto detect-files -d assets/
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        utilities"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         utilities"
+
+- name: helm template show all
+  steps:
+  - script: helm template assets/helmchartest | pluto detect -A -
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helmchartest"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helmchartest"
+
+- name: helm template
+  steps:
+  - script: helm template assets/helmchartest | pluto detect -
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helmchartest"
+    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helmchartest"

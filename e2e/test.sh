@@ -13,6 +13,8 @@ curl -LO https://github.com/ovh/venom/releases/download/v0.27.0/venom.linux-amd6
 mv venom.linux-amd64 /usr/local/bin/venom
 chmod +x /usr/local/bin/venom
 
+cp /pluto/pluto /usr/local/bin/pluto
+
 cd /pluto/e2e
 mkdir -p /tmp/test-results
 venom run tests/* --log debug --output-dir=/tmp/test-results --strict

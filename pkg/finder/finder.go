@@ -59,9 +59,9 @@ func (dir *Dir) FindVersions() error {
 		return err
 	}
 	if dir.Outputs != nil {
-		// for _, file := range dir.Outputs {
-		// 	klog.V(6).Infof("%t - %s - %s", file.APIVersion.Deprecated, file.APIVersion.Name, file.Name)
-		// }
+		for _, file := range dir.Outputs {
+			klog.V(6).Infof("%t - %s - %s", file.APIVersion.Deprecated, file.APIVersion.Name, file.Name)
+		}
 	}
 	return nil
 }

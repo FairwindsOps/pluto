@@ -6,9 +6,31 @@ This is a very simple utility to help users find deprecated Kubernetes apiVersio
 
 **Want to learn more?** Reach out on [the Slack channel](https://fairwindscommunity.slack.com/messages/pluto), send an email to `opensource@fairwinds.com`, or join us for [office hours on Zoom](https://fairwindscommunity.slack.com/messages/office-hours)
 
-## QuickStart
+## Purpose
+
+Kubernetes sometimes deprecates apiVersions. The most notable currently is the large number of deprecations that happen in the [1.16 relesae](https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/). This is fine, and it's a fairly easy thing to deal with. However, it can be difficult to find all the places where you might have used a version that will be deprecated in your next upgrade. You might think, "I'll just ask the api-server to tell me!", but this is fraught with danger. If you ask the api-server to give you `deployments.v1.apps`, and the deployment was deployed as `deployments.v1beta1.extensions`, the api-server will quite happily convert the api version and return a manifest with `apps/v1`. This is fairly well outlined in the discussion in [this issue](https://github.com/kubernetes/kubernetes/issues/58131#issuecomment-356823588).
+
+So, long story short, finding the places where you have deployed a deprecated apiVersion can be challenging. This is where `pluto` comes in. You can use pluto to check a few different places where you might have placed a deprecated version. The first is in your code, whether static manifests or a helm chart. The second place you can look is in the Helm releases stored in your cluster. Pluto makes it easy to do either of those things.
+
+## Installation
+
+### asdf
+
+We have an asdf plugin [here](https://github.com/FairwindsOps/asdf-pluto). You can install with:
+
+```
+asdf plugin-add pluto https://github.com/FairwindsOps/asdf-pluto.git
+asdf list-all pluto
+asdf install pluto <latest version>
+```
+
+### Binary
 
 Install the binary from our [releases](https://github.com/FairwindsOps/pluto/releases) page.
+
+## QuickStart
+
+First, follow the install instructions to install pluto.
 
 ### File Detection in a Directory
 

@@ -15,13 +15,10 @@
 package cmd
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
-	"text/tabwriter"
-
-	"gopkg.in/yaml.v3"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
@@ -43,19 +40,22 @@ var (
 
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
+	rootCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
-	detectFilesCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
-	detectHelmCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+
+	rootCmd.AddCommand(detectCmd)
 
 	klog.InitFlags(nil)
 	flag.Parse()
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 }
 
+// Checker is an interface to find versions
 type Checker interface {
 	FindVersions() error
 }
@@ -91,7 +91,7 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		err = parseOutput(dir.Outputs)
+		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
@@ -110,9 +110,57 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-		err = parseOutput(h.Outputs)
+		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
+			os.Exit(1)
+		}
+	},
+}
+
+var detectCmd = &cobra.Command{
+	Use:   "detect [file to check or -]",
+	Short: "Checks a single file or stdin for deprecated apiVersions.",
+	Long:  `Detect deprecated apiVersion in a specific file or other input. Accepts multi-document yaml files and/or - for stdin. Useful for helm testing.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return fmt.Errorf("requires a file argument")
+		}
+		if isFileOrStdin(args[0]) {
+			return nil
+		}
+		return fmt.Errorf("invalid file specified: %s", args[0])
+	},
+	Run: func(cmd *cobra.Command, args []string) {
+		klog.V(3).Infof("arg0: %s", args[0])
+
+		if args[0] == "-" {
+			//stdin
+			fileData, err := ioutil.ReadAll(os.Stdin)
+			if err != nil {
+				fmt.Println("Error reading stdin:", err)
+				os.Exit(1)
+			}
+			output, err := api.IsVersioned(fileData)
+			if err != nil {
+				fmt.Println("Error checking for versions:", err)
+				os.Exit(1)
+			}
+			err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+			if err != nil {
+				fmt.Println("Error parsing output:", err)
+				os.Exit(1)
+			}
+			os.Exit(0)
+		}
+		output, err := finder.CheckForAPIVersion(args[0])
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			os.Exit(1)
+		}
+		err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+		if err != nil {
+			fmt.Println("Error parsing output:", err)
 			os.Exit(1)
 		}
 	},
@@ -128,49 +176,13 @@ func Execute(VERSION string, COMMIT string) {
 	}
 }
 
-func parseOutput(outputs []*api.Output) error {
-	var err error
-	var outData []byte
-	switch outputFormat {
-	case "tabular":
-		w := new(tabwriter.Writer)
-		w.Init(os.Stdout, 0, 8, 2, ' ', 0)
-		_, err = fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
-		if err != nil {
-			return err
-		}
-		for _, output := range outputs {
-			// Don't show non-deprecated apis if we have them disabled
-			if !showNonDeprecated {
-				if !output.APIVersion.Deprecated {
-					continue
-				}
-			}
-			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.APIVersion.Deprecated)
-			version := output.APIVersion.Name
-			fileName := output.Name
-
-			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
-			if err != nil {
-				return err
-			}
-		}
-		err = w.Flush()
-		if err != nil {
-			return err
-		}
-	case "json":
-		outData, err = json.Marshal(outputs)
-		if err != nil {
-			return err
-		}
-	case "yaml":
-		outData, err = yaml.Marshal(outputs)
-		if err != nil {
-			return err
-		}
+func isFileOrStdin(name string) bool {
+	if name == "-" {
+		return true
 	}
-	fmt.Println(string(outData))
-	return nil
+	info, err := os.Stat(name)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

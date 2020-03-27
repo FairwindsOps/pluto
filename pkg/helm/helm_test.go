@@ -15,9 +15,13 @@
 package helm
 
 import (
+	"flag"
 	"testing"
 
+	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/stretchr/testify/assert"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var (
@@ -45,31 +49,21 @@ var (
 	decodedRelease              = &Release{
 		Manifest: "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: utilities\n  labels:\n    app: utilities\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: utilities\n  template:\n    metadata:\n      labels:\n        app: utilities\n    spec:\n      containers:\n      - name: utilities\n        image: quay.io/sudermanjr/utilities:latest\n        # Just spin & wait forever\n        command: [ \"/bin/bash\", \"-c\", \"--\" ]\n        args: [ \"while true; do sleep 30; done;\" ]\n        securityContext:\n          readOnlyRootFilesystem: true\n          allowPrivilegeEscalation: false\n          runAsNonRoot: true\n          runAsUser: 10324\n          capabilities:\n            drop:\n              - ALL\n        resources:\n          requests:\n            cpu: 30m\n            memory: 64Mi\n          limits:\n            cpu: 100m\n            memory: 128Mi",
 	}
-)
-
-func TestNewHelm(t *testing.T) {
-	tests := []struct {
-		name    string
-		version string
-		want    *Helm
-	}{
-		{
-			name:    "version two",
-			version: "2",
-			want:    &Helm{Version: "2"},
+	kubeSecret = &v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "utilities",
+			Namespace: "test-namespace",
 		},
-		{
-			// This is a bit silly, but it does test the return of the function.
-			name:    "version three",
-			version: "3",
-			want:    &Helm{Version: "3"},
+		Data: map[string][]byte{
+			"release": []byte(gzippedReleaseDataString),
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := NewHelm(tt.version)
-			assert.Equal(t, tt.want, got)
-		})
+)
+
+func newMockHelm(version string) *Helm {
+	return &Helm{
+		Version: version,
+		Kube:    getMockConfigInstance(),
 	}
 }
 
@@ -153,6 +147,209 @@ func TestDecodeReleaseSecret(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.EqualValues(t, tt.want, got)
+			}
+		})
+	}
+}
+
+func Test_checkForAPIVersion(t *testing.T) {
+	tests := []struct {
+		name     string
+		manifest []byte
+		want     []*api.Output
+		wantErr  bool
+	}{
+		{
+			name:     "empty",
+			manifest: []byte{},
+			want:     []*api.Output{{}},
+			wantErr:  true,
+		},
+		{
+			name:     "got version",
+			manifest: []byte("apiVersion: apps/v1\nkind: Deployment"),
+			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", Deprecated: false}}},
+			wantErr:  false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := checkForAPIVersion(tt.manifest)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.EqualValues(t, tt.want, got)
+
+		})
+	}
+}
+
+func TestHelm_getManifestsVersionTwo(t *testing.T) {
+	tests := []struct {
+		name        string
+		helmVersion string
+		wantErr     bool
+		errMessage  string
+	}{
+		{
+			name:        "basic",
+			helmVersion: "2",
+			wantErr:     true,
+			errMessage:  "helm 2 check not implemented",
+		},
+		{
+			name:        "three",
+			helmVersion: "3",
+			wantErr:     true,
+			errMessage:  "helm 2 function called without helm 2 version set",
+		},
+	}
+	for _, tt := range tests {
+		h := newMockHelm(tt.helmVersion)
+		t.Run(tt.name, func(t *testing.T) {
+			err := h.getManifestsVersionTwo()
+			if tt.wantErr {
+				assert.EqualError(t, err, tt.errMessage)
+				return
+			}
+			assert.NoError(t, err)
+
+		})
+	}
+}
+
+func TestHelm_getHelmSecrets(t *testing.T) {
+	err := flag.Set("test.v", "false")
+	if err != nil {
+		t.Fatal(err)
+	}
+	kubeSecretNonHelm := v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "non-helm-secret",
+			Namespace: "test-namespace",
+		},
+		Type: "generic",
+	}
+	kubeSecretHelm := v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "helm-secret",
+			Namespace: "test-namespace",
+		},
+		Type: "helm.sh/release.v1",
+	}
+	tests := []struct {
+		name        string
+		helmVersion string
+		want        []*v1.Secret
+		mockSecrets []*v1.Secret
+		wantErr     bool
+	}{
+		{
+			name:        "basic",
+			helmVersion: "2",
+			want:        []*v1.Secret{},
+			wantErr:     true,
+		},
+		{
+			name:        "empty",
+			helmVersion: "3",
+			want:        []*v1.Secret{&kubeSecretHelm},
+			mockSecrets: []*v1.Secret{&kubeSecretNonHelm, &kubeSecretHelm},
+			wantErr:     false,
+		},
+	}
+	for _, tt := range tests {
+
+		// Initalize the mock
+		h := newMockHelm(tt.helmVersion)
+		if len(tt.want) > 0 {
+			for _, secret := range tt.mockSecrets {
+				_, err := h.Kube.Client.CoreV1().Secrets("test-namespace").Create(secret)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+		}
+
+		// Run the test
+		t.Run(tt.name, func(t *testing.T) {
+			secrets, err := h.getHelmSecrets()
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.EqualValues(t, tt.want, secrets)
+		})
+	}
+}
+
+func TestHelm_getReleases(t *testing.T) {
+	tests := []struct {
+		name    string
+		secrets []*v1.Secret
+		want    []*Release
+		wantErr bool
+	}{
+		{
+			name:    "functional",
+			secrets: []*v1.Secret{kubeSecret},
+			want:    []*Release{&Release{Name: "utilities", Manifest: decodedRelease.Manifest}},
+			wantErr: false,
+		},
+		{
+			name:    "empty",
+			secrets: []*v1.Secret{},
+			want:    nil,
+			wantErr: false,
+		},
+		{
+			name: "error",
+			secrets: []*v1.Secret{&v1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "bad",
+				},
+				Data: map[string][]byte{
+					"release": []byte("this is not good data"),
+				},
+			}},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		h := newMockHelm("3")
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := h.getReleases(tt.secrets)
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.EqualValues(t, tt.want, got)
+		})
+	}
+}
+
+func TestHelm_FindVersions(t *testing.T) {
+	tests := []struct {
+		name        string
+		helmVersion string
+		wantErr     bool
+		errMessage  string
+	}{
+		// Only adding this one test case since the others generally cross into other functions.
+		{"one - err", "1", true, "helm version either not specified or incorrect (use 2 or 3)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := newMockHelm(tt.helmVersion)
+			err := h.FindVersions()
+			if tt.wantErr {
+				assert.EqualError(t, err, tt.errMessage)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

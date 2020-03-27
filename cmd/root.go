@@ -65,7 +65,7 @@ var rootCmd = &cobra.Command{
 	Short: "pluto",
 	Long:  `A tool to detect Kubernetes apiVersions`,
 	Run: func(cmd *cobra.Command, args []string) {
-		klog.Error("You must specify a sub-command.")
+		fmt.Println("You must specify a sub-command.")
 		err := cmd.Help()
 		if err != nil {
 			klog.Error(err)

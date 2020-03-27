@@ -40,7 +40,7 @@ var (
 
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
-	rootCmd.PersistentFlags().BoolVar(&showNonDeprecated, "show-non-deprecated", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+	rootCmd.PersistentFlags().BoolVarP(&showNonDeprecated, "show-all", "A", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")

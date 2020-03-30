@@ -15,17 +15,12 @@
 package helm
 
 import (
-	"bytes"
-	"compress/gzip"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"regexp"
-	"strconv"
 
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	helmstorage "helm.sh/helm/pkg/storage"
+	"helm.sh/helm/pkg/storage/driver"
+	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
+	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 )
@@ -73,26 +68,10 @@ func (h *Helm) getManifestsVersionTwo() error {
 	if h.Version != "2" {
 		return fmt.Errorf("helm 2 function called without helm 2 version set")
 	}
-	return fmt.Errorf("helm 2 check not implemented")
-}
-
-// getManifestsVersionThree retrieves helm 3 manifests from Secrets
-func (h *Helm) getManifestsVersionThree() error {
-
-	secrets, err := h.getHelmSecrets()
-	if err != nil {
-		return err
-	}
-
-	releases, err := h.getReleases(secrets)
-	if err != nil {
-		return err
-	}
-	err = h.setCurrentReleases(releases)
-	if err != nil {
-		return err
-	}
-	for _, release := range h.CurrentReleases {
+	hcm := driver.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
+	helmClient := helmstorage.Init(hcm)
+	list, _ := helmClient.ListDeployed()
+	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
 			return err
@@ -102,107 +81,22 @@ func (h *Helm) getManifestsVersionThree() error {
 	return nil
 }
 
-func (h *Helm) getReleases(secrets []v1.Secret) ([]*Release, error) {
-	var releases []*Release
-	for _, secret := range secrets {
-		thisRelease, err := decodeReleaseSecret(string(secret.Data["release"]))
-		if err != nil {
-			return nil, err
-		}
-		thisRelease.Name = secret.Name
-		releases = append(releases, thisRelease)
-	}
-	return releases, nil
-}
-
-func (h *Helm) getHelmSecrets() ([]v1.Secret, error) {
+// getManifestsVersionThree retrieves helm 3 manifests from Secrets
+func (h *Helm) getManifestsVersionThree() error {
 	if h.Version != "3" {
-		return nil, fmt.Errorf("helm 3 function called without helm 3 version set")
+		return fmt.Errorf("helm 3 function called without helm 3 version set")
 	}
-	secrets, err := h.Kube.Client.CoreV1().Secrets("").List(metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	helmSecrets := []v1.Secret{}
-	for _, secret := range secrets.Items {
-		if secret.Type == "helm.sh/release.v1" {
-			helmSecrets = append(helmSecrets, secret)
-		}
-	}
-	return helmSecrets, nil
-}
-
-// setCurrentReleases parses all the releases we found and makes sure we only return the most recent
-// which should be the one deployed currently
-func (h *Helm) setCurrentReleases(allReleases []*Release) error {
-	found := map[string]*Release{}
-	regex := regexp.MustCompile(`^(sh\.helm\.release)\.(v[0-9]+)\.([\w\-]+)\.v([0-9]+)$`)
-	for _, release := range allReleases {
-		parts := regex.FindStringSubmatch(release.Name)
-		if len(parts) < 5 {
-			return fmt.Errorf("unexpected helm release name: %s", release.Name)
-		}
-		releaseName := parts[3]
-		releaseVersion, err := strconv.Atoi(parts[4])
+	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(""))
+	helmClient := helmstoragev3.Init(hs)
+	list, _ := helmClient.ListDeployed()
+	for _, release := range list {
+		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
 			return err
 		}
-		if v, ok := found[releaseName]; ok {
-			storedParts := regex.FindStringSubmatch(v.Name)
-			storedVersion, err := strconv.Atoi(storedParts[4])
-			if err != nil {
-				return err
-			}
-			if releaseVersion > storedVersion {
-				found[releaseName] = release
-			}
-		} else {
-			found[releaseName] = release
-		}
-	}
-	for _, v := range found {
-		h.CurrentReleases = append(h.CurrentReleases, v)
+		h.Outputs = append(h.Outputs, outList...)
 	}
 	return nil
-}
-
-// This function is ripped straight out of the helm 3 codebase with slight modification
-// https://github.com/helm/helm/blob/193850a9e2c509acf1a499d98e8d23c12c134f11/pkg/storage/driver/util.go#L56-L84
-func decodeReleaseSecret(data string) (*Release, error) {
-	if len(data) < 1 {
-		return nil, fmt.Errorf("no secret data to decode")
-	}
-	var magicGzip = []byte{0x1f, 0x8b, 0x08}
-	var b64 = base64.StdEncoding
-	// base64 decode string
-	b, err := b64.DecodeString(data)
-	if err != nil {
-		return nil, err
-	}
-	if len(b) < 4 {
-		return nil, fmt.Errorf("not valid secret data")
-	}
-	// For backwards compatibility with releases that were stored before
-	// compression was introduced we skip decompression if the
-	// gzip magic header is not found
-	if bytes.Equal(b[0:3], magicGzip) {
-		r, err := gzip.NewReader(bytes.NewReader(b))
-		if err != nil {
-			return nil, err
-		}
-		b2, err := ioutil.ReadAll(r)
-		if err != nil {
-			return nil, err
-		}
-		b = b2
-	}
-
-	var secOut Release
-	// unmarshal release object bytes
-	if err := json.Unmarshal(b, &secOut); err != nil {
-		return nil, err
-	}
-	return &secOut, nil
 }
 
 // checkForAPIVersion calls the api pkg to parse our releases for deprecated APIs

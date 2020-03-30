@@ -3,14 +3,20 @@ module github.com/fairwindsops/pluto
 go 1.14
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.4.1 // indirect
+	github.com/jmoiron/sqlx v1.2.0 // indirect
+	github.com/lib/pq v1.3.0 // indirect
+	github.com/rubenv/sql-migrate v0.0.0-20200212082348-64f95ea68aa3 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.4.0
 	gopkg.in/yaml.v2 v2.2.8
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+	helm.sh/helm v2.16.5+incompatible
+	helm.sh/helm/v3 v3.1.2
 	k8s.io/api v0.17.4
-	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v0.17.4
+	k8s.io/helm v2.16.5+incompatible // indirect
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.5.2
 )

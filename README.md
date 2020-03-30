@@ -19,7 +19,7 @@ So, long story short, finding the places where you have deployed a deprecated ap
 We have an asdf plugin [here](https://github.com/FairwindsOps/asdf-pluto). You can install with:
 
 ```
-asdf plugin-add pluto https://github.com/FairwindsOps/asdf-pluto.git
+asdf plugin-add pluto
 asdf list-all pluto
 asdf install pluto <latest version>
 ```

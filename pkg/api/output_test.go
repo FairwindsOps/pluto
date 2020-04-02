@@ -14,6 +14,12 @@
 
 package api
 
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
 var testOutput1 = &Output{
 	Name: "some name one",
 	APIVersion: &Version{
@@ -80,4 +86,59 @@ func ExampleDisplayOutput_zeroLength() {
 	_ = DisplayOutput([]*Output{}, "tabular", false)
 
 	// Output: There were no apiVersions found that match our records.
+}
+
+func TestGetReturnCode(t *testing.T) {
+	type args struct {
+		outputs      []*Output
+		ignoreErrors bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "empty return zero",
+			args: args{
+				outputs:      []*Output{},
+				ignoreErrors: false,
+			},
+			want: 0,
+		},
+		{
+			name: "version is deprecated return one",
+			args: args{
+				outputs: []*Output{
+					&Output{
+						APIVersion: &Version{
+							Deprecated: true,
+						},
+					},
+				},
+				ignoreErrors: false,
+			},
+			want: 1,
+		},
+		{
+			name: "version is deprecated ignore errors",
+			args: args{
+				outputs: []*Output{
+					&Output{
+						APIVersion: &Version{
+							Deprecated: true,
+						},
+					},
+				},
+				ignoreErrors: true,
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := GetReturnCode(tt.args.outputs, tt.args.ignoreErrors)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

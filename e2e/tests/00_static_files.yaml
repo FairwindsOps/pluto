@@ -5,7 +5,7 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/ -A
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        utilities"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         utilities"
@@ -14,7 +14,7 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        utilities"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         utilities"
@@ -23,7 +23,7 @@ testcases:
   steps:
   - script: helm template assets/helm3chart | pluto detect -A -
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helm3chart"
     - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helm3chart"
@@ -32,7 +32,22 @@ testcases:
   steps:
   - script: helm template assets/helm3chart | pluto detect -
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helm3chart"
     - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helm3chart"
+
+- name: static files no deprecated
+  steps:
+  - script: pluto detect-files -d assets/non-deprecated
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "APIVersions were found, but none were deprecated. Try --show-all."
+
+- name: static files no deprecated
+  steps:
+  - script: pluto detect-files -d assets/non-deprecated -A
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION   DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1   false        utilities"

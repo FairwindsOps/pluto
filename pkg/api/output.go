@@ -10,7 +10,9 @@ import (
 )
 
 // DisplayOutput prints the output based on desired variables
+// returns the desired returnCode as an int
 func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool) error {
+
 	if len(outputs) == 0 {
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil
@@ -83,4 +85,18 @@ func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error
 		}
 	}
 	return w, nil
+}
+
+// GetReturnCode checks for deprecated versions and returns a code.
+// takes a boolean to ignore any errors.
+func GetReturnCode(outputs []*Output, ignoreErrors bool) int {
+	if ignoreErrors {
+		return 0
+	}
+	for _, output := range outputs {
+		if output.APIVersion.Deprecated {
+			return 1
+		}
+	}
+	return 0
 }

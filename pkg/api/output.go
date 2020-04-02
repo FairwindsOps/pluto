@@ -61,7 +61,7 @@ func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error
 		}
 	}
 	if len(usableOutputs) == 0 {
-		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-non-deprecated.")
+		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
 		if err != nil {
 			return nil, err
 		}

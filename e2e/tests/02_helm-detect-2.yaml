@@ -1,0 +1,30 @@
+version: "2"
+name: "Static Code Files (including helm)"
+testcases:
+- name: install helm 2 configmaps
+  steps:
+  - script: |
+      kubectl create ns helm-system
+      kubectl apply -f assets/helm2/
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: helm2 detect in-cluster show-all
+  steps:
+  - script: pluto detect-helm --helm-version=2 -A
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        lunging-bat-metrics-server"
+
+- name: helm2 detect in-cluster
+  steps:
+  - script: pluto detect-helm --helm-version=2
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
+- name: cleanup
+  steps:
+  - script: kubectl delete ns helm-system

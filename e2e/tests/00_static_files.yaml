@@ -21,18 +21,18 @@ testcases:
 
 - name: helm template show all
   steps:
-  - script: helm template assets/helmchartest | pluto detect -A -
+  - script: helm template assets/helm3chart | pluto detect -A -
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helmchartest"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helmchartest"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helm3chart"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helm3chart"
 
 - name: helm template
   steps:
-  - script: helm template assets/helmchartest | pluto detect -
+  - script: helm template assets/helm3chart | pluto detect -
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helmchartest"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helmchartest"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         RELEASE-NAME-helm3chart"
+    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        RELEASE-NAME-helm3chart"

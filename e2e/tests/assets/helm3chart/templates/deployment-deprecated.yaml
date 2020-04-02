@@ -1,24 +1,24 @@
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ include "helmchartest.fullname" . }}
+  name: {{ include "helm3chart.fullname" . }}-v1beta1
   labels:
-    {{- include "helmchartest.labels" . | nindent 4 }}
+    {{- include "helm3chart.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "helmchartest.selectorLabels" . | nindent 6 }}
+      {{- include "helm3chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "helmchartest.selectorLabels" . | nindent 8 }}
+        {{- include "helm3chart.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "helmchartest.serviceAccountName" . }}
+      serviceAccountName: {{ include "helm3chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

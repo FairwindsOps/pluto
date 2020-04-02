@@ -17,8 +17,8 @@ package helm
 import (
 	"fmt"
 
-	helmstorage "helm.sh/helm/pkg/storage"
-	"helm.sh/helm/pkg/storage/driver"
+	helmstoragev2 "helm.sh/helm/pkg/storage"
+	driverv2 "helm.sh/helm/pkg/storage/driver"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
 
@@ -68,8 +68,8 @@ func (h *Helm) getManifestsVersionTwo() error {
 	if h.Version != "2" {
 		return fmt.Errorf("helm 2 function called without helm 2 version set")
 	}
-	hcm := driver.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
-	helmClient := helmstorage.Init(hcm)
+	hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
+	helmClient := helmstoragev2.Init(hcm)
 	list, _ := helmClient.ListDeployed()
 	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))

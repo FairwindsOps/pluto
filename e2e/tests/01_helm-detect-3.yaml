@@ -23,6 +23,24 @@ testcases:
     - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helm3chart-v1beta1"
+
+- name: helm detect ignore errors
+  steps:
+  - script: pluto detect-helm --helm-version=3 --ignore-errors
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helm3chart-v1beta1"
+
+- name: helm detect show all ignore errors
+  steps:
+  - script: pluto detect-helm --helm-version=3 -A --ignore-errors
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helm3chart-v1beta1"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        test-helm3chart"
+
 - name: cleanup
   steps:
   - script: helm delete test

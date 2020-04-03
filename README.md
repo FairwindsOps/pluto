@@ -57,6 +57,15 @@ StatefulSet   apps/v1beta1   true         audit-dashboard-prod-rabbitmq-ha
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
 
+You can also use Pluto with helm 2:
+
+```
+$ pluto detect-helm --helm-version=2 -A
+KIND         VERSION              DEPRECATED   RESOURCE NAME
+Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server
+Deployment   apps/v1              false        lunging-bat-metrics-server
+```
+
 ### Helm Chart Checking (local files)
 
 You can run `helm template <chart-dir> | pluto detect --show-all -`

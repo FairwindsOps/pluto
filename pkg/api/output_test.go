@@ -67,7 +67,7 @@ func ExampleDisplayOutput_yaml() {
 func ExampleDisplayOutput_noOutput() {
 	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false)
 
-	// Output: APIVersions were found, but none were deprecated. Try --show-non-deprecated.
+	// Output: APIVersions were found, but none were deprecated. Try --show-all.
 }
 
 func ExampleDisplayOutput_badFormat() {

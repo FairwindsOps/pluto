@@ -3,27 +3,26 @@ name: "Static Code Files (including helm)"
 testcases:
 - name: install helm chart
   steps:
-  - script: helm install test assets/helmchartest
+  - script: helm install test assets/helm3chart
     assertions:
     - result.code ShouldEqual 0
 
 - name: helm detect show all
   steps:
-  - script: pluto detect-helm -A -
+  - script: pluto detect-helm --helm-version=3 -A
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helmchartest-v1beta1"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        test-helmchartest"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helm3chart-v1beta1"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        test-helm3chart"
 
 - name: helm detect
   steps:
-  - script: pluto detect-helm
+  - script: pluto detect-helm --helm-version=3
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helmchartest-v1beta1"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        test-helmchartest"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         test-helm3chart-v1beta1"
 - name: cleanup
   steps:
   - script: helm delete test

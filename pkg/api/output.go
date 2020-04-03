@@ -10,9 +10,7 @@ import (
 )
 
 // DisplayOutput prints the output based on desired variables
-// returns the desired returnCode as an int
 func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool) error {
-
 	if len(outputs) == 0 {
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil

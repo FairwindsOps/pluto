@@ -162,7 +162,6 @@ var detectCmd = &cobra.Command{
 			retCode := api.GetReturnCode(output, ignoreErrors)
 			klog.V(5).Infof("retCode: %d", retCode)
 			os.Exit(retCode)
-			os.Exit(retCode)
 		}
 		output, err := finder.CheckForAPIVersion(args[0])
 		if err != nil {

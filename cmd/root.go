@@ -36,11 +36,13 @@ var (
 	outputFormat      string
 	showNonDeprecated bool
 	helmVersion       string
+	ignoreErrors      bool
 )
 
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
 	rootCmd.PersistentFlags().BoolVarP(&showNonDeprecated, "show-all", "A", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "Default behavior is to exit non-zero if deprecations are found. This will force a return of zero.")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
@@ -96,6 +98,9 @@ var detectFilesCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
+		retCode := api.GetReturnCode(dir.Outputs, ignoreErrors)
+		klog.V(5).Infof("retCode: %d", retCode)
+		os.Exit(retCode)
 	},
 }
 
@@ -115,6 +120,9 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
+		retCode := api.GetReturnCode(h.Outputs, ignoreErrors)
+		klog.V(5).Infof("retCode: %d", retCode)
+		os.Exit(retCode)
 	},
 }
 
@@ -151,7 +159,9 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error parsing output:", err)
 				os.Exit(1)
 			}
-			os.Exit(0)
+			retCode := api.GetReturnCode(output, ignoreErrors)
+			klog.V(5).Infof("retCode: %d", retCode)
+			os.Exit(retCode)
 		}
 		output, err := finder.CheckForAPIVersion(args[0])
 		if err != nil {
@@ -163,6 +173,9 @@ var detectCmd = &cobra.Command{
 			fmt.Println("Error parsing output:", err)
 			os.Exit(1)
 		}
+		retCode := api.GetReturnCode(output, ignoreErrors)
+		klog.V(5).Infof("retCode: %d", retCode)
+		os.Exit(retCode)
 	},
 }
 

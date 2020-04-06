@@ -13,7 +13,7 @@ testcases:
   steps:
   - script: pluto detect-helm --helm-version=2 -A
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
     - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        lunging-bat-metrics-server"
@@ -22,7 +22,7 @@ testcases:
   steps:
   - script: pluto detect-helm --helm-version=2
     assertions:
-    - result.code ShouldEqual 0
+    - result.code ShouldEqual 1
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
 - name: cleanup

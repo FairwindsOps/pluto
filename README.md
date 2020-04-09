@@ -1,6 +1,6 @@
 # Pluto
 <div align="center">
-  <img src="/img/logo.png" alt="Pluto Logo" style="max-width: 800px"/>
+  <img src="/img/logo.png" alt="Pluto Logo" width:"600"/>
   <br>
 
   [![GitHub go.mod Go version][version-image]][version-link] [![GitHub release (latest SemVer)][release-image]][release-link] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image]][codecov-link] [![Go Report Card][goreport-image]][goreport-link]

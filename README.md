@@ -1,7 +1,9 @@
 # Pluto
 <div align="center">
-  <img src="/img/logo.png" alt="Pluto Logo" width:"600"/>
+  <img src="/img/logo.png" alt="Pluto Logo" height="200"/>
   <br>
+
+  <h3>Find Kubernetes resources that have been <strike>abandoned by the scientific community</strike> deprecated</h3>
 
   [![GitHub go.mod Go version][version-image]][version-link] [![GitHub release (latest SemVer)][release-image]][release-link] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image]][codecov-link] [![Go Report Card][goreport-image]][goreport-link]
 </div>

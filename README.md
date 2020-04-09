@@ -34,8 +34,8 @@ Kubernetes sometimes deprecates apiVersions. Most notably, a large number of dep
 You might think, "I'll just ask the api-server to tell me!", but this is fraught with danger. If you ask the api-server to give you `deployments.v1.apps`, and the deployment was deployed as `deployments.v1beta1.extensions`, the api-server will quite happily convert the api version and return a manifest with `apps/v1`. This is fairly well outlined in the discussion in [this issue](https://github.com/kubernetes/kubernetes/issues/58131#issuecomment-356823588).
 
 So, long story short, finding the places where you have deployed a deprecated apiVersion can be challenging. This is where `pluto` comes in. You can use pluto to check a couple different places where you might have placed a deprecated version:
-* Infrastructure-as-Code repos: Pluto can check both static manifests and helm charts
-* Live Helm releases: Pluto can check both Helm 2 and Helm 3 releases runningi n your cluster
+* Infrastructure-as-Code repos: Pluto can check both static manifests and Helm charts for deprecated apiVersions
+* Live Helm releases: Pluto can check both Helm 2 and Helm 3 releases running in your cluster for deprecated apiVersions
 
 ## Installation
 

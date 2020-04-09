@@ -3,7 +3,7 @@
   <img src="/img/logo.png" alt="Pluto Logo" />
   <br>
 
-  [![GitHub go.mod Go version][version-image]][version-link] [![GitHub release (latest SemVer)][release-image][release-link]] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image][codecov-link]] [![Go Report Card][goreport-image]][goreport-link]
+  [![GitHub go.mod Go version][version-image]][version-link] [![GitHub release (latest SemVer)]] [![release-image][release-link]] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image][codecov-link]] [![Go Report Card][goreport-image]][goreport-link]
 </div>
 
 [version-image]: https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto

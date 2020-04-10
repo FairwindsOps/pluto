@@ -5,13 +5,13 @@
 
   <h3>Find Kubernetes resources that have been deprecated</h3>
 
-  [![GitHub go.mod Go version][version-image]][version-link] [![GitHub release (latest SemVer)][release-image]][release-link] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image]][codecov-link] [![Go Report Card][goreport-image]][goreport-link]
+  [![GitHub release (latest SemVer)][release-image]][release-link] [![GitHub go.mod Go version][version-image]][version-link] [![CircleCI][circleci-image]][circleci-link] [![Code Coverage][codecov-image]][codecov-link] [![Go Report Card][goreport-image]][goreport-link]
 </div>
 
 [version-image]: https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto
 [version-link]: https://github.com/FairwindsOps/pluto
 
-[release-image]: https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto
+[release-image]: https://img.shields.io/github/v/release/FairwindsOps/pluto
 [release-link]: https://github.com/FairwindsOps/pluto
 
 [goreport-image]: https://goreportcard.com/badge/github.com/FairwindsOps/pluto

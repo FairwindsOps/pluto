@@ -11,7 +11,7 @@
 [version-image]: https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto
 [version-link]: https://github.com/FairwindsOps/pluto
 
-[release-image]: https://img.shields.io/github/go-mod/go-version/FairwindsOps/pluto
+[release-image]: https://img.shields.io/github/v/release/FairwindsOps/pluto
 [release-link]: https://github.com/FairwindsOps/pluto
 
 [goreport-image]: https://goreportcard.com/badge/github.com/FairwindsOps/pluto

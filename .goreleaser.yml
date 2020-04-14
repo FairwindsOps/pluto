@@ -1,5 +1,5 @@
 brews:
-  - name: FairwindsOps
+  - name: pluto
     github:
       owner: FairwindsOps
       name: homebrew-tap

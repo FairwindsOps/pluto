@@ -1,0 +1,9 @@
+brews:
+  - name: FairwindsOps
+    github:
+      owner: FairwindsOps
+      name: homebrew-tap
+    folder: Formula
+    description: Detect deprecated Kubernetes apiVersions
+    test: |
+      system "#{bin}/pluto version"

@@ -53,6 +53,12 @@ asdf install pluto <latest version>
 
 Install the binary from our [releases](https://github.com/FairwindsOps/pluto/releases) page.
 
+### Homebrew Tap
+
+```
+brew install FairwindsOps/tap/pluto
+```
+
 ## QuickStart
 
 First, follow the install instructions to install pluto.

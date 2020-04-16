@@ -25,7 +25,7 @@
 
 This is a very simple utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.
 
-**Want to learn more?** Reach out on [the Slack channel](https://fairwindscommunity.slack.com/messages/pluto), send an email to `opensource@fairwinds.com`, or join us for [office hours on Zoom](https://fairwindscommunity.slack.com/messages/office-hours)
+**Want to learn more?** Reach out on [the Slack channel](https://fairwindscommunity.slack.com/messages/pluto)[request invite](https://join.slack.com/t/fairwindscommunity/shared_invite/zt-cxss92z7-YjfnJwpUwlviViBFjYV2gg), send an email to `opensource@fairwinds.com`, or join us for [office hours on Zoom](https://fairwindscommunity.slack.com/messages/office-hours)
 
 ## Purpose
 

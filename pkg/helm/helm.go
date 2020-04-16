@@ -74,7 +74,7 @@ func (h *Helm) getManifestsVersionTwo() error {
 	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
-			return err
+			return fmt.Errorf("error parsing helm release '%s'\n   %w", release.Name, err)
 		}
 		h.Outputs = append(h.Outputs, outList...)
 	}
@@ -92,7 +92,7 @@ func (h *Helm) getManifestsVersionThree() error {
 	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
-			return err
+			return fmt.Errorf("error parsing release '%s'\n   %w", release.Name, err)
 		}
 		h.Outputs = append(h.Outputs, outList...)
 	}

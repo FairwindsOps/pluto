@@ -126,17 +126,17 @@ func containsStub(data []byte) ([]*Stub, error) {
 	klog.V(10).Infof("\n%s", string(data))
 	stub, err := jsonToStub(data)
 	if err != nil {
-		klog.V(8).Infof("not json: %s", err.Error())
+		klog.V(8).Infof("invalid json: %s", err.Error())
 	} else {
 		return stub, nil
 	}
 	stub, err = yamlToStub(data)
 	if err != nil {
-		klog.V(8).Infof("not yaml: %s", err.Error())
+		klog.V(8).Infof("invalid yaml: %s", err.Error())
 	} else {
 		return stub, nil
 	}
-	return nil, fmt.Errorf("no matches for stub, error: %v", err)
+	return nil, err
 }
 
 func jsonToStub(data []byte) ([]*Stub, error) {

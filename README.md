@@ -18,7 +18,7 @@
 [goreport-link]: https://goreportcard.com/report/github.com/FairwindsOps/pluto
 
 [circleci-image]: https://circleci.com/gh/FairwindsOps/pluto.svg?style=svg
-[circleci-link]: https://circleci.com/gh/FairwindsOps/pluto.svg
+[circleci-link]: https://circleci.com/gh/FairwindsOps/pluto
 
 [codecov-image]: https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg
 [codecov-link]: https://codecov.io/gh/FairwindsOps/pluto

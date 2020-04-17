@@ -90,6 +90,10 @@ var VersionList = []Version{
 
 	// CustomResourceDefinition
 	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.19.0"},
+
+	// PriorityClass
+	{"scheduling.k8s.io/v1beta1", "PriorityClass", "v1.17.0"},
+	{"scheduling.k8s.io/v1alpha1", "PriorityClass", "v1.17.0"},
 }
 
 func checkVersion(stub *Stub) *Version {

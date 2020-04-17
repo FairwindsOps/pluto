@@ -21,8 +21,18 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	var err error
 	var outData []byte
 	switch outputFormat {
-	case "tabular":
-		t, err := tabOut(usableOutputs, targetVersion)
+	case "normal":
+		t, err := tabOut(outputs, showNonDeprecated, targetVersion, "normal")
+		if err != nil {
+			return err
+		}
+		err = t.Flush()
+		if err != nil {
+			return err
+		}
+		return nil
+	case "wide":
+		t, err := tabOut(outputs, showNonDeprecated, targetVersion, "wide")
 		if err != nil {
 			return err
 		}
@@ -44,7 +54,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		}
 		fmt.Println(string(outData))
 	default:
-		fmt.Println("output format should be one of (json,yaml,tabular)")
+		fmt.Println("output format should be one of (json,yaml,normal,wide)")
 	}
 	return nil
 }
@@ -76,24 +86,47 @@ func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) 
 		}
 		return w, nil
 	}
-	_, err := fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t DEPRECATED IN\t RESOURCE NAME\t")
-	if err != nil {
-		return nil, err
-	}
-	for _, output := range outputs {
-		kind := output.APIVersion.Kind
-		deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
-		version := output.APIVersion.Name
-		fileName := output.Name
-		deprecatedIn := output.APIVersion.DeprecatedIn
-		if deprecatedIn == "" {
-			deprecatedIn = "n/a"
-		}
 
-		_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", kind, version, deprecated, deprecatedIn, fileName)
+	if format == "normal" {
+		_, err := fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t REMOVED\t")
 		if err != nil {
 			return nil, err
 		}
+		for _, output := range usableOutputs {
+			kind := output.APIVersion.Kind
+			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(targetVersion))
+			version := output.APIVersion.Name
+			name := output.Name
+			replacement := output.APIVersion.ReplacementAPI
+
+			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, removed)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	if format == "wide" {
+		_, err := fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
+		if err != nil {
+			return nil, err
+		}
+		for _, output := range usableOutputs {
+			kind := output.APIVersion.Kind
+			deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
+			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(targetVersion))
+			version := output.APIVersion.Name
+			name := output.Name
+			replacement := output.APIVersion.ReplacementAPI
+			deprecatedIn := output.APIVersion.DeprecatedIn
+			removedIn := output.APIVersion.RemovedIn
+
+			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 	}
 	return w, nil
 }

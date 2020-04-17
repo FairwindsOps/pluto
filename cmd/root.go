@@ -47,7 +47,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&showNonDeprecated, "show-all", "A", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "Default behavior is to exit non-zero if deprecations are found. This will force a return of zero.")
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 

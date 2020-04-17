@@ -52,6 +52,11 @@ type Version struct {
 	// DeprecatedIn is a string that indicates what version the api is deprecated in
 	// an empty string indicates that the version is not deprecated
 	DeprecatedIn string `json:"deprecated-in,omitempty" yaml:"deprecated-in,omitempty"`
+	// RemovedIn denotes the version that the api was actually removed in
+	// An empty string indicates that the version has not been removed yet
+	RemovedIn string `json:"removed-in,omitempty" yaml:"removed-in,omitempty"`
+	// ReplacementAPI is the apiVersion that replaces the deprecated one
+	ReplacementAPI string `json:"replacement-api,omitempty" yaml:"replacement-api,omitempty"`
 }
 
 // VersionList is a set of apiVersions and if they are deprecated or not.
@@ -59,41 +64,45 @@ type Version struct {
 // Currently using the list for 1.16 from here: https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/
 var VersionList = []Version{
 	// Deployments
-	{"apps/v1", "Deployment", ""},
-	{"extensions/v1beta1", "Deployment", "v1.16.0"},
-	{"apps/v1beta2", "Deployment", "v1.16.0"},
-	{"apps/v1beta1", "Deployment", "v1.16.0"},
+	{"apps/v1", "Deployment", "", "", ""},
+	{"extensions/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"apps/v1beta2", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
 
 	// StatefulSet
-	{"apps/v1beta1", "StatefulSet", "v1.16.0"},
-	{"apps/v1beta2", "StatefulSet", "v1.16.0"},
+	{"apps/v1beta1", "StatefulSet", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"apps/v1beta2", "StatefulSet", "v1.9.0", "v1.16.0", "apps/v1"},
 
 	// NetworkPolicy
-	{"networking.k8s.io/v1", "NetworkPolicy", ""},
-	{"extensions/v1beta1", "NetworkPolicy", "v1.16.0"},
+	{"networking.k8s.io/v1", "NetworkPolicy", "", "", ""},
+	{"extensions/v1beta1", "NetworkPolicy", "v1.9.0", "v1.16.0", "networking.k8s.io/v1"},
 
 	// DaemonSet
-	{"apps/v1beta2", "DaemonSet", "v1.16.0"},
-	{"extensions/v1beta1", "DaemonSet", "v1.16.0"},
+	{"apps/v1beta2", "DaemonSet", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"extensions/v1beta1", "DaemonSet", "v1.9.0", "v1.16.0", "apps/v1"},
 
 	// PodSecurityPolicy
-	{"policy/v1beta1", "PodSecurityPolicy", ""},
-	{"extensions/v1beta1", "PodSecurityPolicy", "v1.16.0"},
+	{"policy/v1beta1", "PodSecurityPolicy", "", "", ""},
+	{"extensions/v1beta1", "PodSecurityPolicy", "v1.10.0", "v1.16.0", "policy/v1beta1"},
 
 	// ReplicaSet
-	{"extensions/v1beta1", "ReplicaSet", "v1.16.0"},
-	{"apps/v1beta1", "ReplicaSet", "v1.16.0"},
-	{"apps/v1beta2", "ReplicaSet", "v1.16.0"},
+	{"extensions/v1beta1", "ReplicaSet", "", "v1.16.0", "apps/v1"},
+	{"apps/v1beta1", "ReplicaSet", "", "v1.16.0", "apps/v1"},
+	{"apps/v1beta2", "ReplicaSet", "", "v1.16.0", "apps/v1"},
 
 	// MutatingWebhookConfiguration
-	{"admissionregistration.k8s.io/v1beta1", "MutatingWebhookConfiguration", "v1.19.0"},
+	{"admissionregistration.k8s.io/v1beta1", "MutatingWebhookConfiguration", "v1.16.0", "v1.19.0", "admissionregistration.k8s.io/v1"},
 
 	// CustomResourceDefinition
+<<<<<<< HEAD
 	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.19.0"},
 
 	// PriorityClass
 	{"scheduling.k8s.io/v1beta1", "PriorityClass", "v1.17.0"},
 	{"scheduling.k8s.io/v1alpha1", "PriorityClass", "v1.17.0"},
+=======
+	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.16.0", "v1.19.0", "apiextensions.k8s.io/v1"},
+>>>>>>> 9c5f793... Adding fields to versions. ReplacedIn and ReplacementAPI
 }
 
 func checkVersion(stub *Stub) *Version {
@@ -187,21 +196,22 @@ func (v *Version) IsDeprecatedIn(targetVersion string) bool {
 		return false
 	}
 	if v.DeprecatedIn == "" {
-		// If DeprecatedIn is an empty string, the apiVersion is not ever deprecated
 		return false
 	}
 	comparison := semver.Compare(targetVersion, v.DeprecatedIn)
-	switch comparison {
-	case 1:
-		// targetVersion > deprecation version
-		return true
-	case 0:
-		// targetVersion == deprecation version
-		return true
-	case -1:
-		// targetVersion < deprecation version
-		return false
-	default:
+	return comparison >= 0
+}
+
+// IsRemovedIn returns true if the version is deprecated in the targetVersion
+// Will return false if the targetVersion passed is not a valid semver string
+func (v *Version) IsRemovedIn(targetVersion string) bool {
+	if !semver.IsValid(targetVersion) {
+		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
 		return false
 	}
+	if v.RemovedIn == "" {
+		return false
+	}
+	comparison := semver.Compare(targetVersion, v.RemovedIn)
+	return comparison >= 0
 }

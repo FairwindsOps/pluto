@@ -38,9 +38,11 @@ var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
 var deploymentExtensionsV1YamlFile = []*api.Output{{
 	Name: "utilities",
 	APIVersion: &api.Version{
-		Name:         "extensions/v1beta1",
-		Kind:         "Deployment",
-		DeprecatedIn: "v1.16.0",
+		Name:           "extensions/v1beta1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "v1.9.0",
+		RemovedIn:      "v1.16.0",
+		ReplacementAPI: "apps/v1",
 	}},
 }
 
@@ -48,9 +50,11 @@ var deploymentExtensionsV1JSON = "testdata/deployment-extensions-v1beta1.json"
 var deploymentExtensionsV1JSONFile = []*api.Output{{
 	Name: "utilities",
 	APIVersion: &api.Version{
-		Name:         "extensions/v1beta1",
-		Kind:         "Deployment",
-		DeprecatedIn: "v1.16.0",
+		Name:           "extensions/v1beta1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "v1.9.0",
+		RemovedIn:      "v1.16.0",
+		ReplacementAPI: "apps/v1",
 	}},
 }
 

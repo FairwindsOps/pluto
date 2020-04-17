@@ -23,17 +23,21 @@ import (
 var testOutput1 = &Output{
 	Name: "some name one",
 	APIVersion: &Version{
-		Name:         "apps/v1",
-		Kind:         "Deployment",
-		DeprecatedIn: "",
+		Name:           "apps/v1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "",
+		RemovedIn:      "",
+		ReplacementAPI: "",
 	},
 }
 var testOutput2 = &Output{
 	Name: "some name two",
 	APIVersion: &Version{
-		Name:         "extensions/v1beta1",
-		Kind:         "Deployment",
-		DeprecatedIn: "v1.16.0",
+		Name:           "extensions/v1beta1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "v1.9.0",
+		RemovedIn:      "v1.16.0",
+		ReplacementAPI: "apps/v1",
 	},
 }
 
@@ -43,20 +47,20 @@ func init() {
 	padChar = byte('-')
 }
 
-func ExampleDisplayOutput_showNonDeprecated() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", true, targetVersion116)
+func ExampleDisplayOutput_showNonDeprecated_normal() {
+	_ = DisplayOutput([]*Output{testOutput1}, "normal", true, targetVersion116)
 
 	// Output:
-	// KIND-------- VERSION-- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
-	// Deployment-- apps/v1-- false------- n/a------------ some name one--
+	// NAME----------- KIND-------- VERSION-- REPLACEMENT-- REMOVED--
+	// some name one-- Deployment-- apps/v1-- ------------- false----
 }
 
-func ExampleDisplayOutput() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "tabular", false, targetVersion116)
+func ExampleDisplayOutput_normal() {
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "normal", false, targetVersion116)
 
 	// Output:
-	// KIND-------- VERSION------------- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
-	// Deployment-- extensions/v1beta1-- true-------- v1.16.0-------- some name two--
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED--
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-----
 }
 
 func ExampleDisplayOutput_json() {
@@ -82,7 +86,7 @@ func ExampleDisplayOutput_yaml() {
 }
 
 func ExampleDisplayOutput_noOutput() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false, targetVersion116)
+	_ = DisplayOutput([]*Output{testOutput1}, "normal", false, targetVersion116)
 
 	// Output: APIVersions were found, but none were deprecated. Try --show-all.
 }
@@ -90,11 +94,11 @@ func ExampleDisplayOutput_noOutput() {
 func ExampleDisplayOutput_badFormat() {
 	_ = DisplayOutput([]*Output{testOutput1}, "foo", true, targetVersion116)
 
-	// Output: output format should be one of (json,yaml,tabular)
+	// Output: output format should be one of (json,yaml,normal,wide)
 }
 
 func ExampleDisplayOutput_zeroLength() {
-	_ = DisplayOutput([]*Output{}, "tabular", false, targetVersion116)
+	_ = DisplayOutput([]*Output{}, "normal", false, targetVersion116)
 
 	// Output: There were no apiVersions found that match our records.
 }

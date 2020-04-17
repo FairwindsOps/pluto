@@ -189,7 +189,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "yaml has version",
 			data:    []byte("kind: Deployment\napiVersion: apps/v1"),
-			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: ""}}},
+			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: ""}}},
 			wantErr: false,
 		},
 		{
@@ -213,7 +213,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
-			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", DeprecatedIn: "v1.16.0"}}},
+			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", RemovedIn: "v1.16.0", DeprecatedIn: "v1.9.0", ReplacementAPI: "apps/v1"}}},
 			wantErr: false,
 		},
 	}
@@ -281,9 +281,11 @@ func Test_VersionListIsValid(t *testing.T) {
 	// This test validates that all of the versions in VersionList are valid semVer
 	// it should prevent us from putting bad values in that list in future development
 	for _, version := range VersionList {
-		if version.DeprecatedIn == "" {
-			t.Skip()
+		if version.DeprecatedIn != "" {
+			assert.True(t, semver.IsValid(version.DeprecatedIn), fmt.Sprintf("version %s is not valid semver", version.DeprecatedIn))
 		}
-		assert.True(t, semver.IsValid(version.DeprecatedIn), fmt.Sprintf("version %s is not valid semver", version.DeprecatedIn))
+		if version.RemovedIn != "" {
+			assert.True(t, semver.IsValid(version.RemovedIn), fmt.Sprintf("version %s is not valid semver", version.RemovedIn))
+		}
 	}
 }

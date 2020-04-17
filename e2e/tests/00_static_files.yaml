@@ -58,3 +58,16 @@ testcases:
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "APIVersions were found, but none were deprecated. Try --show-all."
+
+- name: static files show all json
+  steps:
+  - script: pluto detect-files -d assets/ -A -ojson
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
+
+- name: static files show all yaml
+  steps:
+  - script: pluto detect-files -d assets/ -A -oyaml
+    assertions:
+    - result.code ShouldEqual 1

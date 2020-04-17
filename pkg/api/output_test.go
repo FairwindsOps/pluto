@@ -129,7 +129,7 @@ func TestGetReturnCode(t *testing.T) {
 				},
 				ignoreErrors: false,
 			},
-			want: 1,
+			want: 2,
 		},
 		{
 			name: "version is deprecated ignore errors",

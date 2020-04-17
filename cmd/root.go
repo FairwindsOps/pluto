@@ -82,12 +82,12 @@ var rootCmd = &cobra.Command{
 		c, _ := utf8.DecodeRuneInString(targetVersion)
 		if c != 'v' {
 			fmt.Printf("Your --target-version must begin with a 'v'. Got '%s'\n", targetVersion)
-			os.Exit(2)
+			os.Exit(1)
 		}
 
 		if !semver.IsValid(targetVersion) {
 			fmt.Printf("You must pass a valid semver to --target-version. Got '%s'\n", targetVersion)
-			os.Exit(2)
+			os.Exit(1)
 		}
 	},
 }

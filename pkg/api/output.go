@@ -106,7 +106,7 @@ func GetReturnCode(outputs []*Output, ignoreErrors bool, targetVersion string) i
 	}
 	for _, output := range outputs {
 		if output.APIVersion.IsDeprecatedIn(targetVersion) {
-			return 1
+			return 2
 		}
 	}
 	return 0

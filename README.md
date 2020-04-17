@@ -71,9 +71,9 @@ You should see an output something like:
 
 ```
 $ pluto detect-files -d pkg/finder/testdata
-KIND         VERSION              DEPRECATED   FILE
-Deployment   extensions/v1beta1   true         pkg/finder/testdata/deployment-extensions-v1beta1.json
-Deployment   extensions/v1beta1   true         pkg/finder/testdata/deployment-extensions-v1beta1.yaml
+KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
+Deployment   extensions/v1beta1   true         v1.16.0         utilities
+Deployment   extensions/v1beta1   true         v1.16.0         utilities
 ```
 
 This indicates that we have two files in our directory that have deprecated apiVersions. This will need to be fixed prior to a 1.16 upgrade.
@@ -82,8 +82,8 @@ This indicates that we have two files in our directory that have deprecated apiV
 
 ```
 $ pluto detect-helm --helm-version 3
-KIND          VERSION        DEPRECATED   RESOURCE NAME
-StatefulSet   apps/v1beta1   true         audit-dashboard-prod-rabbitmq-ha
+KIND          VERSION        DEPRECATED   DEPRECATED IN   RESOURCE NAME
+StatefulSet   apps/v1beta1   true         v1.16.0         audit-dashboard-prod-rabbitmq-ha
 ```
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
@@ -92,9 +92,9 @@ You can also use Pluto with helm 2:
 
 ```
 $ pluto detect-helm --helm-version=2 -A
-KIND         VERSION              DEPRECATED   RESOURCE NAME
-Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server
-Deployment   apps/v1              false        lunging-bat-metrics-server
+KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
+Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server
+Deployment   apps/v1              false        n/a             lunging-bat-metrics-server
 ```
 
 ### Helm Chart Checking (local files)
@@ -104,7 +104,31 @@ You can run `helm template <chart-dir> | pluto detect --show-all -`
 This will output something like so:
 
 ```
-KIND         VERSION   DEPRECATED   RESOURCE NAME
-Deployment   apps/v1   false        RELEASE-NAME-goldilocks-controller
-Deployment   apps/v1   false        RELEASE-NAME-goldilocks-dashboard
+$ helm template e2e/tests/assets/helm3chart | pluto detect --show-all -
+KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
+Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1
+Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart
 ```
+
+## Other Usage Options
+
+### CI Pipelines
+
+Pluto will exit with a non-zero code if there are any deprecations detected. This can be used in a CI pipeline to make sure no deprecated versions are introduced into your code.
+
+### Target Versions
+
+By default, Pluto was designed with deprecations related to Kubernetes v1.16.0. However, as more deprecations are introduced, we will try to keep it updated.
+
+You can target the version you are concerned with by using the `--target-version` or `-t` flag. For example:
+
+```
+$ pluto detect-helm --target-version "v1.15.0" --show-all
+KIND                VERSION          DEPRECATED   DEPRECATED IN   RESOURCE NAME
+StatefulSet         apps/v1beta1     false        v1.16.0         audit-dashboard-prod-rabbitmq-ha
+
+$ echo $?
+0
+```
+
+Notice that there is a deprecated version, but it was reported as non-deprecated because it has not yet been deprecated in v1.15.0. This particular run exited 0.

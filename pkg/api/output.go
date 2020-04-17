@@ -17,11 +17,12 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil
 	}
+	usableOutputs := filterNonDeprecated(outputs, targetVersion, showNonDeprecated)
 	var err error
 	var outData []byte
 	switch outputFormat {
 	case "tabular":
-		t, err := tabOut(outputs, showNonDeprecated, targetVersion)
+		t, err := tabOut(usableOutputs, targetVersion)
 		if err != nil {
 			return err
 		}
@@ -31,13 +32,13 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		}
 		return nil
 	case "json":
-		outData, err = json.Marshal(outputs)
+		outData, err = json.Marshal(usableOutputs)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(outData))
 	case "yaml":
-		outData, err = yaml.Marshal(outputs)
+		outData, err = yaml.Marshal(usableOutputs)
 		if err != nil {
 			return err
 		}
@@ -48,21 +49,27 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	return nil
 }
 
-func tabOut(outputs []*Output, showNonDeprecated bool, targetVersion string) (*tabwriter.Writer, error) {
+func filterNonDeprecated(outputs []*Output, targetVersion string, showNonDeprecated bool) []*Output {
 	var usableOutputs []*Output
-	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if showNonDeprecated {
 		usableOutputs = outputs
 	} else {
+
 		for _, output := range outputs {
 			if output.APIVersion.IsDeprecatedIn(targetVersion) {
 				usableOutputs = append(usableOutputs, output)
 			}
 		}
 	}
-	if len(usableOutputs) == 0 {
+	return usableOutputs
+}
+
+func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
+
+	if len(outputs) == 0 {
 		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
 		if err != nil {
 			return nil, err
@@ -73,7 +80,7 @@ func tabOut(outputs []*Output, showNonDeprecated bool, targetVersion string) (*t
 	if err != nil {
 		return nil, err
 	}
-	for _, output := range usableOutputs {
+	for _, output := range outputs {
 		kind := output.APIVersion.Kind
 		deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
 		version := output.APIVersion.Name

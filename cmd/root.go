@@ -19,10 +19,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"unicode/utf8"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
 	"github.com/fairwindsops/pluto/pkg/helm"
+	"github.com/rogpeppe/go-internal/semver"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -37,12 +39,14 @@ var (
 	showNonDeprecated bool
 	helmVersion       string
 	ignoreErrors      bool
+	targetVersion     string
 )
 
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
 	rootCmd.PersistentFlags().BoolVarP(&showNonDeprecated, "show-all", "A", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "Default behavior is to exit non-zero if deprecations are found. This will force a return of zero.")
+	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
@@ -74,6 +78,18 @@ var rootCmd = &cobra.Command{
 		}
 		os.Exit(1)
 	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		c, _ := utf8.DecodeRuneInString(targetVersion)
+		if c != 'v' {
+			fmt.Printf("Your --target-version must begin with a 'v'. Got '%s'\n", targetVersion)
+			os.Exit(2)
+		}
+
+		if !semver.IsValid(targetVersion) {
+			fmt.Printf("You must pass a valid semver to --target-version. Got '%s'\n", targetVersion)
+			os.Exit(2)
+		}
+	},
 }
 
 var detectFilesCmd = &cobra.Command{
@@ -93,12 +109,12 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated)
+		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated, targetVersion, ' ')
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := api.GetReturnCode(dir.Outputs, ignoreErrors)
+		retCode := api.GetReturnCode(dir.Outputs, ignoreErrors, targetVersion)
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},
@@ -115,12 +131,12 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated)
+		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated, targetVersion, ' ')
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := api.GetReturnCode(h.Outputs, ignoreErrors)
+		retCode := api.GetReturnCode(h.Outputs, ignoreErrors, targetVersion)
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},
@@ -154,12 +170,12 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error checking for versions:", err)
 				os.Exit(1)
 			}
-			err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+			err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion, ' ')
 			if err != nil {
 				fmt.Println("Error parsing output:", err)
 				os.Exit(1)
 			}
-			retCode := api.GetReturnCode(output, ignoreErrors)
+			retCode := api.GetReturnCode(output, ignoreErrors, targetVersion)
 			klog.V(5).Infof("retCode: %d", retCode)
 			os.Exit(retCode)
 		}
@@ -168,12 +184,12 @@ var detectCmd = &cobra.Command{
 			fmt.Println("Error reading file:", err)
 			os.Exit(1)
 		}
-		err = api.DisplayOutput(output, outputFormat, showNonDeprecated)
+		err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion, ' ')
 		if err != nil {
 			fmt.Println("Error parsing output:", err)
 			os.Exit(1)
 		}
-		retCode := api.GetReturnCode(output, ignoreErrors)
+		retCode := api.GetReturnCode(output, ignoreErrors, targetVersion)
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},

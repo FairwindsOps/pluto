@@ -28,9 +28,9 @@ var deploymentAppsV1Yaml = "testdata/deployment-apps-v1.yaml"
 var deploymentAppsV1YamlFile = []*api.Output{{
 	Name: "utilities",
 	APIVersion: &api.Version{
-		Name:       "apps/v1",
-		Kind:       "Deployment",
-		Deprecated: false,
+		Name:         "apps/v1",
+		Kind:         "Deployment",
+		DeprecatedIn: "",
 	}},
 }
 
@@ -38,9 +38,9 @@ var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
 var deploymentExtensionsV1YamlFile = []*api.Output{{
 	Name: "utilities",
 	APIVersion: &api.Version{
-		Name:       "extensions/v1beta1",
-		Kind:       "Deployment",
-		Deprecated: true,
+		Name:         "extensions/v1beta1",
+		Kind:         "Deployment",
+		DeprecatedIn: "v1.16.0",
 	}},
 }
 
@@ -48,9 +48,9 @@ var deploymentExtensionsV1JSON = "testdata/deployment-extensions-v1beta1.json"
 var deploymentExtensionsV1JSONFile = []*api.Output{{
 	Name: "utilities",
 	APIVersion: &api.Version{
-		Name:       "extensions/v1beta1",
-		Kind:       "Deployment",
-		Deprecated: true,
+		Name:         "extensions/v1beta1",
+		Kind:         "Deployment",
+		DeprecatedIn: "v1.16.0",
 	}},
 }
 

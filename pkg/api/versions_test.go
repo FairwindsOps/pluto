@@ -15,9 +15,11 @@
 package api
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/mod/semver"
 )
 
 func Test_jsonToStub(t *testing.T) {
@@ -187,7 +189,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "yaml has version",
 			data:    []byte("kind: Deployment\napiVersion: apps/v1"),
-			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", Deprecated: false}}},
+			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: ""}}},
 			wantErr: false,
 		},
 		{
@@ -211,7 +213,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
-			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", Deprecated: true}}},
+			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", DeprecatedIn: "v1.16.0"}}},
 			wantErr: false,
 		},
 	}
@@ -226,5 +228,62 @@ func Test_IsVersioned(t *testing.T) {
 				assert.Equal(t, tt.want, got)
 			}
 		})
+	}
+}
+
+func TestVersion_IsDeprecatedIn(t *testing.T) {
+
+	tests := []struct {
+		name          string
+		targetVersion string
+		want          bool
+		deprecatedIn  string
+	}{
+		{
+			name:          "not deprecated yet 1.15.0",
+			targetVersion: "v1.15.0",
+			deprecatedIn:  "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "equal values",
+			targetVersion: "v1.16.0",
+			deprecatedIn:  "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "greater than",
+			targetVersion: "v1.17.0",
+			deprecatedIn:  "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "Bad semVer",
+			targetVersion: "foo",
+			deprecatedIn:  "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "blank deprecatedIn - not deprecated",
+			targetVersion: "v1.16.0",
+			deprecatedIn:  "",
+			want:          false,
+		},
+	}
+	for _, tt := range tests {
+		deprecatedVersion := &Version{DeprecatedIn: tt.deprecatedIn}
+		got := deprecatedVersion.IsDeprecatedIn(tt.targetVersion)
+		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
+	}
+}
+
+func Test_VersionListIsValid(t *testing.T) {
+	// This test validates that all of the versions in VersionList are valid semVer
+	// it should prevent us from putting bad values in that list in future development
+	for _, version := range VersionList {
+		if version.DeprecatedIn == "" {
+			t.Skip()
+		}
+		assert.True(t, semver.IsValid(version.DeprecatedIn), fmt.Sprintf("version %s is not valid semver", version.DeprecatedIn))
 	}
 }

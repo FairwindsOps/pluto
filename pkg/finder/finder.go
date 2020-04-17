@@ -60,7 +60,7 @@ func (dir *Dir) FindVersions() error {
 	}
 	if dir.Outputs != nil {
 		for _, file := range dir.Outputs {
-			klog.V(6).Infof("%t - %s - %s", file.APIVersion.Deprecated, file.APIVersion.Name, file.Name)
+			klog.V(6).Infof("%s - %s - %s", file.APIVersion.DeprecatedIn, file.APIVersion.Name, file.Name)
 		}
 	}
 	return nil

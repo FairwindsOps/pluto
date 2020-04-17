@@ -94,15 +94,26 @@ var VersionList = []Version{
 	{"admissionregistration.k8s.io/v1beta1", "MutatingWebhookConfiguration", "v1.16.0", "v1.19.0", "admissionregistration.k8s.io/v1"},
 
 	// CustomResourceDefinition
-<<<<<<< HEAD
 	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.19.0"},
 
 	// PriorityClass
 	{"scheduling.k8s.io/v1beta1", "PriorityClass", "v1.17.0"},
 	{"scheduling.k8s.io/v1alpha1", "PriorityClass", "v1.17.0"},
-=======
 	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.16.0", "v1.19.0", "apiextensions.k8s.io/v1"},
->>>>>>> 9c5f793... Adding fields to versions. ReplacedIn and ReplacementAPI
+
+	// Rbac
+	{"rbac.authorization.k8s.io/v1alpha1", "ClusterRoleBinding", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "ClusterRole", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "ClusterRoleBindingList", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "ClusterRoleList", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "Role", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "RoleBinding", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "RoleList", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+	{"rbac.authorization.k8s.io/v1alpha1", "RoleBindingList", "v1.17.0", "v1.20.0", "rbac.authorization.k8s.io/v1"},
+
+	//CSINode
+	{"storage.k8s.io/v1beta1", "CSINode", "v1.17.0", "", ""},
+>>>>>>> ac5df95... Fix #46 add remaining v1.17 deprecations
 }
 
 func checkVersion(stub *Stub) *Version {

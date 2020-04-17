@@ -5,7 +5,7 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/ -A
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         utilities"
     - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             utilities"
@@ -14,7 +14,7 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         utilities"
     - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             utilities"
@@ -23,7 +23,7 @@ testcases:
   steps:
   - script: helm template assets/helm3chart | pluto detect -A -
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1"
     - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart"
@@ -32,7 +32,7 @@ testcases:
   steps:
   - script: helm template assets/helm3chart | pluto detect -
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
     - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
     - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1"
     - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart"
@@ -63,11 +63,12 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/ -A -ojson
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
     - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
 
-- name: static files show all yaml
+- name: static files json
   steps:
-  - script: pluto detect-files -d assets/ -A -oyaml
+  - script: pluto detect-files -d assets/ -ojson
     assertions:
-    - result.code ShouldEqual 1
+    - result.code ShouldEqual 2
+    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}}]'

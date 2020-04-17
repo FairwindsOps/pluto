@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 
+	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog"
 )
@@ -48,8 +49,9 @@ type Version struct {
 	Name string `json:"version,omitempty" yaml:"version,omitempty"`
 	// Kind is the kind of object associated with this version
 	Kind string `json:"kind,omitempty" yaml:"kind,omitempty"`
-	// Deprecated is a boolean that indicates if the apiVersion is deprecated
-	Deprecated bool `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
+	// DeprecatedIn is a string that indicates what version the api is deprecated in
+	// an empty string indicates that the version is not deprecated
+	DeprecatedIn string `json:"deprecated-in,omitempty" yaml:"deprecated-in,omitempty"`
 }
 
 // VersionList is a set of apiVersions and if they are deprecated or not.
@@ -57,31 +59,31 @@ type Version struct {
 // Currently using the list for 1.16 from here: https://kubernetes.io/blog/2019/07/18/api-deprecations-in-1-16/
 var VersionList = []Version{
 	// Deployments
-	{"apps/v1", "Deployment", false},
-	{"extensions/v1beta1", "Deployment", true},
-	{"apps/v1beta2", "Deployment", true},
-	{"apps/v1beta1", "Deployment", true},
+	{"apps/v1", "Deployment", ""},
+	{"extensions/v1beta1", "Deployment", "v1.16.0"},
+	{"apps/v1beta2", "Deployment", "v1.16.0"},
+	{"apps/v1beta1", "Deployment", "v1.16.0"},
 
 	// StatefulSet
-	{"apps/v1beta1", "StatefulSet", true},
-	{"apps/v1beta2", "StatefulSet", true},
+	{"apps/v1beta1", "StatefulSet", "v1.16.0"},
+	{"apps/v1beta2", "StatefulSet", "v1.16.0"},
 
 	// NetworkPolicy
-	{"networking.k8s.io/v1", "NetworkPolicy", false},
-	{"extensions/v1beta1", "NetworkPolicy", true},
+	{"networking.k8s.io/v1", "NetworkPolicy", ""},
+	{"extensions/v1beta1", "NetworkPolicy", "v1.16.0"},
 
 	// DaemonSet
-	{"apps/v1beta2", "DaemonSet", true},
-	{"extensions/v1beta1", "DaemonSet", true},
+	{"apps/v1beta2", "DaemonSet", "v1.16.0"},
+	{"extensions/v1beta1", "DaemonSet", "v1.16.0"},
 
 	// PodSecurityPolicy
-	{"policy/v1beta1", "PodSecurityPolicy", false},
-	{"extensions/v1beta1", "PodSecurityPolicy", true},
+	{"policy/v1beta1", "PodSecurityPolicy", ""},
+	{"extensions/v1beta1", "PodSecurityPolicy", "v1.16.0"},
 
 	// ReplicaSet
-	{"extensions/v1beta1", "ReplicaSet", true},
-	{"apps/v1beta1", "ReplicaSet", true},
-	{"apps/v1beta2", "ReplicaSet", true},
+	{"extensions/v1beta1", "ReplicaSet", "v1.16.0"},
+	{"apps/v1beta1", "ReplicaSet", "v1.16.0"},
+	{"apps/v1beta2", "ReplicaSet", "v1.16.0"},
 }
 
 func checkVersion(stub *Stub) *Version {
@@ -165,4 +167,31 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 		stubs = append(stubs, stub)
 	}
 	return stubs, nil
+}
+
+// IsDeprecatedIn returns true if the version is deprecated in the targetVersion
+// Will return false if the targetVersion passed is not a valid semver string
+func (v *Version) IsDeprecatedIn(targetVersion string) bool {
+	if !semver.IsValid(targetVersion) {
+		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
+		return false
+	}
+	if v.DeprecatedIn == "" {
+		// If DeprecatedIn is an empty string, the apiVersion is not ever deprecated
+		return false
+	}
+	comparison := semver.Compare(targetVersion, v.DeprecatedIn)
+	switch comparison {
+	case 1:
+		// targetVersion > deprecation version
+		return true
+	case 0:
+		// targetVersion == deprecation version
+		return true
+	case -1:
+		// targetVersion < deprecation version
+		return false
+	default:
+		return false
+	}
 }

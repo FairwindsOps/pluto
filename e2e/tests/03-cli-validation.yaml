@@ -1,0 +1,15 @@
+version: "2"
+name: "CLI Validation"
+testcases:
+- name: Pass bad semver with no v
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 -t "foo"
+    assertions:
+    - result.code ShouldEqual 2
+    - result.systemout ShouldEqual "Your --target-version must begin with a 'v'. Got 'foo'"
+- name: Pass bad semver starting with v
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 -t "vfoo"
+    assertions:
+    - result.code ShouldEqual 2
+    - result.systemout ShouldEqual "You must pass a valid semver to --target-version. Got 'vfoo'"

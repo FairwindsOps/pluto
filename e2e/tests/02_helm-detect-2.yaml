@@ -14,17 +14,18 @@ testcases:
   - script: pluto detect-helm --helm-version=2 -A
     assertions:
     - result.code ShouldEqual 1
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        lunging-bat-metrics-server"
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server"
+    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             lunging-bat-metrics-server"
 
 - name: helm2 detect in-cluster
   steps:
   - script: pluto detect-helm --helm-version=2
     assertions:
     - result.code ShouldEqual 1
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         invincible-zebu-metrics-server"
+    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
+    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server"
+    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             lunging-bat-metrics-server"
 - name: cleanup
   steps:
   - script: kubectl delete ns helm-system

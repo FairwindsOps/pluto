@@ -9,8 +9,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var padChar = byte(' ')
+
 // DisplayOutput prints the output based on desired variables
-func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool) error {
+func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool, targetVersion string) error {
 	if len(outputs) == 0 {
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil
@@ -19,7 +21,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	var outData []byte
 	switch outputFormat {
 	case "tabular":
-		t, err := tabOut(outputs, showNonDeprecated)
+		t, err := tabOut(outputs, showNonDeprecated, targetVersion)
 		if err != nil {
 			return err
 		}
@@ -46,16 +48,16 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	return nil
 }
 
-func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error) {
+func tabOut(outputs []*Output, showNonDeprecated bool, targetVersion string) (*tabwriter.Writer, error) {
 	var usableOutputs []*Output
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 0, 8, 2, ' ', 0)
+	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if showNonDeprecated {
 		usableOutputs = outputs
 	} else {
 		for _, output := range outputs {
-			if output.APIVersion.Deprecated {
+			if output.APIVersion.IsDeprecatedIn(targetVersion) {
 				usableOutputs = append(usableOutputs, output)
 			}
 		}
@@ -67,17 +69,21 @@ func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error
 		}
 		return w, nil
 	}
-	_, err := fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t RESOURCE NAME")
+	_, err := fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t DEPRECATED IN\t RESOURCE NAME\t")
 	if err != nil {
 		return nil, err
 	}
 	for _, output := range usableOutputs {
 		kind := output.APIVersion.Kind
-		deprecated := fmt.Sprintf("%t", output.APIVersion.Deprecated)
+		deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
 		version := output.APIVersion.Name
 		fileName := output.Name
+		deprecatedIn := output.APIVersion.DeprecatedIn
+		if deprecatedIn == "" {
+			deprecatedIn = "n/a"
+		}
 
-		_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t\n", kind, version, deprecated, fileName)
+		_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", kind, version, deprecated, deprecatedIn, fileName)
 		if err != nil {
 			return nil, err
 		}
@@ -87,12 +93,12 @@ func tabOut(outputs []*Output, showNonDeprecated bool) (*tabwriter.Writer, error
 
 // GetReturnCode checks for deprecated versions and returns a code.
 // takes a boolean to ignore any errors.
-func GetReturnCode(outputs []*Output, ignoreErrors bool) int {
+func GetReturnCode(outputs []*Output, ignoreErrors bool, targetVersion string) int {
 	if ignoreErrors {
 		return 0
 	}
 	for _, output := range outputs {
-		if output.APIVersion.Deprecated {
+		if output.APIVersion.IsDeprecatedIn(targetVersion) {
 			return 1
 		}
 	}

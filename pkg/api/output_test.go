@@ -23,45 +23,51 @@ import (
 var testOutput1 = &Output{
 	Name: "some name one",
 	APIVersion: &Version{
-		Name:       "apps/v1",
-		Kind:       "Deployment",
-		Deprecated: false,
+		Name:         "apps/v1",
+		Kind:         "Deployment",
+		DeprecatedIn: "",
 	},
 }
 var testOutput2 = &Output{
 	Name: "some name two",
 	APIVersion: &Version{
-		Name:       "extensions/v1beta1",
-		Kind:       "Deployment",
-		Deprecated: true,
+		Name:         "extensions/v1beta1",
+		Kind:         "Deployment",
+		DeprecatedIn: "v1.16.0",
 	},
 }
 
+var targetVersion116 = string("v1.16.0")
+
+func init() {
+	padChar = byte('-')
+}
+
 func ExampleDisplayOutput_showNonDeprecated() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", true)
+	_ = DisplayOutput([]*Output{testOutput1}, "tabular", true, targetVersion116)
 
 	// Output:
-	// KIND         VERSION   DEPRECATED   RESOURCE NAME
-	// Deployment   apps/v1   false        some name one
+	// KIND-------- VERSION-- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
+	// Deployment-- apps/v1-- false------- n/a------------ some name one--
 }
 
 func ExampleDisplayOutput() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "tabular", false)
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "tabular", false, targetVersion116)
 
 	// Output:
-	// KIND         VERSION              DEPRECATED   RESOURCE NAME
-	// Deployment   extensions/v1beta1   true         some name two
+	// KIND-------- VERSION------------- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
+	// Deployment-- extensions/v1beta1-- true-------- v1.16.0-------- some name two--
 }
 
 func ExampleDisplayOutput_json() {
-	_ = DisplayOutput([]*Output{testOutput1}, "json", true)
+	_ = DisplayOutput([]*Output{testOutput1}, "json", true, targetVersion116)
 
 	// Output:
 	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}}]
 }
 
 func ExampleDisplayOutput_yaml() {
-	_ = DisplayOutput([]*Output{testOutput1}, "yaml", true)
+	_ = DisplayOutput([]*Output{testOutput1}, "yaml", true, targetVersion116)
 
 	// Output:
 	// - file: some name one
@@ -71,19 +77,19 @@ func ExampleDisplayOutput_yaml() {
 }
 
 func ExampleDisplayOutput_noOutput() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false)
+	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false, targetVersion116)
 
 	// Output: APIVersions were found, but none were deprecated. Try --show-all.
 }
 
 func ExampleDisplayOutput_badFormat() {
-	_ = DisplayOutput([]*Output{testOutput1}, "foo", true)
+	_ = DisplayOutput([]*Output{testOutput1}, "foo", true, targetVersion116)
 
 	// Output: output format should be one of (json,yaml,tabular)
 }
 
 func ExampleDisplayOutput_zeroLength() {
-	_ = DisplayOutput([]*Output{}, "tabular", false)
+	_ = DisplayOutput([]*Output{}, "tabular", false, targetVersion116)
 
 	// Output: There were no apiVersions found that match our records.
 }
@@ -110,9 +116,9 @@ func TestGetReturnCode(t *testing.T) {
 			name: "version is deprecated return one",
 			args: args{
 				outputs: []*Output{
-					&Output{
+					{
 						APIVersion: &Version{
-							Deprecated: true,
+							DeprecatedIn: targetVersion116,
 						},
 					},
 				},
@@ -124,9 +130,9 @@ func TestGetReturnCode(t *testing.T) {
 			name: "version is deprecated ignore errors",
 			args: args{
 				outputs: []*Output{
-					&Output{
+					{
 						APIVersion: &Version{
-							Deprecated: true,
+							DeprecatedIn: targetVersion116,
 						},
 					},
 				},
@@ -137,7 +143,7 @@ func TestGetReturnCode(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := GetReturnCode(tt.args.outputs, tt.args.ignoreErrors)
+			got := GetReturnCode(tt.args.outputs, tt.args.ignoreErrors, targetVersion116)
 			assert.Equal(t, tt.want, got)
 		})
 	}

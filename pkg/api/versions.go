@@ -84,6 +84,12 @@ var VersionList = []Version{
 	{"extensions/v1beta1", "ReplicaSet", "v1.16.0"},
 	{"apps/v1beta1", "ReplicaSet", "v1.16.0"},
 	{"apps/v1beta2", "ReplicaSet", "v1.16.0"},
+
+	// MutatingWebhookConfiguration
+	{"admissionregistration.k8s.io/v1beta1", "MutatingWebhookConfiguration", "v1.19.0"},
+
+	// CustomResourceDefinition
+	{"apiextensions.k8s.io/v1beta1", "CustomResourceDefinition", "v1.19.0"},
 }
 
 func checkVersion(stub *Stub) *Version {

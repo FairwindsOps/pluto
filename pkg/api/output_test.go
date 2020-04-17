@@ -39,8 +39,12 @@ var testOutput2 = &Output{
 
 var targetVersion116 = string("v1.16.0")
 
+func init() {
+	padChar = byte('-')
+}
+
 func ExampleDisplayOutput_showNonDeprecated() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", true, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1}, "tabular", true, targetVersion116)
 
 	// Output:
 	// KIND-------- VERSION-- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
@@ -48,7 +52,7 @@ func ExampleDisplayOutput_showNonDeprecated() {
 }
 
 func ExampleDisplayOutput() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "tabular", false, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "tabular", false, targetVersion116)
 
 	// Output:
 	// KIND-------- VERSION------------- DEPRECATED-- DEPRECATED IN-- RESOURCE NAME--
@@ -56,14 +60,14 @@ func ExampleDisplayOutput() {
 }
 
 func ExampleDisplayOutput_json() {
-	_ = DisplayOutput([]*Output{testOutput1}, "json", true, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1}, "json", true, targetVersion116)
 
 	// Output:
 	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}}]
 }
 
 func ExampleDisplayOutput_yaml() {
-	_ = DisplayOutput([]*Output{testOutput1}, "yaml", true, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1}, "yaml", true, targetVersion116)
 
 	// Output:
 	// - file: some name one
@@ -73,19 +77,19 @@ func ExampleDisplayOutput_yaml() {
 }
 
 func ExampleDisplayOutput_noOutput() {
-	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1}, "tabular", false, targetVersion116)
 
 	// Output: APIVersions were found, but none were deprecated. Try --show-all.
 }
 
 func ExampleDisplayOutput_badFormat() {
-	_ = DisplayOutput([]*Output{testOutput1}, "foo", true, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{testOutput1}, "foo", true, targetVersion116)
 
 	// Output: output format should be one of (json,yaml,tabular)
 }
 
 func ExampleDisplayOutput_zeroLength() {
-	_ = DisplayOutput([]*Output{}, "tabular", false, targetVersion116, '-')
+	_ = DisplayOutput([]*Output{}, "tabular", false, targetVersion116)
 
 	// Output: There were no apiVersions found that match our records.
 }

@@ -9,8 +9,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var padChar = byte(' ')
+
 // DisplayOutput prints the output based on desired variables
-func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool, targetVersion string, padChar byte) error {
+func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool, targetVersion string) error {
 	if len(outputs) == 0 {
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil
@@ -19,7 +21,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	var outData []byte
 	switch outputFormat {
 	case "tabular":
-		t, err := tabOut(outputs, showNonDeprecated, targetVersion, padChar)
+		t, err := tabOut(outputs, showNonDeprecated, targetVersion)
 		if err != nil {
 			return err
 		}
@@ -46,7 +48,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	return nil
 }
 
-func tabOut(outputs []*Output, showNonDeprecated bool, targetVersion string, padChar byte) (*tabwriter.Writer, error) {
+func tabOut(outputs []*Output, showNonDeprecated bool, targetVersion string) (*tabwriter.Writer, error) {
 	var usableOutputs []*Output
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)

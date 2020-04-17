@@ -47,9 +47,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&showNonDeprecated, "show-all", "A", false, "If enabled, will show files that have non-deprecated apiVersion. Only applies to tabular output.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreErrors, "ignore-errors", false, "Default behavior is to exit non-zero if deprecations are found. This will force a return of zero.")
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
-	detectFilesCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "tabular", "The output format to use. (tabular|json|yaml)")
 
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
@@ -109,7 +109,7 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated, targetVersion, ' ')
+		err = api.DisplayOutput(dir.Outputs, outputFormat, showNonDeprecated, targetVersion)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
@@ -131,7 +131,7 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated, targetVersion, ' ')
+		err = api.DisplayOutput(h.Outputs, outputFormat, showNonDeprecated, targetVersion)
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
@@ -170,7 +170,7 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error checking for versions:", err)
 				os.Exit(1)
 			}
-			err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion, ' ')
+			err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion)
 			if err != nil {
 				fmt.Println("Error parsing output:", err)
 				os.Exit(1)
@@ -184,7 +184,7 @@ var detectCmd = &cobra.Command{
 			fmt.Println("Error reading file:", err)
 			os.Exit(1)
 		}
-		err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion, ' ')
+		err = api.DisplayOutput(output, outputFormat, showNonDeprecated, targetVersion)
 		if err != nil {
 			fmt.Println("Error parsing output:", err)
 			os.Exit(1)

@@ -114,7 +114,9 @@ Deployment   apps/v1              false        n/a             RELEASE-NAME-helm
 
 ### CI Pipelines
 
-Pluto will exit with a non-zero code if there are any deprecations detected. This can be used in a CI pipeline to make sure no deprecated versions are introduced into your code.
+Pluto will exit with a code of `2` if there are any deprecations detected. This can be used in a CI pipeline to make sure no deprecated versions are introduced into your code.
+
+An exit code of `1` indicates an error.
 
 ### Target Versions
 

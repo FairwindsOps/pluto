@@ -9,40 +9,39 @@ testcases:
 
 - name: helm detect show all
   steps:
-  - script: pluto detect-helm --helm-version=3 -A
+  - script: pluto detect-helm --helm-version=3 -A -t v1.16.0
     assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         test-helm3chart-v1beta1"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             test-helm3chart"
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME                      KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldContainSubstring "test-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: helm detect
   steps:
-  - script: pluto detect-helm --helm-version=3
+  - script: pluto detect-helm --helm-version=3 -t v1.16.0
     assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         test-helm3chart-v1beta1"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             test-helm3chart"
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME                      KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldNotContainSubstring "test-helm3chart           Deployment   apps/v1                            false     false"
 
-- name: helm detect ignore errors
+- name: helm detect ignore deprecations
   steps:
-  - script: pluto detect-helm --helm-version=3 --ignore-errors
+  - script: pluto detect-helm --helm-version=3 --ignore-deprecations -t v1.15.0
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         test-helm3chart-v1beta1"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             test-helm3chart"
+    - result.systemout ShouldContainSubstring "NAME                      KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED  "
+    - result.systemout ShouldContainSubstring "test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldNotContainSubstring "test-helm3chart           Deployment   apps/v1                            false     false"
 
-
-- name: helm detect show all ignore errors
+- name: helm detect show all ignore removals
   steps:
-  - script: pluto detect-helm --helm-version=3 -A --ignore-errors
+  - script: pluto detect-helm --helm-version=3 -A --ignore-removals --ignore-deprecations -t v1.16.0
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         test-helm3chart-v1beta1"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             test-helm3chart"
+    - result.systemout ShouldContainSubstring "NAME                      KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED  "
+    - result.systemout ShouldContainSubstring "test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true     "
+    - result.systemout ShouldContainSubstring "test-helm3chart           Deployment   apps/v1                            false     false   "
 
 - name: cleanup
   steps:

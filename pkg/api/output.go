@@ -78,9 +78,6 @@ func (instance *Instance) DisplayOutput() error {
 }
 
 func (instance *Instance) filterOutput() {
-	if instance.ShowAll {
-		return
-	}
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersion)
@@ -114,8 +111,8 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
-			removed := fmt.Sprintf("%t", output.APIVersion.isRemovedIn(instance.TargetVersion))
-			deprecated := fmt.Sprintf("%t", output.APIVersion.isDeprecatedIn(instance.TargetVersion))
+			deprecated := fmt.Sprintf("%t", output.Deprecated)
+			removed := fmt.Sprintf("%t", output.Removed)
 			version := output.APIVersion.Name
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI
@@ -134,8 +131,8 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.APIVersion.isDeprecatedIn(instance.TargetVersion))
-			removed := fmt.Sprintf("%t", output.APIVersion.isRemovedIn(instance.TargetVersion))
+			deprecated := fmt.Sprintf("%t", output.Deprecated)
+			removed := fmt.Sprintf("%t", output.Removed)
 			version := output.APIVersion.Name
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI

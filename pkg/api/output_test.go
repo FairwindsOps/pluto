@@ -61,7 +61,6 @@ func ExampleInstance_DisplayOutput_showAll_normal() {
 	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
 	// some name one-- Deployment-- apps/v1------------- ------------- false---- false-------
 	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ false---- true--------
-
 }
 
 func ExampleInstance_DisplayOutput_showAll_wide() {

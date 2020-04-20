@@ -67,7 +67,7 @@ func ExampleDisplayOutput_json() {
 	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "json", true, targetVersion116)
 
 	// Output:
-	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"file":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}}]
+	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"file":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]
 }
 
 func ExampleDisplayOutput_yaml() {
@@ -82,7 +82,9 @@ func ExampleDisplayOutput_yaml() {
 	//   api:
 	//     version: extensions/v1beta1
 	//     kind: Deployment
-	//     deprecated-in: v1.16.0
+	//     deprecated-in: v1.9.0
+	//     removed-in: v1.16.0
+	//     replacement-api: apps/v1
 }
 
 func ExampleDisplayOutput_noOutput() {

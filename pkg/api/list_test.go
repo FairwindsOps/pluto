@@ -1,3 +1,13 @@
+package api
+
+import (
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/mod/semver"
+)
+
 func Test_VersionListIsValid(t *testing.T) {
 	// This test validates that all of the versions in VersionList are valid semVer
 	// it should prevent us from putting bad values in that list in future development

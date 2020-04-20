@@ -13,18 +13,20 @@ var padChar = byte(' ')
 
 // Output is a thing that has an apiVersion in it
 type Output struct {
-	Name       string   `json:"file,omitempty" yaml:"file,omitempty"`
+	Name       string   `json:"name,omitempty" yaml:"name,omitempty"`
 	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
+	Deprecated bool     `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
+	Removed    bool     `json:"removed,omitempty" yaml:"removed,omitempty"`
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
 type Instance struct {
-	Outputs            []*Output
-	IgnoreDeprecations bool
-	IgnoreRemovals     bool
-	OutputFormat       string
-	ShowAll            bool
-	TargetVersion      string
+	Outputs            []*Output `json:"items,omitempty" yaml:"items,omitempty"`
+	IgnoreDeprecations bool      `json:"-" yaml:"-"`
+	IgnoreRemovals     bool      `json:"-" yaml:"-"`
+	OutputFormat       string    `json:"-" yaml:"-"`
+	ShowAll            bool      `json:"show-all,omitempty" yaml:"show-all,omitempty"`
+	TargetVersion      string    `json:"target-version,omitempty" yaml:"target-version,omitempty"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -58,13 +60,13 @@ func (instance *Instance) DisplayOutput() error {
 		}
 		return nil
 	case "json":
-		outData, err = json.Marshal(instance.Outputs)
+		outData, err = json.Marshal(instance)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(outData))
 	case "yaml":
-		outData, err = yaml.Marshal(instance.Outputs)
+		outData, err = yaml.Marshal(instance)
 		if err != nil {
 			return err
 		}
@@ -81,7 +83,11 @@ func (instance *Instance) filterOutput() {
 	}
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
-		if output.APIVersion.IsDeprecatedIn(instance.TargetVersion) || output.APIVersion.IsRemovedIn(instance.TargetVersion) {
+		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersion)
+		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersion)
+		if instance.ShowAll {
+			usableOutputs = append(usableOutputs, output)
+		} else if output.APIVersion.isDeprecatedIn(instance.TargetVersion) || output.APIVersion.isRemovedIn(instance.TargetVersion) {
 			usableOutputs = append(usableOutputs, output)
 		}
 	}
@@ -108,8 +114,8 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
-			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(instance.TargetVersion))
-			deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(instance.TargetVersion))
+			removed := fmt.Sprintf("%t", output.APIVersion.isRemovedIn(instance.TargetVersion))
+			deprecated := fmt.Sprintf("%t", output.APIVersion.isDeprecatedIn(instance.TargetVersion))
 			version := output.APIVersion.Name
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI
@@ -128,8 +134,8 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(instance.TargetVersion))
-			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(instance.TargetVersion))
+			deprecated := fmt.Sprintf("%t", output.APIVersion.isDeprecatedIn(instance.TargetVersion))
+			removed := fmt.Sprintf("%t", output.APIVersion.isRemovedIn(instance.TargetVersion))
 			version := output.APIVersion.Name
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI
@@ -155,11 +161,11 @@ func (instance *Instance) GetReturnCode() int {
 	var deprecations int
 	var removals int
 	for _, output := range instance.Outputs {
-		if output.APIVersion.IsRemovedIn(instance.TargetVersion) {
+		if output.APIVersion.isRemovedIn(instance.TargetVersion) {
 
 			removals = removals + 1
 		}
-		if output.APIVersion.IsDeprecatedIn(instance.TargetVersion) {
+		if output.APIVersion.isDeprecatedIn(instance.TargetVersion) {
 			deprecations = deprecations + 1
 		}
 	}

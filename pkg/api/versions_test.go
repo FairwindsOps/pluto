@@ -270,7 +270,7 @@ func TestVersion_IsDeprecatedIn(t *testing.T) {
 	}
 	for _, tt := range tests {
 		deprecatedVersion := &Version{DeprecatedIn: tt.deprecatedIn}
-		got := deprecatedVersion.IsDeprecatedIn(tt.targetVersion)
+		got := deprecatedVersion.isDeprecatedIn(tt.targetVersion)
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }
@@ -316,7 +316,7 @@ func TestVersion_IsRemovedIn(t *testing.T) {
 	}
 	for _, tt := range tests {
 		removedVersion := &Version{RemovedIn: tt.removedIn}
-		got := removedVersion.IsRemovedIn(tt.targetVersion)
+		got := removedVersion.isRemovedIn(tt.targetVersion)
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }

@@ -138,7 +138,7 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 
 // IsDeprecatedIn returns true if the version is deprecated in the targetVersion
 // Will return false if the targetVersion passed is not a valid semver string
-func (v *Version) IsDeprecatedIn(targetVersion string) bool {
+func (v *Version) isDeprecatedIn(targetVersion string) bool {
 	if !semver.IsValid(targetVersion) {
 		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
 		return false
@@ -152,7 +152,7 @@ func (v *Version) IsDeprecatedIn(targetVersion string) bool {
 
 // IsRemovedIn returns true if the version is deprecated in the targetVersion
 // Will return false if the targetVersion passed is not a valid semver string
-func (v *Version) IsRemovedIn(targetVersion string) bool {
+func (v *Version) isRemovedIn(targetVersion string) bool {
 	if !semver.IsValid(targetVersion) {
 		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
 		return false

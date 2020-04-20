@@ -37,6 +37,12 @@ So, long story short, finding the places where you have deployed a deprecated ap
 * Infrastructure-as-Code repos: Pluto can check both static manifests and Helm charts for deprecated apiVersions
 * Live Helm releases: Pluto can check both Helm 2 and Helm 3 releases running in your cluster for deprecated apiVersions
 
+## Kubernetes Deprecation Policy
+
+You can read the full policy [here](https://kubernetes.io/docs/reference/using-api/deprecation-policy/)
+
+Long story short, apiVersions get deprecated, and then they eventually get removed entirely. Pluto differentiates between these two, and will tell you if a version is `DEPRECATED` or `REMOVED`
+
 ## Installation
 
 ### asdf
@@ -71,9 +77,9 @@ You should see an output something like:
 
 ```
 $ pluto detect-files -d pkg/finder/testdata
-KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
-Deployment   extensions/v1beta1   true         v1.16.0         utilities
-Deployment   extensions/v1beta1   true         v1.16.0         utilities
+NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
+utilities   Deployment   extensions/v1beta1   apps/v1       true      true
+utilities   Deployment   extensions/v1beta1   apps/v1       true      true
 ```
 
 This indicates that we have two files in our directory that have deprecated apiVersions. This will need to be fixed prior to a 1.16 upgrade.
@@ -119,6 +125,13 @@ Pluto has specific exit codes that is uses to indicate certain results:
 - Exit Code 1 - An error. A message will be displayed
 - Exit Code 2 - A deprecated apiVersion has been found.
 - Exit Code 3 - A removed apiVersion has been found.
+
+If you wish to bypass the generation of exit codes 2 and 3, you may do so with two different flags:
+
+```
+--ignore-deprecations              Ignore the default behavior to exit 2 if deprecated apiVersions are found.
+--ignore-removals                  Ignore the default behavior to exit 3 if removed apiVersions are found.
+```
 
 ### Target Versions
 

@@ -46,8 +46,8 @@ var (
 func init() {
 	rootCmd.AddCommand(detectFilesCmd)
 	rootCmd.PersistentFlags().BoolVarP(&showAll, "show-all", "A", false, "If enabled, will show files that have non-deprecated and non-removed apiVersion. Only applies to tabular output.")
-	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Default behavior is to exit 2 if deprecated apiVersions are found. This will force a return of zero.")
-	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Default behavior is to exit 3 if removed apiVersions are found. This will force a return of zero.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")

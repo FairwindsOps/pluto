@@ -63,14 +63,14 @@ testcases:
   - script: pluto detect-files -d assets/ -A -ojson
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
+    - result.systemout ShouldEqual '{"items":[{"name":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}},{"name":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}],"show-all":true,"target-version":"v1.16.0"}'
 
 - name: static files json
   steps:
   - script: pluto detect-files -d assets/ -ojson
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]'
+    - result.systemout ShouldEqual '{"items":[{"name":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"target-version":"v1.16.0"}'
 
 - name: static files wide
   steps:

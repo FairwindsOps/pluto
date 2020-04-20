@@ -129,7 +129,7 @@ func ExampleInstance_DisplayOutput_showAll_json() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"file":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]
+	// {"items":[{"name":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-version":"v1.16.0"}
 }
 
 func ExampleInstance_DisplayOutput_showAll_yaml() {
@@ -145,17 +145,22 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// - file: some name one
+	// items:
+	// - name: some name one
 	//   api:
 	//     version: apps/v1
 	//     kind: Deployment
-	// - file: some name two
+	// - name: some name two
 	//   api:
 	//     version: extensions/v1beta1
 	//     kind: Deployment
 	//     deprecated-in: v1.9.0
 	//     removed-in: v1.16.0
 	//     replacement-api: apps/v1
+	//   deprecated: true
+	//   removed: true
+	// show-all: true
+	// target-version: v1.16.0
 }
 
 func ExampleInstance_DisplayOutput_noOutput() {

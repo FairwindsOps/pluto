@@ -6,9 +6,9 @@ testcases:
   - script: pluto detect-files -d assets/ -A
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         utilities"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             utilities"
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   apps/v1                            false"
 
 - name: static files
   steps:
@@ -64,11 +64,11 @@ testcases:
   - script: pluto detect-files -d assets/ -A -ojson
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
+    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
 
 - name: static files json
   steps:
   - script: pluto detect-files -d assets/ -ojson
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.16.0"}}]'
+    - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]'

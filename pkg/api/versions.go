@@ -37,12 +37,6 @@ type StubMeta struct {
 	Name string `json:"name" yaml:"name"`
 }
 
-// Output is a thing that has an apiVersion in it
-type Output struct {
-	Name       string   `json:"file,omitempty" yaml:"file,omitempty"`
-	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
-}
-
 // Version is an apiVersion and a flag for deprecation
 type Version struct {
 	// Name is the name of the api version

@@ -41,23 +41,40 @@ var testOutput2 = &Output{
 	},
 }
 
-var targetVersion116 = string("v1.16.0")
-
 func init() {
 	padChar = byte('-')
 }
 
-func ExampleDisplayOutput_showNonDeprecated_normal() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "normal", true, targetVersion116)
+func ExampleInstance_DisplayOutput_showAll_normal() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "normal",
+		ShowAll:      true,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED--
-	// some name one-- Deployment-- apps/v1------------- ------------- false----
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-----
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
+	// some name one-- Deployment-- apps/v1------------- ------------- false---- false-------
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
+
 }
 
-func ExampleDisplayOutput_showNonDeprecated_wide() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "wide", true, targetVersion116)
+func ExampleInstance_DisplayOutput_showAll_wide() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "wide",
+		ShowAll:      true,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
 	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
@@ -65,31 +82,67 @@ func ExampleDisplayOutput_showNonDeprecated_wide() {
 	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
-func ExampleDisplayOutput_normal() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "normal", false, targetVersion116)
+func ExampleInstance_DisplayOutput_normal() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "normal",
+		ShowAll:      false,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED--
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-----
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
 }
 
-func ExampleDisplayOutput_wide() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "wide", false, targetVersion116)
+func ExampleInstance_DisplayOutput_wide() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "wide",
+		ShowAll:      false,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
 	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
 	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
-func ExampleDisplayOutput_showNonDeprecated_json() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "json", true, targetVersion116)
+func ExampleInstance_DisplayOutput_showAll_json() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "json",
+		ShowAll:      true,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
 	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"file":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]
 }
 
-func ExampleDisplayOutput_showNonDeprecated_yaml() {
-	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "yaml", true, targetVersion116)
+func ExampleInstance_DisplayOutput_showAll_yaml() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "yaml",
+		ShowAll:      true,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output:
 	// - file: some name one
@@ -105,28 +158,53 @@ func ExampleDisplayOutput_showNonDeprecated_yaml() {
 	//     replacement-api: apps/v1
 }
 
-func ExampleDisplayOutput_noOutput() {
-	_ = DisplayOutput([]*Output{testOutput1}, "normal", false, targetVersion116)
+func ExampleInstance_DisplayOutput_noOutput() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+		},
+		OutputFormat: "normal",
+		ShowAll:      false,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output: APIVersions were found, but none were deprecated. Try --show-all.
 }
 
-func ExampleDisplayOutput_badFormat() {
-	_ = DisplayOutput([]*Output{testOutput1}, "foo", true, targetVersion116)
+func ExampleInstance_DisplayOutput_badFormat() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "foo",
+		ShowAll:      false,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output: output format should be one of (json,yaml,normal,wide)
 }
 
-func ExampleDisplayOutput_zeroLength() {
-	_ = DisplayOutput([]*Output{}, "normal", false, targetVersion116)
+func ExampleInstance_DisplayOutput_zeroLength() {
+	instance := &Instance{
+		TargetVersion: "v1.16.0",
+		Outputs:       []*Output{},
+		OutputFormat:  "normal",
+		ShowAll:       false,
+	}
+	_ = instance.DisplayOutput()
 
 	// Output: There were no apiVersions found that match our records.
 }
 
 func TestGetReturnCode(t *testing.T) {
+
 	type args struct {
-		outputs      []*Output
-		ignoreErrors bool
+		outputs            []*Output
+		ignoreDeprecations bool
+		ignoreRemovals     bool
 	}
 	tests := []struct {
 		name string
@@ -136,8 +214,8 @@ func TestGetReturnCode(t *testing.T) {
 		{
 			name: "empty return zero",
 			args: args{
-				outputs:      []*Output{},
-				ignoreErrors: false,
+				outputs:            []*Output{},
+				ignoreDeprecations: false,
 			},
 			want: 0,
 		},
@@ -147,32 +225,58 @@ func TestGetReturnCode(t *testing.T) {
 				outputs: []*Output{
 					{
 						APIVersion: &Version{
-							DeprecatedIn: targetVersion116,
+							DeprecatedIn: "v1.16.0",
+							RemovedIn:    "v1.20.0",
 						},
 					},
 				},
-				ignoreErrors: false,
+				ignoreDeprecations: false,
+				ignoreRemovals:     false,
 			},
 			want: 2,
 		},
 		{
-			name: "version is deprecated ignore errors",
+			name: "version is deprecated ignore deprecations",
 			args: args{
 				outputs: []*Output{
 					{
 						APIVersion: &Version{
-							DeprecatedIn: targetVersion116,
+							DeprecatedIn: "v1.16.0",
+							RemovedIn:    "v1.20.0",
 						},
 					},
 				},
-				ignoreErrors: true,
+				ignoreDeprecations: true,
+				ignoreRemovals:     false,
 			},
 			want: 0,
+		},
+		{
+			name: "version is removed",
+			args: args{
+				outputs: []*Output{
+					{
+						APIVersion: &Version{
+							RemovedIn:    "v1.16.0",
+							DeprecatedIn: "v1.12.0",
+						},
+					},
+				},
+				ignoreDeprecations: false,
+				ignoreRemovals:     false,
+			},
+			want: 3,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := GetReturnCode(tt.args.outputs, tt.args.ignoreErrors, targetVersion116)
+			instance := &Instance{
+				TargetVersion:      "v1.16.0",
+				IgnoreDeprecations: tt.args.ignoreDeprecations,
+				IgnoreRemovals:     tt.args.ignoreRemovals,
+				Outputs:            tt.args.outputs,
+			}
+			got := instance.GetReturnCode()
 			assert.Equal(t, tt.want, got)
 		})
 	}

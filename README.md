@@ -114,9 +114,11 @@ Deployment   apps/v1              false        n/a             RELEASE-NAME-helm
 
 ### CI Pipelines
 
-Pluto will exit with a code of `2` if there are any deprecations detected. This can be used in a CI pipeline to make sure no deprecated versions are introduced into your code.
+Pluto has specific exit codes that is uses to indicate certain results:
 
-An exit code of `1` indicates an error.
+- Exit Code 1 - An error. A message will be displayed
+- Exit Code 2 - A deprecated apiVersion has been found.
+- Exit Code 3 - A removed apiVersion has been found.
 
 ### Target Versions
 

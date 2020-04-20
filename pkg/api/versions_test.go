@@ -274,3 +274,49 @@ func TestVersion_IsDeprecatedIn(t *testing.T) {
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }
+
+func TestVersion_IsRemovedIn(t *testing.T) {
+
+	tests := []struct {
+		name          string
+		targetVersion string
+		want          bool
+		removedIn     string
+	}{
+		{
+			name:          "not removed yet 1.15.0",
+			targetVersion: "v1.15.0",
+			removedIn:     "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "equal values",
+			targetVersion: "v1.16.0",
+			removedIn:     "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "greater than",
+			targetVersion: "v1.17.0",
+			removedIn:     "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "Bad semVer",
+			targetVersion: "foo",
+			removedIn:     "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "blank removedIn - not removed",
+			targetVersion: "v1.16.0",
+			removedIn:     "",
+			want:          false,
+		},
+	}
+	for _, tt := range tests {
+		removedVersion := &Version{RemovedIn: tt.removedIn}
+		got := removedVersion.IsRemovedIn(tt.targetVersion)
+		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
+	}
+}

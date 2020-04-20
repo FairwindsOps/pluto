@@ -22,7 +22,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 	var outData []byte
 	switch outputFormat {
 	case "normal":
-		t, err := tabOut(outputs, showNonDeprecated, targetVersion, "normal")
+		t, err := tabOut(usableOutputs, targetVersion, "normal")
 		if err != nil {
 			return err
 		}
@@ -32,7 +32,7 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		}
 		return nil
 	case "wide":
-		t, err := tabOut(outputs, showNonDeprecated, targetVersion, "wide")
+		t, err := tabOut(usableOutputs, targetVersion, "wide")
 		if err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ func filterNonDeprecated(outputs []*Output, targetVersion string, showNonDepreca
 	return usableOutputs
 }
 
-func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) {
+func tabOut(outputs []*Output, targetVersion string, format string) (*tabwriter.Writer, error) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
@@ -92,7 +92,7 @@ func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) 
 		if err != nil {
 			return nil, err
 		}
-		for _, output := range usableOutputs {
+		for _, output := range outputs {
 			kind := output.APIVersion.Kind
 			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(targetVersion))
 			version := output.APIVersion.Name
@@ -111,7 +111,7 @@ func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) 
 		if err != nil {
 			return nil, err
 		}
-		for _, output := range usableOutputs {
+		for _, output := range outputs {
 			kind := output.APIVersion.Kind
 			deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
 			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(targetVersion))

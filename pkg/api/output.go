@@ -97,18 +97,13 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if len(instance.Outputs) == 0 {
-		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
-		if err != nil {
-			return nil, err
-		}
+		_, _ = fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
 		return w, nil
 	}
 
 	if instance.OutputFormat == "normal" {
-		_, err := fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t REMOVED\t DEPRECATED\t")
-		if err != nil {
-			return nil, err
-		}
+		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t REMOVED\t DEPRECATED\t")
+
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
 			deprecated := fmt.Sprintf("%t", output.Deprecated)
@@ -117,18 +112,13 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI
 
-			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, removed, deprecated)
-			if err != nil {
-				return nil, err
-			}
+			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, removed, deprecated)
 		}
 	}
 
 	if instance.OutputFormat == "wide" {
-		_, err := fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
-		if err != nil {
-			return nil, err
-		}
+		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
+
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
 			deprecated := fmt.Sprintf("%t", output.Deprecated)
@@ -139,10 +129,7 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 			deprecatedIn := output.APIVersion.DeprecatedIn
 			removedIn := output.APIVersion.RemovedIn
 
-			_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
-			if err != nil {
-				return nil, err
-			}
+			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
 		}
 
 	}

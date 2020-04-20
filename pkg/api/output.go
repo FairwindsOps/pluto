@@ -15,8 +15,8 @@ var padChar = byte(' ')
 type Output struct {
 	Name       string   `json:"name,omitempty" yaml:"name,omitempty"`
 	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
-	Deprecated bool     `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
-	Removed    bool     `json:"removed,omitempty" yaml:"removed,omitempty"`
+	Deprecated bool     `json:"deprecated" yaml:"deprecated"`
+	Removed    bool     `json:"removed" yaml:"removed"`
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto

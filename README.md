@@ -87,9 +87,13 @@ This indicates that we have two files in our directory that have deprecated apiV
 ### Helm Detection (in-cluster)
 
 ```
-$ pluto detect-helm --helm-version 3
-KIND          VERSION        DEPRECATED   DEPRECATED IN   RESOURCE NAME
-StatefulSet   apps/v1beta1   true         v1.16.0         audit-dashboard-prod-rabbitmq-ha
+$ pluto detect-helm --helm-version 3 -owide
+NAME                                         KIND                           VERSION                                REPLACEMENT                       REMOVED   DEPRECATED
+audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true      true
+cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
+kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              false     true
+rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           false     true
+vault-agent-injector-cfg                     MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
 ```
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
@@ -98,9 +102,9 @@ You can also use Pluto with helm 2:
 
 ```
 $ pluto detect-helm --helm-version=2 -A
-KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
-Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server
-Deployment   apps/v1              false        n/a             lunging-bat-metrics-server
+NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
+invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true
+lunging-bat-metrics-server       Deployment   apps/v1                            false     false
 ```
 
 ### Helm Chart Checking (local files)
@@ -117,6 +121,94 @@ Deployment   apps/v1              false        n/a             RELEASE-NAME-helm
 ```
 
 ## Other Usage Options
+
+### Display Options
+
+Pluto can output yaml, json, normal, or wide.
+
+#### Wide
+
+The wide output provides more information about when an apiVersion was removed or deprecated.
+
+```
+$ pluto detect-helm --helm-version 3 -owide
+NAME                                         KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
+audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true         v1.9.0          true      v1.16.0
+cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
+kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              true         v1.14.0         false     v1.17.0
+rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           true         v1.16.0         false     v1.19.0
+```
+
+#### JSON
+
+```
+$ pluto detect-helm --helm-version 3 -ojson | jq .
+{
+  "items": [
+    {
+      "name": "audit-dashboard-prod-rabbitmq-ha",
+      "api": {
+        "version": "apps/v1beta1",
+        "kind": "StatefulSet",
+        "deprecated-in": "v1.9.0",
+        "removed-in": "v1.16.0",
+        "replacement-api": "apps/v1"
+      },
+      "deprecated": true,
+      "removed": true
+    },
+    {
+      "name": "cert-manager-webhook",
+      "api": {
+        "version": "admissionregistration.k8s.io/v1beta1",
+        "kind": "MutatingWebhookConfiguration",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "admissionregistration.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "kubecost-cost-analyzer-priority",
+      "api": {
+        "version": "scheduling.k8s.io/v1beta1",
+        "kind": "PriorityClass",
+        "deprecated-in": "v1.14.0",
+        "removed-in": "v1.17.0",
+        "replacement-api": "scheduling.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "rbacdefinitions.rbacmanager.reactiveops.io",
+      "api": {
+        "version": "apiextensions.k8s.io/v1beta1",
+        "kind": "CustomResourceDefinition",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "apiextensions.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "vault-agent-injector-cfg",
+      "api": {
+        "version": "admissionregistration.k8s.io/v1beta1",
+        "kind": "MutatingWebhookConfiguration",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "admissionregistration.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    }
+  ],
+  "target-version": "v1.16.0"
+}
+```
 
 ### CI Pipelines
 

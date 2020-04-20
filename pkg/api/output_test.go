@@ -48,11 +48,21 @@ func init() {
 }
 
 func ExampleDisplayOutput_showNonDeprecated_normal() {
-	_ = DisplayOutput([]*Output{testOutput1}, "normal", true, targetVersion116)
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "normal", true, targetVersion116)
 
 	// Output:
-	// NAME----------- KIND-------- VERSION-- REPLACEMENT-- REMOVED--
-	// some name one-- Deployment-- apps/v1-- ------------- false----
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED--
+	// some name one-- Deployment-- apps/v1------------- ------------- false----
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-----
+}
+
+func ExampleDisplayOutput_showNonDeprecated_wide() {
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "wide", true, targetVersion116)
+
+	// Output:
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
+	// some name one-- Deployment-- apps/v1------------- ------------- false------- --------------- false---- ------------
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
 func ExampleDisplayOutput_normal() {
@@ -63,14 +73,22 @@ func ExampleDisplayOutput_normal() {
 	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-----
 }
 
-func ExampleDisplayOutput_json() {
+func ExampleDisplayOutput_wide() {
+	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "wide", false, targetVersion116)
+
+	// Output:
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
+}
+
+func ExampleDisplayOutput_showNonDeprecated_json() {
 	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "json", true, targetVersion116)
 
 	// Output:
 	// [{"file":"some name one","api":{"version":"apps/v1","kind":"Deployment"}},{"file":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]
 }
 
-func ExampleDisplayOutput_yaml() {
+func ExampleDisplayOutput_showNonDeprecated_yaml() {
 	_ = DisplayOutput([]*Output{testOutput1, testOutput2}, "yaml", true, targetVersion116)
 
 	// Output:

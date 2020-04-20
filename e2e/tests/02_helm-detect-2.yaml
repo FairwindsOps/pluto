@@ -11,21 +11,21 @@ testcases:
 
 - name: helm2 detect in-cluster show-all
   steps:
-  - script: pluto detect-helm --helm-version=2 -A
+  - script: pluto detect-helm --helm-version=2 -A -t v1.15.0
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             lunging-bat-metrics-server"
+    - result.systemout ShouldContainSubstring "NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldContainSubstring "lunging-bat-metrics-server       Deployment   apps/v1                            false     false"
 
 - name: helm2 detect in-cluster
   steps:
-  - script: pluto detect-helm --helm-version=2
+  - script: pluto detect-helm --helm-version=2 -t v1.16.0
     assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             lunging-bat-metrics-server"
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldNotContainSubstring "lunging-bat-metrics-server       Deployment   apps/v1                            false     false"
 - name: cleanup
   steps:
   - script: kubectl delete ns helm-system

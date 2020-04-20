@@ -71,3 +71,11 @@ testcases:
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]'
+
+- name: static files wide
+  steps:
+  - script: pluto detect-files -d assets/ -owide
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"

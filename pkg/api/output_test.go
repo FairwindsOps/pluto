@@ -47,7 +47,7 @@ func init() {
 
 func ExampleInstance_DisplayOutput_showAll_normal() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersion: "v1.15.0",
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -60,7 +60,7 @@ func ExampleInstance_DisplayOutput_showAll_normal() {
 	// Output:
 	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
 	// some name one-- Deployment-- apps/v1------------- ------------- false---- false-------
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ false---- true--------
 
 }
 

@@ -3,58 +3,57 @@ name: "Static Code Files (including helm)"
 testcases:
 - name: static files show all
   steps:
-  - script: pluto detect-files -d assets/ -A
+  - script: pluto detect-files -d assets/ -A -t v1.15.0
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED"
-    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true"
-    - result.systemout ShouldContainSubstring "utilities   Deployment   apps/v1                            false"
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   apps/v1                            false     false"
 
 - name: static files
   steps:
-  - script: pluto detect-files -d assets/
+  - script: pluto detect-files -d assets/ -t v1.15.0
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         utilities"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             utilities"
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldNotContainSubstring "utilities   Deployment   apps/v1                            false     false"
 
 - name: helm template show all
   steps:
-  - script: helm template assets/helm3chart | pluto detect -A -
+  - script: helm template assets/helm3chart | pluto detect -t v1.16.0 -A -
     assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart"
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME                              KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "RELEASE-NAME-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldContainSubstring "RELEASE-NAME-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: helm template
   steps:
   - script: helm template assets/helm3chart | pluto detect -
     assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1"
-    - result.systemout ShouldNotContainSubstring "Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart"
+    - result.systemout ShouldContainSubstring "NAME                              KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "RELEASE-NAME-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldNotContainSubstring "RELEASE-NAME-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: static files no deprecated
   steps:
-  - script: pluto detect-files -d assets/non-deprecated
+  - script: pluto detect-files -d assets/non-deprecated -t v1.16.0
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "APIVersions were found, but none were deprecated. Try --show-all."
 
 - name: static files no deprecated show all
   steps:
-  - script: pluto detect-files -d assets/non-deprecated -A
+  - script: pluto detect-files -d assets/non-deprecated -A -t v1.16.0
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "KIND         VERSION   DEPRECATED   DEPRECATED IN   RESOURCE NAME"
-    - result.systemout ShouldContainSubstring "Deployment   apps/v1   false        n/a             utilities"
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION   REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   apps/v1                 false     false"
 
-- name: static files target v1.15.0 non-deprecated
+- name: static files target v1.8.0 not removed or deprecated
   steps:
-  - script: pluto detect-files -d assets/deprecated116 -t "v1.15.0"
+  - script: pluto detect-files -d assets/deprecated116 -t "v1.8.0"
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "APIVersions were found, but none were deprecated. Try --show-all."
@@ -63,12 +62,12 @@ testcases:
   steps:
   - script: pluto detect-files -d assets/ -A -ojson
     assertions:
-    - result.code ShouldEqual 2
+    - result.code ShouldEqual 3
     - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}},{"file":"utilities","api":{"version":"apps/v1","kind":"Deployment"}}]'
 
 - name: static files json
   steps:
   - script: pluto detect-files -d assets/ -ojson
     assertions:
-    - result.code ShouldEqual 2
+    - result.code ShouldEqual 3
     - result.systemout ShouldEqual '[{"file":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}}]'

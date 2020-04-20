@@ -109,7 +109,7 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
 			removed := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(instance.TargetVersion))
-			deprecated := fmt.Sprintf("%t", output.APIVersion.IsRemovedIn(instance.TargetVersion))
+			deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(instance.TargetVersion))
 			version := output.APIVersion.Name
 			name := output.Name
 			replacement := output.APIVersion.ReplacementAPI

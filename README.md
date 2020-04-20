@@ -124,7 +124,7 @@ Deployment   apps/v1              false        n/a             RELEASE-NAME-helm
 
 ### Display Options
 
-Pluto can output yaml, json, normal, or wide.
+In addition to the standard output, Pluto can output yaml, json, or wide.
 
 #### Wide
 
@@ -208,6 +208,49 @@ $ pluto detect-helm --helm-version 3 -ojson | jq .
   ],
   "target-version": "v1.16.0"
 }
+```
+
+#### YAML
+
+```yaml
+items:
+- name: audit-dashboard-prod-rabbitmq-ha
+  api:
+    version: apps/v1beta1
+    kind: StatefulSet
+    deprecated-in: v1.9.0
+    removed-in: v1.16.0
+    replacement-api: apps/v1
+  deprecated: true
+  removed: true
+- name: cert-manager-webhook
+  api:
+    version: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+    deprecated-in: v1.16.0
+    removed-in: v1.19.0
+    replacement-api: admissionregistration.k8s.io/v1
+  deprecated: true
+  removed: false
+- name: kubecost-cost-analyzer-priority
+  api:
+    version: scheduling.k8s.io/v1beta1
+    kind: PriorityClass
+    deprecated-in: v1.14.0
+    removed-in: v1.17.0
+    replacement-api: scheduling.k8s.io/v1
+  deprecated: true
+  removed: false
+- name: rbacdefinitions.rbacmanager.reactiveops.io
+  api:
+    version: apiextensions.k8s.io/v1beta1
+    kind: CustomResourceDefinition
+    deprecated-in: v1.16.0
+    removed-in: v1.19.0
+    replacement-api: apiextensions.k8s.io/v1
+  deprecated: true
+  removed: false
+target-version: v1.16.0
 ```
 
 ### CI Pipelines

@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -57,6 +58,7 @@ func init() {
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
 
+	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
 
 	klog.InitFlags(nil)
@@ -229,6 +231,20 @@ var detectCmd = &cobra.Command{
 		retCode := instance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
+	},
+}
+
+var listVersionsCmd = &cobra.Command{
+	Use:   "list-versions",
+	Short: "Outputs a JSON object of the versions that Pluto knows about.",
+	Long:  `Outputs a JSON object of the versions that Pluto knows about.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		data, err := json.Marshal(api.VersionList)
+		if err != nil {
+			klog.Error(err)
+			os.Exit(1)
+		}
+		fmt.Println(string(data))
 	},
 }
 

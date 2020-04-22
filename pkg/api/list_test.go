@@ -93,3 +93,29 @@ func ExamplePrintVersionList_yaml() {
 	//   removed-in: v1.16.0
 	//   replacement-api: apps/v1
 }
+
+func ExamplePrintVersionList_normal() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("normal")
+
+	// Output:
+	// KIND-------- NAME---------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
+	// Deployment-- apps/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+}
+
+func ExamplePrintVersionList_wide() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("wide")
+
+	// Output:
+	// KIND-------- NAME---------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
+	// Deployment-- apps/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+}
+
+func ExamplePrintVersionList_badformat() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("foo")
+
+	// Output:
+	// The output format must one of (normal|json|yaml)
+}

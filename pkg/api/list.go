@@ -98,7 +98,9 @@ func PrintVersionList(outputFormat string) error {
 		}
 		fmt.Println(string(data))
 	default:
-		return fmt.Errorf("The output format must one of (normal|json|yaml)")
+		errText := "The output format must one of (normal|json|yaml)"
+		fmt.Println(errText)
+		return fmt.Errorf(errText)
 	}
 	return nil
 }

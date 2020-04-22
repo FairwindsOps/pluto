@@ -70,7 +70,10 @@ func (h *Helm) getManifestsVersionTwo() error {
 	}
 	hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
 	helmClient := helmstoragev2.Init(hcm)
-	list, _ := helmClient.ListDeployed()
+	list, err := helmClient.ListDeployed()
+	if err != nil {
+		return err
+	}
 	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
@@ -88,7 +91,10 @@ func (h *Helm) getManifestsVersionThree() error {
 	}
 	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(""))
 	helmClient := helmstoragev3.Init(hs)
-	list, _ := helmClient.ListDeployed()
+	list, err := helmClient.ListDeployed()
+	if err != nil {
+		return err
+	}
 	for _, release := range list {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {

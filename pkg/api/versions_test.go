@@ -302,7 +302,7 @@ func TestVersion_IsRemovedIn(t *testing.T) {
 			want:          true,
 		},
 		{
-			name:          "Bad semVer",
+			name:          "bad semVer",
 			targetVersion: "foo",
 			removedIn:     "v1.16.0",
 			want:          false,

@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -239,12 +238,11 @@ var listVersionsCmd = &cobra.Command{
 	Short: "Outputs a JSON object of the versions that Pluto knows about.",
 	Long:  `Outputs a JSON object of the versions that Pluto knows about.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		data, err := json.Marshal(api.VersionList)
+		err := api.PrintVersionList(outputFormat)
 		if err != nil {
-			klog.Error(err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println(string(data))
 	},
 }
 

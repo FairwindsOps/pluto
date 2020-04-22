@@ -40,17 +40,17 @@ type StubMeta struct {
 // Version is an apiVersion and a flag for deprecation
 type Version struct {
 	// Name is the name of the api version
-	Name string `json:"version,omitempty" yaml:"version,omitempty"`
+	Name string `json:"version" yaml:"version"`
 	// Kind is the kind of object associated with this version
-	Kind string `json:"kind,omitempty" yaml:"kind,omitempty"`
+	Kind string `json:"kind" yaml:"kind"`
 	// DeprecatedIn is a string that indicates what version the api is deprecated in
 	// an empty string indicates that the version is not deprecated
-	DeprecatedIn string `json:"deprecated-in,omitempty" yaml:"deprecated-in,omitempty"`
+	DeprecatedIn string `json:"deprecated-in" yaml:"deprecated-in"`
 	// RemovedIn denotes the version that the api was actually removed in
 	// An empty string indicates that the version has not been removed yet
-	RemovedIn string `json:"removed-in,omitempty" yaml:"removed-in,omitempty"`
+	RemovedIn string `json:"removed-in" yaml:"removed-in"`
 	// ReplacementAPI is the apiVersion that replaces the deprecated one
-	ReplacementAPI string `json:"replacement-api,omitempty" yaml:"replacement-api,omitempty"`
+	ReplacementAPI string `json:"replacement-api" yaml:"replacement-api"`
 }
 
 func checkVersion(stub *Stub) *Version {

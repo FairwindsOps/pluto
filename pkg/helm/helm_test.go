@@ -59,17 +59,21 @@ var (
 		{
 			Name: "helmtest-helmchartest-v1beta1",
 			APIVersion: &api.Version{
-				Name:         "extensions/v1beta1",
-				Kind:         "Deployment",
-				DeprecatedIn: "v1.16.0",
+				Name:           "extensions/v1beta1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "v1.9.0",
+				RemovedIn:      "v1.16.0",
+				ReplacementAPI: "apps/v1",
 			},
 		},
 		{
 			Name: "helmtest-helmchartest",
 			APIVersion: &api.Version{
-				Name:         "apps/v1",
-				Kind:         "Deployment",
-				DeprecatedIn: "",
+				Name:           "apps/v1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "",
+				RemovedIn:      "",
+				ReplacementAPI: "",
 			},
 		},
 	}
@@ -98,7 +102,7 @@ func Test_checkForAPIVersion(t *testing.T) {
 		{
 			name:     "got version",
 			manifest: []byte("apiVersion: apps/v1\nkind: Deployment"),
-			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: ""}}},
+			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: ""}}},
 			wantErr:  false,
 		},
 	}

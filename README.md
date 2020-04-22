@@ -37,6 +37,12 @@ So, long story short, finding the places where you have deployed a deprecated ap
 * Infrastructure-as-Code repos: Pluto can check both static manifests and Helm charts for deprecated apiVersions
 * Live Helm releases: Pluto can check both Helm 2 and Helm 3 releases running in your cluster for deprecated apiVersions
 
+## Kubernetes Deprecation Policy
+
+You can read the full policy [here](https://kubernetes.io/docs/reference/using-api/deprecation-policy/)
+
+Long story short, apiVersions get deprecated, and then they eventually get removed entirely. Pluto differentiates between these two, and will tell you if a version is `DEPRECATED` or `REMOVED`
+
 ## Installation
 
 ### asdf
@@ -71,9 +77,9 @@ You should see an output something like:
 
 ```
 $ pluto detect-files -d pkg/finder/testdata
-KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
-Deployment   extensions/v1beta1   true         v1.16.0         utilities
-Deployment   extensions/v1beta1   true         v1.16.0         utilities
+NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
+utilities   Deployment   extensions/v1beta1   apps/v1       true      true
+utilities   Deployment   extensions/v1beta1   apps/v1       true      true
 ```
 
 This indicates that we have two files in our directory that have deprecated apiVersions. This will need to be fixed prior to a 1.16 upgrade.
@@ -81,9 +87,13 @@ This indicates that we have two files in our directory that have deprecated apiV
 ### Helm Detection (in-cluster)
 
 ```
-$ pluto detect-helm --helm-version 3
-KIND          VERSION        DEPRECATED   DEPRECATED IN   RESOURCE NAME
-StatefulSet   apps/v1beta1   true         v1.16.0         audit-dashboard-prod-rabbitmq-ha
+$ pluto detect-helm --helm-version 3 -owide
+NAME                                         KIND                           VERSION                                REPLACEMENT                       REMOVED   DEPRECATED
+audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true      true
+cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
+kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              false     true
+rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           false     true
+vault-agent-injector-cfg                     MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
 ```
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
@@ -92,9 +102,9 @@ You can also use Pluto with helm 2:
 
 ```
 $ pluto detect-helm --helm-version=2 -A
-KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
-Deployment   extensions/v1beta1   true         v1.16.0         invincible-zebu-metrics-server
-Deployment   apps/v1              false        n/a             lunging-bat-metrics-server
+NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
+invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true
+lunging-bat-metrics-server       Deployment   apps/v1                            false     false
 ```
 
 ### Helm Chart Checking (local files)
@@ -112,11 +122,151 @@ Deployment   apps/v1              false        n/a             RELEASE-NAME-helm
 
 ## Other Usage Options
 
+### Display Options
+
+In addition to the standard output, Pluto can output yaml, json, or wide.
+
+#### Wide
+
+The wide output provides more information about when an apiVersion was removed or deprecated.
+
+```
+$ pluto detect-helm --helm-version 3 -owide
+NAME                                         KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
+audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true         v1.9.0          true      v1.16.0
+cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
+kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              true         v1.14.0         false     v1.17.0
+rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           true         v1.16.0         false     v1.19.0
+```
+
+#### JSON
+
+```
+$ pluto detect-helm --helm-version 3 -ojson | jq .
+{
+  "items": [
+    {
+      "name": "audit-dashboard-prod-rabbitmq-ha",
+      "api": {
+        "version": "apps/v1beta1",
+        "kind": "StatefulSet",
+        "deprecated-in": "v1.9.0",
+        "removed-in": "v1.16.0",
+        "replacement-api": "apps/v1"
+      },
+      "deprecated": true,
+      "removed": true
+    },
+    {
+      "name": "cert-manager-webhook",
+      "api": {
+        "version": "admissionregistration.k8s.io/v1beta1",
+        "kind": "MutatingWebhookConfiguration",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "admissionregistration.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "kubecost-cost-analyzer-priority",
+      "api": {
+        "version": "scheduling.k8s.io/v1beta1",
+        "kind": "PriorityClass",
+        "deprecated-in": "v1.14.0",
+        "removed-in": "v1.17.0",
+        "replacement-api": "scheduling.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "rbacdefinitions.rbacmanager.reactiveops.io",
+      "api": {
+        "version": "apiextensions.k8s.io/v1beta1",
+        "kind": "CustomResourceDefinition",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "apiextensions.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    },
+    {
+      "name": "vault-agent-injector-cfg",
+      "api": {
+        "version": "admissionregistration.k8s.io/v1beta1",
+        "kind": "MutatingWebhookConfiguration",
+        "deprecated-in": "v1.16.0",
+        "removed-in": "v1.19.0",
+        "replacement-api": "admissionregistration.k8s.io/v1"
+      },
+      "deprecated": true,
+      "removed": false
+    }
+  ],
+  "target-version": "v1.16.0"
+}
+```
+
+#### YAML
+
+```yaml
+items:
+- name: audit-dashboard-prod-rabbitmq-ha
+  api:
+    version: apps/v1beta1
+    kind: StatefulSet
+    deprecated-in: v1.9.0
+    removed-in: v1.16.0
+    replacement-api: apps/v1
+  deprecated: true
+  removed: true
+- name: cert-manager-webhook
+  api:
+    version: admissionregistration.k8s.io/v1beta1
+    kind: MutatingWebhookConfiguration
+    deprecated-in: v1.16.0
+    removed-in: v1.19.0
+    replacement-api: admissionregistration.k8s.io/v1
+  deprecated: true
+  removed: false
+- name: kubecost-cost-analyzer-priority
+  api:
+    version: scheduling.k8s.io/v1beta1
+    kind: PriorityClass
+    deprecated-in: v1.14.0
+    removed-in: v1.17.0
+    replacement-api: scheduling.k8s.io/v1
+  deprecated: true
+  removed: false
+- name: rbacdefinitions.rbacmanager.reactiveops.io
+  api:
+    version: apiextensions.k8s.io/v1beta1
+    kind: CustomResourceDefinition
+    deprecated-in: v1.16.0
+    removed-in: v1.19.0
+    replacement-api: apiextensions.k8s.io/v1
+  deprecated: true
+  removed: false
+target-version: v1.16.0
+```
+
 ### CI Pipelines
 
-Pluto will exit with a code of `2` if there are any deprecations detected. This can be used in a CI pipeline to make sure no deprecated versions are introduced into your code.
+Pluto has specific exit codes that is uses to indicate certain results:
 
-An exit code of `1` indicates an error.
+- Exit Code 1 - An error. A message will be displayed
+- Exit Code 2 - A deprecated apiVersion has been found.
+- Exit Code 3 - A removed apiVersion has been found.
+
+If you wish to bypass the generation of exit codes 2 and 3, you may do so with two different flags:
+
+```
+--ignore-deprecations              Ignore the default behavior to exit 2 if deprecated apiVersions are found.
+--ignore-removals                  Ignore the default behavior to exit 3 if removed apiVersions are found.
+```
 
 ### Target Versions
 

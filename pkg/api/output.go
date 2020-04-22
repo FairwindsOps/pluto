@@ -11,18 +11,46 @@ import (
 
 var padChar = byte(' ')
 
+// Output is a thing that has an apiVersion in it
+type Output struct {
+	Name       string   `json:"name,omitempty" yaml:"name,omitempty"`
+	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
+	Deprecated bool     `json:"deprecated" yaml:"deprecated"`
+	Removed    bool     `json:"removed" yaml:"removed"`
+}
+
+// Instance is an instance of the API. This holds configuration for a "run" of Pluto
+type Instance struct {
+	Outputs            []*Output `json:"items,omitempty" yaml:"items,omitempty"`
+	IgnoreDeprecations bool      `json:"-" yaml:"-"`
+	IgnoreRemovals     bool      `json:"-" yaml:"-"`
+	OutputFormat       string    `json:"-" yaml:"-"`
+	ShowAll            bool      `json:"show-all,omitempty" yaml:"show-all,omitempty"`
+	TargetVersion      string    `json:"target-version,omitempty" yaml:"target-version,omitempty"`
+}
+
 // DisplayOutput prints the output based on desired variables
-func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated bool, targetVersion string) error {
-	if len(outputs) == 0 {
+func (instance *Instance) DisplayOutput() error {
+	if len(instance.Outputs) == 0 {
 		fmt.Println("There were no apiVersions found that match our records.")
 		return nil
 	}
-	usableOutputs := filterNonDeprecated(outputs, targetVersion, showNonDeprecated)
+	instance.filterOutput()
 	var err error
 	var outData []byte
-	switch outputFormat {
-	case "tabular":
-		t, err := tabOut(usableOutputs, targetVersion)
+	switch instance.OutputFormat {
+	case "normal":
+		t, err := instance.tabOut()
+		if err != nil {
+			return err
+		}
+		err = t.Flush()
+		if err != nil {
+			return err
+		}
+		return nil
+	case "wide":
+		t, err := instance.tabOut()
 		if err != nil {
 			return err
 		}
@@ -32,82 +60,104 @@ func DisplayOutput(outputs []*Output, outputFormat string, showNonDeprecated boo
 		}
 		return nil
 	case "json":
-		outData, err = json.Marshal(usableOutputs)
+		outData, err = json.Marshal(instance)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(outData))
 	case "yaml":
-		outData, err = yaml.Marshal(usableOutputs)
+		outData, err = yaml.Marshal(instance)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(outData))
 	default:
-		fmt.Println("output format should be one of (json,yaml,tabular)")
+		fmt.Println("output format should be one of (json,yaml,normal,wide)")
 	}
 	return nil
 }
 
-func filterNonDeprecated(outputs []*Output, targetVersion string, showNonDeprecated bool) []*Output {
+func (instance *Instance) filterOutput() {
 	var usableOutputs []*Output
-
-	if showNonDeprecated {
-		usableOutputs = outputs
-	} else {
-
-		for _, output := range outputs {
-			if output.APIVersion.IsDeprecatedIn(targetVersion) {
-				usableOutputs = append(usableOutputs, output)
-			}
+	for _, output := range instance.Outputs {
+		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersion)
+		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersion)
+		if instance.ShowAll {
+			usableOutputs = append(usableOutputs, output)
+		} else if output.APIVersion.isDeprecatedIn(instance.TargetVersion) || output.APIVersion.isRemovedIn(instance.TargetVersion) {
+			usableOutputs = append(usableOutputs, output)
 		}
 	}
-	return usableOutputs
+	instance.Outputs = usableOutputs
+
 }
 
-func tabOut(outputs []*Output, targetVersion string) (*tabwriter.Writer, error) {
+func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
-	if len(outputs) == 0 {
-		_, err := fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
-		if err != nil {
-			return nil, err
-		}
+	if len(instance.Outputs) == 0 {
+		_, _ = fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
 		return w, nil
 	}
-	_, err := fmt.Fprintln(w, "KIND\t VERSION\t DEPRECATED\t DEPRECATED IN\t RESOURCE NAME\t")
-	if err != nil {
-		return nil, err
+
+	if instance.OutputFormat == "normal" {
+		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t REMOVED\t DEPRECATED\t")
+
+		for _, output := range instance.Outputs {
+			kind := output.APIVersion.Kind
+			deprecated := fmt.Sprintf("%t", output.Deprecated)
+			removed := fmt.Sprintf("%t", output.Removed)
+			version := output.APIVersion.Name
+			name := output.Name
+			replacement := output.APIVersion.ReplacementAPI
+
+			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, removed, deprecated)
+		}
 	}
-	for _, output := range outputs {
-		kind := output.APIVersion.Kind
-		deprecated := fmt.Sprintf("%t", output.APIVersion.IsDeprecatedIn(targetVersion))
-		version := output.APIVersion.Name
-		fileName := output.Name
-		deprecatedIn := output.APIVersion.DeprecatedIn
-		if deprecatedIn == "" {
-			deprecatedIn = "n/a"
+
+	if instance.OutputFormat == "wide" {
+		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
+
+		for _, output := range instance.Outputs {
+			kind := output.APIVersion.Kind
+			deprecated := fmt.Sprintf("%t", output.Deprecated)
+			removed := fmt.Sprintf("%t", output.Removed)
+			version := output.APIVersion.Name
+			name := output.Name
+			replacement := output.APIVersion.ReplacementAPI
+			deprecatedIn := output.APIVersion.DeprecatedIn
+			removedIn := output.APIVersion.RemovedIn
+
+			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
 		}
 
-		_, err = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", kind, version, deprecated, deprecatedIn, fileName)
-		if err != nil {
-			return nil, err
-		}
 	}
 	return w, nil
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.
 // takes a boolean to ignore any errors.
-func GetReturnCode(outputs []*Output, ignoreErrors bool, targetVersion string) int {
-	if ignoreErrors {
-		return 0
-	}
-	for _, output := range outputs {
-		if output.APIVersion.IsDeprecatedIn(targetVersion) {
-			return 2
+// exit 2 - version deprecated
+// exit 3 - version removed
+func (instance *Instance) GetReturnCode() int {
+	returnCode := 0
+	var deprecations int
+	var removals int
+	for _, output := range instance.Outputs {
+		if output.APIVersion.isRemovedIn(instance.TargetVersion) {
+
+			removals = removals + 1
+		}
+		if output.APIVersion.isDeprecatedIn(instance.TargetVersion) {
+			deprecations = deprecations + 1
 		}
 	}
-	return 0
+	if deprecations > 0 && !instance.IgnoreDeprecations {
+		returnCode = 2
+	}
+	if removals > 0 && !instance.IgnoreRemovals {
+		returnCode = 3
+	}
+	return returnCode
 }

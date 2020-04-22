@@ -15,11 +15,9 @@
 package api
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/mod/semver"
 )
 
 func Test_jsonToStub(t *testing.T) {
@@ -189,7 +187,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "yaml has version",
 			data:    []byte("kind: Deployment\napiVersion: apps/v1"),
-			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: ""}}},
+			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: ""}}},
 			wantErr: false,
 		},
 		{
@@ -213,7 +211,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
-			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", DeprecatedIn: "v1.16.0"}}},
+			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", RemovedIn: "v1.16.0", DeprecatedIn: "v1.9.0", ReplacementAPI: "apps/v1"}}},
 			wantErr: false,
 		},
 	}
@@ -272,18 +270,53 @@ func TestVersion_IsDeprecatedIn(t *testing.T) {
 	}
 	for _, tt := range tests {
 		deprecatedVersion := &Version{DeprecatedIn: tt.deprecatedIn}
-		got := deprecatedVersion.IsDeprecatedIn(tt.targetVersion)
+		got := deprecatedVersion.isDeprecatedIn(tt.targetVersion)
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }
 
-func Test_VersionListIsValid(t *testing.T) {
-	// This test validates that all of the versions in VersionList are valid semVer
-	// it should prevent us from putting bad values in that list in future development
-	for _, version := range VersionList {
-		if version.DeprecatedIn == "" {
-			t.Skip()
-		}
-		assert.True(t, semver.IsValid(version.DeprecatedIn), fmt.Sprintf("version %s is not valid semver", version.DeprecatedIn))
+func TestVersion_IsRemovedIn(t *testing.T) {
+
+	tests := []struct {
+		name          string
+		targetVersion string
+		want          bool
+		removedIn     string
+	}{
+		{
+			name:          "not removed yet 1.15.0",
+			targetVersion: "v1.15.0",
+			removedIn:     "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "equal values",
+			targetVersion: "v1.16.0",
+			removedIn:     "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "greater than",
+			targetVersion: "v1.17.0",
+			removedIn:     "v1.16.0",
+			want:          true,
+		},
+		{
+			name:          "bad semVer",
+			targetVersion: "foo",
+			removedIn:     "v1.16.0",
+			want:          false,
+		},
+		{
+			name:          "blank removedIn - not removed",
+			targetVersion: "v1.16.0",
+			removedIn:     "",
+			want:          false,
+		},
+	}
+	for _, tt := range tests {
+		removedVersion := &Version{RemovedIn: tt.removedIn}
+		got := removedVersion.isRemovedIn(tt.targetVersion)
+		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }

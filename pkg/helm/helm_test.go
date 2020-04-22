@@ -20,6 +20,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 )
@@ -84,6 +86,14 @@ func newMockHelm(version string) *Helm {
 		Version: version,
 		Kube:    getMockConfigInstance(),
 	}
+}
+
+func newBadKubeClient() (k *kube) {
+	conf := new(rest.Config)
+	conf.Host = "127.0.0.1:9999"
+	k = new(kube)
+	k.Client, _ = kubernetes.NewForConfig(conf)
+	return
 }
 
 func Test_checkForAPIVersion(t *testing.T) {
@@ -201,6 +211,51 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, h.Outputs)
+		})
+	}
+}
+
+func TestHelm_getManifest_badClient(t *testing.T) {
+	tests := []struct {
+		name        string
+		helmVersion string
+		wantErr     bool
+		errMessage  string
+		secret      *v1.Secret
+		want        []*api.Output
+	}{
+		{
+			name:        "two - bad client",
+			helmVersion: "2",
+			wantErr:     true,
+			errMessage:  "helm 3 function called without helm 3 version set",
+		},
+		{
+			name:        "three - bad client",
+			helmVersion: "3",
+			wantErr:     true,
+			errMessage:  "helm 3 function called without helm 3 version set",
+		},
+	}
+
+	for _, tt := range tests {
+		h := &Helm{
+			Version: tt.helmVersion,
+			Kube:    newBadKubeClient(),
+		}
+		t.Run(tt.name, func(t *testing.T) {
+			var err error
+			switch tt.helmVersion {
+			case "2":
+				err = h.getManifestsVersionTwo()
+			case "3":
+				err = h.getManifestsVersionThree()
+			}
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), "connect: connection refused")
+				return
+			}
 		})
 	}
 }

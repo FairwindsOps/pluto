@@ -14,6 +14,15 @@
 
 package api
 
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"text/tabwriter"
+
+	"gopkg.in/yaml.v2"
+)
+
 // VersionList is a set of apiVersions and if they are deprecated or not.
 var VersionList = []Version{
 	// Not Removed or Deprecated
@@ -60,4 +69,68 @@ var VersionList = []Version{
 
 	// Unknown Removal, but deprecated
 	{"storage.k8s.io/v1beta1", "CSINode", "v1.17.0", "", ""},
+}
+
+// PrintVersionList prints out the list of versions
+// in a specific format
+func PrintVersionList(outputFormat string) error {
+	switch outputFormat {
+	case "normal":
+		err := printVersionsTabular()
+		if err != nil {
+			return err
+		}
+	case "wide":
+		err := printVersionsTabular()
+		if err != nil {
+			return err
+		}
+	case "json":
+		data, err := json.Marshal(VersionList)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(data))
+	case "yaml":
+		data, err := yaml.Marshal(VersionList)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(data))
+	default:
+		errText := "The output format must one of (normal|json|yaml)"
+		fmt.Println(errText)
+		return fmt.Errorf(errText)
+	}
+	return nil
+}
+
+func printVersionsTabular() error {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
+
+	_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t")
+
+	for _, version := range VersionList {
+		deprecatedIn := version.DeprecatedIn
+		if deprecatedIn == "" {
+			deprecatedIn = "n/a"
+		}
+		removedIn := version.RemovedIn
+		if removedIn == "" {
+			removedIn = "n/a"
+		}
+
+		replacementAPI := version.ReplacementAPI
+		if replacementAPI == "" {
+			replacementAPI = "n/a"
+		}
+
+		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI)
+	}
+	err := w.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
 }

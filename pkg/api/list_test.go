@@ -33,3 +33,89 @@ func Test_VersionListIsValid(t *testing.T) {
 		}
 	}
 }
+
+var TestVersionList = []Version{
+	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
+}
+
+func Example_printVersionsTabular() {
+	padChar = '-'
+	_ = printVersionsTabular()
+
+	// Output:
+	// KIND-------------------------- NAME---------------------------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT----------------------
+	// Deployment-------------------- apps/v1------------------------------- n/a------------ n/a--------- n/a------------------------------
+	// NetworkPolicy----------------- networking.k8s.io/v1------------------ n/a------------ n/a--------- n/a------------------------------
+	// PodSecurityPolicy------------- policy/v1beta1------------------------ n/a------------ n/a--------- n/a------------------------------
+	// Deployment-------------------- extensions/v1beta1-------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// Deployment-------------------- apps/v1beta2-------------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// Deployment-------------------- apps/v1beta1-------------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// StatefulSet------------------- apps/v1beta1-------------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// StatefulSet------------------- apps/v1beta2-------------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// NetworkPolicy----------------- extensions/v1beta1-------------------- v1.9.0--------- v1.16.0----- networking.k8s.io/v1-------------
+	// DaemonSet--------------------- apps/v1beta2-------------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// DaemonSet--------------------- extensions/v1beta1-------------------- v1.9.0--------- v1.16.0----- apps/v1--------------------------
+	// PodSecurityPolicy------------- extensions/v1beta1-------------------- v1.10.0-------- v1.16.0----- policy/v1beta1-------------------
+	// ReplicaSet-------------------- extensions/v1beta1-------------------- n/a------------ v1.16.0----- apps/v1--------------------------
+	// ReplicaSet-------------------- apps/v1beta1-------------------------- n/a------------ v1.16.0----- apps/v1--------------------------
+	// ReplicaSet-------------------- apps/v1beta2-------------------------- n/a------------ v1.16.0----- apps/v1--------------------------
+	// PriorityClass----------------- scheduling.k8s.io/v1beta1------------- v1.14.0-------- v1.17.0----- scheduling.k8s.io/v1-------------
+	// PriorityClass----------------- scheduling.k8s.io/v1alpha1------------ v1.14.0-------- v1.17.0----- scheduling.k8s.io/v1-------------
+	// CustomResourceDefinition------ apiextensions.k8s.io/v1beta1---------- v1.16.0-------- v1.19.0----- apiextensions.k8s.io/v1----------
+	// MutatingWebhookConfiguration-- admissionregistration.k8s.io/v1beta1-- v1.16.0-------- v1.19.0----- admissionregistration.k8s.io/v1--
+	// ClusterRoleBinding------------ rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// ClusterRole------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// ClusterRoleBindingList-------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// ClusterRoleList--------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// Role-------------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// RoleBinding------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// RoleList---------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// RoleBindingList--------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
+	// CSINode----------------------- storage.k8s.io/v1beta1---------------- v1.17.0-------- n/a--------- n/a------------------------------
+}
+
+func ExamplePrintVersionList_json() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("json")
+
+	// Output:
+	// [{"version":"apps/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"}]
+}
+
+func ExamplePrintVersionList_yaml() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("yaml")
+
+	// Output:
+	// - version: apps/v1beta1
+	//   kind: Deployment
+	//   deprecated-in: v1.9.0
+	//   removed-in: v1.16.0
+	//   replacement-api: apps/v1
+}
+
+func ExamplePrintVersionList_normal() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("normal")
+
+	// Output:
+	// KIND-------- NAME---------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
+	// Deployment-- apps/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+}
+
+func ExamplePrintVersionList_wide() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("wide")
+
+	// Output:
+	// KIND-------- NAME---------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
+	// Deployment-- apps/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+}
+
+func ExamplePrintVersionList_badformat() {
+	VersionList = TestVersionList
+	_ = PrintVersionList("foo")
+
+	// Output:
+	// The output format must one of (normal|json|yaml)
+}

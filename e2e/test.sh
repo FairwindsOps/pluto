@@ -17,5 +17,6 @@ cp /pluto/pluto /usr/local/bin/pluto
 
 cd /pluto/e2e
 mkdir -p /tmp/test-results
+helm delete -n kube-system hostpath-provisioner || true
 venom run tests/* --log debug --output-dir=/tmp/test-results --strict
 exit $?

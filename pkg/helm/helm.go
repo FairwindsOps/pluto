@@ -169,7 +169,7 @@ func checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
 	return outputs, nil
 }
 
-// marshalToRelease casts a marshals release data into our Release type so we have a common type regardless of helm version
+// marshalToRelease marshals release data into the Pluto Release type so we have a common type regardless of helm version
 func marshalToRelease(jsonRel []byte) (*Release, error) {
 	var ret = new(Release)
 	err := json.Unmarshal(jsonRel, ret)

@@ -40,8 +40,8 @@ testcases:
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
-    - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
-    - result.systemout ShouldContainSubstring "test/test-helm3chart           Deployment   apps/v1                            false     false"
+    - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true     "
+    - result.systemout ShouldContainSubstring "test/test-helm3chart           Deployment   apps/v1                            false     false   "
 
 - name: cleanup
   steps:

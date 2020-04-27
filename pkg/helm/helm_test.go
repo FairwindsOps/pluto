@@ -59,7 +59,7 @@ var (
 	}
 	wantOutput = []*api.Output{
 		{
-			Name: "helmtest-helmchartest-v1beta1",
+			Name: "helmtest/helmtest-helmchartest-v1beta1",
 			APIVersion: &api.Version{
 				Name:           "extensions/v1beta1",
 				Kind:           "Deployment",
@@ -69,7 +69,7 @@ var (
 			},
 		},
 		{
-			Name: "helmtest-helmchartest",
+			Name: "helmtest/helmtest-helmchartest",
 			APIVersion: &api.Version{
 				Name:           "apps/v1",
 				Kind:           "Deployment",
@@ -161,7 +161,7 @@ func TestHelm_getManifestsVersionTwo(t *testing.T) {
 			}
 		}
 		t.Run(tt.name, func(t *testing.T) {
-			err := h.getManifestsVersionTwo()
+			err := h.getReleasesVersionTwo()
 			if tt.wantErr {
 				assert.EqualError(t, err, tt.errMessage)
 				return
@@ -204,7 +204,7 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 			}
 		}
 		t.Run(tt.name, func(t *testing.T) {
-			err := h.getManifestsVersionThree()
+			err := h.getReleasesVersionThree()
 			if tt.wantErr {
 				assert.EqualError(t, err, tt.errMessage)
 				return
@@ -247,9 +247,9 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 			var err error
 			switch tt.helmVersion {
 			case "2":
-				err = h.getManifestsVersionTwo()
+				err = h.getReleasesVersionTwo()
 			case "3":
-				err = h.getManifestsVersionThree()
+				err = h.getReleasesVersionThree()
 			}
 			if tt.wantErr {
 				assert.Error(t, err)

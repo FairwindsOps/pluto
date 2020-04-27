@@ -15,6 +15,7 @@
 package helm
 
 import (
+	"encoding/json"
 	"fmt"
 
 	helmstoragev2 "helm.sh/helm/pkg/storage"
@@ -27,16 +28,25 @@ import (
 
 // Helm represents all current releases that we can find in the cluster
 type Helm struct {
-	CurrentReleases []*Release
-	Outputs         []*api.Output
-	Version         string
-	Kube            *kube
+	Releases []*Release
+	Outputs  []*api.Output
+	Version  string
+	Kube     *kube
 }
 
-// Release is a single version of a chart release
 type Release struct {
-	Name     string `json:"metadata.name" yaml:"metadata.name"`
-	Manifest string `json:"manifest,omitempty"`
+	Name     string `json:"name"`
+	Chart    *Chart `json:"chart"`
+	Manifest string `json:"manifest"`
+}
+
+type Chart struct {
+	Metadata *ChartMeta `json:"metadata"`
+}
+
+type ChartMeta struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
@@ -53,18 +63,17 @@ func (h *Helm) FindVersions() error {
 
 	switch h.Version {
 	case "2":
-		err = h.getManifestsVersionTwo()
+		err = h.getReleasesVersionTwo()
 	case "3":
-		err = h.getManifestsVersionThree()
+		err = h.getReleasesVersionThree()
 	default:
 		err = fmt.Errorf("helm version either not specified or incorrect (use 2 or 3)")
 	}
-
 	return err
 }
 
-// getManifestsVersionTwo retrieves helm 2 manifests from ConfigMaps
-func (h *Helm) getManifestsVersionTwo() error {
+// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps
+func (h *Helm) getReleasesVersionTwo() error {
 	if h.Version != "2" {
 		return fmt.Errorf("helm 2 function called without helm 2 version set")
 	}
@@ -75,17 +84,31 @@ func (h *Helm) getManifestsVersionTwo() error {
 		return err
 	}
 	for _, release := range list {
-		outList, err := checkForAPIVersion([]byte(release.Manifest))
+		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
-			return fmt.Errorf("error parsing helm release '%s'\n   %w", release.Name, err)
+			return fmt.Errorf("error determining most recent deployed for '%s'\n   %w", release.Name, err)
 		}
-		h.Outputs = append(h.Outputs, outList...)
+		if release.Version != deployed.Version {
+			continue
+		}
+		jsonRel, err := json.Marshal(release)
+		if err != nil {
+			return fmt.Errorf("error marshaling release '%s'\n   %w", release.Name, err)
+		}
+		rel, err := marshalToRelease(jsonRel)
+		if err != nil {
+			return fmt.Errorf("error unmarshaling release '%s'\n   %w", release.Name, err)
+		}
+		h.Releases = append(h.Releases, rel)
+	}
+	if err := h.findVersions(); err != nil {
+		return err
 	}
 	return nil
 }
 
-// getManifestsVersionThree retrieves helm 3 manifests from Secrets
-func (h *Helm) getManifestsVersionThree() error {
+// getReleasesVersionThree retrieves helm 3 releases from Secrets
+func (h *Helm) getReleasesVersionThree() error {
 	if h.Version != "3" {
 		return fmt.Errorf("helm 3 function called without helm 3 version set")
 	}
@@ -96,11 +119,41 @@ func (h *Helm) getManifestsVersionThree() error {
 		return err
 	}
 	for _, release := range list {
+		deployed, err := helmClient.Deployed(release.Name)
+		if err != nil {
+			return fmt.Errorf("error determining most recent deployed for '%s'\n   %w", release.Name, err)
+		}
+		if release.Version != deployed.Version {
+			continue
+		}
+		jsonRel, err := json.Marshal(release)
+		if err != nil {
+			return fmt.Errorf("error marshaling release '%s'\n   %w", release.Name, err)
+		}
+		rel, err := marshalToRelease(jsonRel)
+		if err != nil {
+			return fmt.Errorf("error unmarshaling release '%s'\n   %w", release.Name, err)
+		}
+		h.Releases = append(h.Releases, rel)
+	}
+	if err := h.findVersions(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Helm) findVersions() error {
+	fmt.Println("done")
+	for _, release := range h.Releases {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
 			return fmt.Errorf("error parsing release '%s'\n   %w", release.Name, err)
 		}
+		for _, out := range outList {
+			out.Name = release.Name + "/" + out.Name
+		}
 		h.Outputs = append(h.Outputs, outList...)
+
 	}
 	return nil
 }
@@ -115,4 +168,11 @@ func checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
 		return nil, nil
 	}
 	return outputs, nil
+}
+
+// marshalToRelease casts a marshals release data into our Release type so we have a common type regardless of helm version
+func marshalToRelease(jsonRel []byte) (*Release, error) {
+	var ret = new(Release)
+	err := json.Unmarshal(jsonRel, ret)
+	return ret, err
 }

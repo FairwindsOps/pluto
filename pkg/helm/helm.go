@@ -143,7 +143,6 @@ func (h *Helm) getReleasesVersionThree() error {
 }
 
 func (h *Helm) findVersions() error {
-	fmt.Println("done")
 	for _, release := range h.Releases {
 		outList, err := checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {

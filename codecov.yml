@@ -5,3 +5,8 @@ coverage:
   precision: 2
   round: down
   range: "30...70"
+
+ignore:
+  - "e2e"
+  - "img"
+  - "**/**/testdata"

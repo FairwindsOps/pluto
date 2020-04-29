@@ -65,11 +65,6 @@ func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 }
 
-// Checker is an interface to find versions
-type Checker interface {
-	FindVersions() error
-}
-
 var rootCmd = &cobra.Command{
 	Use:   "pluto",
 	Short: "pluto",

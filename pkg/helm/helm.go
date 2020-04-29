@@ -91,13 +91,9 @@ func (h *Helm) getReleasesVersionTwo() error {
 		if release.Version != deployed.Version {
 			continue
 		}
-		jsonRel, err := json.Marshal(release)
+		rel, err := helmToRelease(release)
 		if err != nil {
-			return fmt.Errorf("error marshaling release '%s'\n   %w", release.Name, err)
-		}
-		rel, err := marshalToRelease(jsonRel)
-		if err != nil {
-			return fmt.Errorf("error unmarshaling release '%s'\n   %w", release.Name, err)
+			return fmt.Errorf("error converting helm release '%s' to internal object\n   %w", release.Name, err)
 		}
 		h.Releases = append(h.Releases, rel)
 	}
@@ -126,13 +122,9 @@ func (h *Helm) getReleasesVersionThree() error {
 		if release.Version != deployed.Version {
 			continue
 		}
-		jsonRel, err := json.Marshal(release)
+		rel, err := helmToRelease(release)
 		if err != nil {
-			return fmt.Errorf("error marshaling release '%s'\n   %w", release.Name, err)
-		}
-		rel, err := marshalToRelease(jsonRel)
-		if err != nil {
-			return fmt.Errorf("error unmarshaling release '%s'\n   %w", release.Name, err)
+			return fmt.Errorf("error converting helm release '%s' to internal object\n   %w", release.Name, err)
 		}
 		h.Releases = append(h.Releases, rel)
 	}
@@ -167,6 +159,14 @@ func checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
 		return nil, nil
 	}
 	return outputs, nil
+}
+
+func helmToRelease(helmRelease interface{}) (*Release, error) {
+	jsonRel, err := json.Marshal(helmRelease)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling release to json")
+	}
+	return marshalToRelease(jsonRel)
 }
 
 // marshalToRelease marshals release data into the Pluto Release type so we have a common type regardless of helm version

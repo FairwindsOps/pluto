@@ -14,18 +14,18 @@ testcases:
   - script: pluto detect-helm --helm-version=2 -A -t v1.15.0
     assertions:
     - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
-    - result.systemout ShouldContainSubstring "invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       false     true"
-    - result.systemout ShouldContainSubstring "lunging-bat-metrics-server       Deployment   apps/v1                            false     false"
+    - result.systemout ShouldContainSubstring "NAME                                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED "
+    - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldContainSubstring "lunging-bat/lunging-bat-metrics-server           Deployment   apps/v1                            false     false"
 
 - name: helm2 detect in-cluster
   steps:
   - script: pluto detect-helm --helm-version=2 -t v1.16.0
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldContainSubstring "NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
-    - result.systemout ShouldContainSubstring "invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
-    - result.systemout ShouldNotContainSubstring "lunging-bat-metrics-server       Deployment   apps/v1                            false     false"
+    - result.systemout ShouldContainSubstring "NAME                                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldNotContainSubstring "lunging-bat/lunging-bat-metrics-server        Deployment   apps/v1                            false     false"
 - name: cleanup
   steps:
   - script: kubectl delete ns helm-system

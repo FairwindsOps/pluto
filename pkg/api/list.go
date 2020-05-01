@@ -39,6 +39,7 @@ var VersionList = []Version{
 	{"apps/v1beta2", "StatefulSet", "v1.9.0", "v1.16.0", "apps/v1"},
 
 	{"extensions/v1beta1", "NetworkPolicy", "v1.9.0", "v1.16.0", "networking.k8s.io/v1"},
+	{"extensions/v1beta1", "Ingress", "v1.14.0", "v1.22.0", "networking.k8s.io/v1beta1"},
 
 	{"apps/v1beta2", "DaemonSet", "v1.9.0", "v1.16.0", "apps/v1"},
 	{"extensions/v1beta1", "DaemonSet", "v1.9.0", "v1.16.0", "apps/v1"},

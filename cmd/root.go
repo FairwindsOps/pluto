@@ -36,6 +36,7 @@ var (
 	versionCommit      string
 	directory          string
 	outputFormat       string
+	pushGatewayAddress string
 	showAll            bool
 	helmVersion        string
 	ignoreDeprecations bool
@@ -50,7 +51,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml|prometheus)")
+	rootCmd.PersistentFlags().StringVarP(&pushGatewayAddress, "push-gateway-address", "", "", "Push Gateway address used if output prometheus.")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 
@@ -111,6 +113,7 @@ var detectFilesCmd = &cobra.Command{
 		instance := &api.Instance{
 			TargetVersion:      targetVersion,
 			OutputFormat:       outputFormat,
+			PushGatewayAddress: pushGatewayAddress,
 			ShowAll:            showAll,
 			Outputs:            dir.Outputs,
 			IgnoreDeprecations: ignoreDeprecations,
@@ -142,6 +145,7 @@ var detectHelmCmd = &cobra.Command{
 		instance := &api.Instance{
 			TargetVersion:      targetVersion,
 			OutputFormat:       outputFormat,
+			PushGatewayAddress: pushGatewayAddress,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
@@ -189,6 +193,7 @@ var detectCmd = &cobra.Command{
 			instance := &api.Instance{
 				TargetVersion:      targetVersion,
 				OutputFormat:       outputFormat,
+				PushGatewayAddress: pushGatewayAddress,
 				ShowAll:            showAll,
 				IgnoreDeprecations: ignoreDeprecations,
 				IgnoreRemovals:     ignoreRemovals,
@@ -212,6 +217,7 @@ var detectCmd = &cobra.Command{
 		instance := &api.Instance{
 			TargetVersion:      targetVersion,
 			OutputFormat:       outputFormat,
+			PushGatewayAddress: pushGatewayAddress,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,

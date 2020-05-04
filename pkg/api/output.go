@@ -25,6 +25,7 @@ type Instance struct {
 	IgnoreDeprecations bool      `json:"-" yaml:"-"`
 	IgnoreRemovals     bool      `json:"-" yaml:"-"`
 	OutputFormat       string    `json:"-" yaml:"-"`
+	PushGatewayAddress string    `json:"-,omitempty" yaml:"-,omitempty"`
 	ShowAll            bool      `json:"show-all,omitempty" yaml:"show-all,omitempty"`
 	TargetVersion      string    `json:"target-version,omitempty" yaml:"target-version,omitempty"`
 }
@@ -71,8 +72,15 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		fmt.Println(string(outData))
+	case "prometheus":
+		address := instance.PushGatewayAddress
+		prom := Prometheus{address: &address, instance: instance}
+		err = prom.marshal()
+		if err != nil {
+			return err
+		}
 	default:
-		fmt.Println("output format should be one of (json,yaml,normal,wide)")
+		fmt.Println("output format should be one of (json,yaml,normal,wide,prometheus)")
 	}
 	return nil
 }

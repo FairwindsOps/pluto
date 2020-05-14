@@ -21,7 +21,7 @@ testcases:
 
 - name: helm template show all
   steps:
-  - script: helm template assets/helm3chart | pluto detect -t v1.16.0 -A -
+  - script: helm template assets/chart | pluto detect -t v1.16.0 -A -
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                              KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
@@ -30,7 +30,7 @@ testcases:
 
 - name: helm template
   steps:
-  - script: helm template assets/helm3chart | pluto detect -
+  - script: helm template assets/chart | pluto detect -
     assertions:
     - result.systemout ShouldContainSubstring "NAME                              KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
     - result.systemout ShouldContainSubstring "RELEASE-NAME-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
@@ -77,5 +77,5 @@ testcases:
   - script: pluto detect-files -d assets/ -owide
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
-    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
+    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
+    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"

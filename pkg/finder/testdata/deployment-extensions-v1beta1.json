@@ -5,7 +5,8 @@
     "labels": {
       "app": "utilities"
     },
-    "name": "utilities"
+    "name": "utilities",
+    "namespace": "json-namespace"
   },
   "spec": {
     "replicas": 1,

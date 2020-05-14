@@ -34,7 +34,8 @@ type Stub struct {
 
 // StubMeta will catch kube resource metadata
 type StubMeta struct {
-	Name string `json:"name" yaml:"name"`
+	Name      string `json:"name" yaml:"name"`
+	Namespace string `json:"namespace" yaml:"namespace"`
 }
 
 // Version is an apiVersion and a flag for deprecation
@@ -79,6 +80,7 @@ func IsVersioned(data []byte) ([]*Output, error) {
 			version := checkVersion(stub)
 			if version != nil {
 				output.Name = stub.Metadata.Name
+				output.Namespace = stub.Metadata.Namespace
 				output.APIVersion = version
 			} else {
 				continue

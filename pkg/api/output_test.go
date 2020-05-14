@@ -21,7 +21,8 @@ import (
 )
 
 var testOutput1 = &Output{
-	Name: "some name one",
+	Name:      "some name one",
+	Namespace: "pluto-namespace",
 	APIVersion: &Version{
 		Name:           "apps/v1",
 		Kind:           "Deployment",
@@ -76,9 +77,9 @@ func ExampleInstance_DisplayOutput_showAll_wide() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
-	// some name one-- Deployment-- apps/v1------------- ------------- false------- --------------- false---- ------------
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
+	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
+	// some name one-- pluto-namespace-- Deployment-- apps/v1------------- ------------- false------- --------------- false---- ------------
+	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
 func ExampleInstance_DisplayOutput_normal() {
@@ -111,8 +112,8 @@ func ExampleInstance_DisplayOutput_wide() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
+	// NAME----------- NAMESPACE-- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
+	// some name two-- <UNKNOWN>-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
 func ExampleInstance_DisplayOutput_showAll_json() {
@@ -128,7 +129,7 @@ func ExampleInstance_DisplayOutput_showAll_json() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// {"items":[{"name":"some name one","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":""},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-version":"v1.16.0"}
+	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":""},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-version":"v1.16.0"}
 }
 
 func ExampleInstance_DisplayOutput_showAll_yaml() {
@@ -146,6 +147,7 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	// Output:
 	// items:
 	// - name: some name one
+	//   namespace: pluto-namespace
 	//   api:
 	//     version: apps/v1
 	//     kind: Deployment

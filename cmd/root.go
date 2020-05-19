@@ -41,6 +41,7 @@ var (
 	ignoreDeprecations bool
 	ignoreRemovals     bool
 	targetVersion      string
+	namespace          string
 )
 
 func init() {
@@ -56,6 +57,7 @@ func init() {
 
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
+	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -133,7 +135,7 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(helmVersion)
+		h := helm.NewHelm(helmVersion, namespace)
 		err := h.FindVersions()
 		if err != nil {
 			fmt.Println("Error running helm-detect:", err)

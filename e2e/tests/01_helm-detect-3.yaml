@@ -1,9 +1,11 @@
 version: "2"
 name: "Static Code Files (including helm)"
 testcases:
-- name: install helm3 release secret
+- name: install helm3 assets
   steps:
-  - script: kubectl apply -f assets/helm3
+  - script: |
+      kubectl create ns demo2
+      kubectl apply -f assets/helm3
     assertions:
     - result.code ShouldEqual 0
 
@@ -51,6 +53,16 @@ testcases:
     - result.systemout ShouldContainSubstring "NAME                           NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   default     Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
 
+- name: helm detect show all wide namespaced
+  steps:
+  - script: pluto detect-helm --helm-version=3 -A -t v1.16.0 -owide -n demo2
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "NAME                     NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
+    - result.systemout ShouldContainSubstring "demo2/demo2-basic-demo   demo2       Deployment   apps/v1                 false                        false"
+
 - name: cleanup
   steps:
-  - script: kubectl delete -f assets/helm3
+  - script: |
+      kubectl delete -f assets/helm3
+      kubectl delete ns demo2

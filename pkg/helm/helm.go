@@ -28,10 +28,11 @@ import (
 
 // Helm represents all current releases that we can find in the cluster
 type Helm struct {
-	Releases []*Release
-	Outputs  []*api.Output
-	Version  string
-	Kube     *kube
+	Releases  []*Release
+	Outputs   []*api.Output
+	Version   string
+	Kube      *kube
+	Namespace string
 }
 
 // Release represents a single helm release
@@ -54,10 +55,11 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version string) *Helm {
+func NewHelm(version string, namespace string) *Helm {
 	return &Helm{
-		Version: version,
-		Kube:    getConfigInstance(),
+		Version:   version,
+		Kube:      getConfigInstance(),
+		Namespace: namespace,
 	}
 }
 
@@ -83,11 +85,14 @@ func (h *Helm) getReleasesVersionTwo() error {
 	}
 	hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
 	helmClient := helmstoragev2.Init(hcm)
-	list, err := helmClient.ListDeployed()
+	list, err := helmClient.ListReleases()
 	if err != nil {
 		return err
 	}
 	for _, release := range list {
+		if h.Namespace != "" && release.Namespace != h.Namespace {
+			continue
+		}
 		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
 			return fmt.Errorf("error determining most recent deployed for '%s'\n   %w", release.Name, err)
@@ -112,7 +117,7 @@ func (h *Helm) getReleasesVersionThree() error {
 	if h.Version != "3" {
 		return fmt.Errorf("helm 3 function called without helm 3 version set")
 	}
-	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(""))
+	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
 	helmClient := helmstoragev3.Init(hs)
 	list, err := helmClient.ListDeployed()
 	if err != nil {

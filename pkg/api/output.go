@@ -14,6 +14,7 @@ var padChar = byte(' ')
 // Output is a thing that has an apiVersion in it
 type Output struct {
 	Name       string   `json:"name,omitempty" yaml:"name,omitempty"`
+	Namespace  string   `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
 	Deprecated bool     `json:"deprecated" yaml:"deprecated"`
 	Removed    bool     `json:"removed" yaml:"removed"`
@@ -117,7 +118,7 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 	}
 
 	if instance.OutputFormat == "wide" {
-		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
+		_, _ = fmt.Fprintln(w, "NAME\t NAMESPACE\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
 
 		for _, output := range instance.Outputs {
 			kind := output.APIVersion.Kind
@@ -129,7 +130,14 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 			deprecatedIn := output.APIVersion.DeprecatedIn
 			removedIn := output.APIVersion.RemovedIn
 
-			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
+			var namespace string
+			if output.Namespace == "" {
+				namespace = "<UNKNOWN>"
+			} else {
+				namespace = output.Namespace
+			}
+
+			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, namespace, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
 		}
 
 	}

@@ -34,16 +34,20 @@ type Helm struct {
 	Kube     *kube
 }
 
+// Release represents a single helm release
 type Release struct {
-	Name     string `json:"name"`
-	Chart    *Chart `json:"chart"`
-	Manifest string `json:"manifest"`
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+	Chart     *Chart `json:"chart"`
+	Manifest  string `json:"manifest"`
 }
 
+// Chart represents a single helm chart
 type Chart struct {
 	Metadata *ChartMeta `json:"metadata"`
 }
 
+// ChartMeta is the metadata of a Helm chart
 type ChartMeta struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
@@ -142,6 +146,7 @@ func (h *Helm) findVersions() error {
 		}
 		for _, out := range outList {
 			out.Name = release.Name + "/" + out.Name
+			out.Namespace = release.Namespace
 		}
 		h.Outputs = append(h.Outputs, outList...)
 

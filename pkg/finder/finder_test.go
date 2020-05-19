@@ -26,7 +26,8 @@ var testPath = "testdata"
 
 var deploymentAppsV1Yaml = "testdata/deployment-apps-v1.yaml"
 var deploymentAppsV1YamlFile = []*api.Output{{
-	Name: "utilities",
+	Name:      "utilities",
+	Namespace: "test-namespaces",
 	APIVersion: &api.Version{
 		Name:         "apps/v1",
 		Kind:         "Deployment",
@@ -36,7 +37,8 @@ var deploymentAppsV1YamlFile = []*api.Output{{
 
 var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
 var deploymentExtensionsV1YamlFile = []*api.Output{{
-	Name: "utilities",
+	Name:      "utilities",
+	Namespace: "yaml-namespace",
 	APIVersion: &api.Version{
 		Name:           "extensions/v1beta1",
 		Kind:           "Deployment",
@@ -48,7 +50,8 @@ var deploymentExtensionsV1YamlFile = []*api.Output{{
 
 var deploymentExtensionsV1JSON = "testdata/deployment-extensions-v1beta1.json"
 var deploymentExtensionsV1JSONFile = []*api.Output{{
-	Name: "utilities",
+	Name:      "utilities",
+	Namespace: "json-namespace",
 	APIVersion: &api.Version{
 		Name:           "extensions/v1beta1",
 		Kind:           "Deployment",

@@ -59,7 +59,8 @@ var (
 	}
 	wantOutput = []*api.Output{
 		{
-			Name: "helmtest/helmtest-helmchartest-v1beta1",
+			Name:      "helmtest/helmtest-helmchartest-v1beta1",
+			Namespace: "default",
 			APIVersion: &api.Version{
 				Name:           "extensions/v1beta1",
 				Kind:           "Deployment",
@@ -69,7 +70,8 @@ var (
 			},
 		},
 		{
-			Name: "helmtest/helmtest-helmchartest",
+			Name:      "helmtest/helmtest-helmchartest",
+			Namespace: "default",
 			APIVersion: &api.Version{
 				Name:           "apps/v1",
 				Kind:           "Deployment",

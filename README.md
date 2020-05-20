@@ -17,7 +17,7 @@
 [goreport-image]: https://goreportcard.com/badge/github.com/FairwindsOps/pluto
 [goreport-link]: https://goreportcard.com/report/github.com/FairwindsOps/pluto
 
-[circleci-image]: https://circleci.com/gh/FairwindsOps/pluto.svg?style=svg
+[circleci-image]: https://circleci.com/gh/FairwindsOps/pluto/tree/master.svg?style=svg
 [circleci-link]: https://circleci.com/gh/FairwindsOps/pluto
 
 [codecov-image]: https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg
@@ -105,6 +105,14 @@ $ pluto detect-helm --helm-version=2 -A
 NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
 invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true
 lunging-bat-metrics-server       Deployment   apps/v1                            false     false
+```
+
+If you only have access to a certain namespace (helm 3), or if you only want to see information for a single namespace, you can pass the `--namespace` or `-n` flag to restrict the output. Due to the way that helm2 stores configmaps, you will still need access to the tiller namespace if you are using helm 2.
+
+```
+$ pluto detect-helm -n cert-manager -owide
+NAME                                NAMESPACE      KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
+cert-manager/cert-manager-webhook   cert-manager   MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
 ```
 
 ### Helm Chart Checking (local files)

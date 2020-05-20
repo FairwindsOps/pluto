@@ -19,6 +19,7 @@ references:
         rm goreleaser.deb
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v11-stretch
+    kind_node_image: "kindest/node:v1.18.0@sha256:0e20578828edd939d25eb98496a685c76c98d54084932f76069f886ec315d694"
     executor: golang-exec
     pre_script: e2e/pre.sh
     store-test-results: /tmp/test-results

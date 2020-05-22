@@ -116,3 +116,18 @@ func CheckForAPIVersion(file string) ([]*api.Output, error) {
 	}
 	return outputs, nil
 }
+
+// CheckForListOfAPIVersion checks a filename to see if
+// it is a list of api-versioned Kubernetes object.
+// Returns the File object if it is.
+func CheckForListOfAPIVersion(file string) ([]*api.Output, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+	outputs, err := api.IsListVersioned(data)
+	if err != nil {
+		return nil, err
+	}
+	return outputs, nil
+}

@@ -25,6 +25,12 @@ import (
 	"k8s.io/klog"
 )
 
+// StubList is a list of stubs of Kubernetes manifests
+type StubList struct {
+	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
+	Stubs []Stub `json:"items" yaml:"items"`
+}
+
 // Stub is a stub of a Kubernetes manifest that has just the name and apiVersion
 type Stub struct {
 	Kind       string   `json:"kind" yaml:"kind"`
@@ -65,15 +71,30 @@ func checkVersion(stub *Stub) *Version {
 	return nil
 }
 
+// IsListVersioned parses list of stubs and returns a version
+func IsListVersioned(data []byte) ([]*Output, error) {
+	stubs, err := containsStubList(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return getVersionOutput(stubs)
+}
+
 // IsVersioned returns a version if the file data sent
 // can be unmarshaled into a stub and matches a known
 // version in the VersionList
 func IsVersioned(data []byte) ([]*Output, error) {
-	var outputs []*Output
 	stubs, err := containsStub(data)
 	if err != nil {
 		return nil, err
 	}
+
+	return getVersionOutput(stubs)
+}
+
+func getVersionOutput(stubs []*Stub) ([]*Output, error) {
+	var outputs []*Output
 	if len(stubs) > 0 {
 		for _, stub := range stubs {
 			var output Output
@@ -90,6 +111,32 @@ func IsVersioned(data []byte) ([]*Output, error) {
 		return outputs, nil
 	}
 	return nil, fmt.Errorf("no version found in data")
+}
+
+// containsStubList checks to see if a []byte has stub list in it
+func containsStubList(data []byte) ([]*Stub, error) {
+	klog.V(10).Infof("\n%s", string(data))
+	stublist, err := jsonToStubList(data)
+	var stubs []*Stub
+	if err != nil {
+		klog.V(8).Infof("invalid json: %s", err.Error())
+	} else {
+		for _, stub := range stublist.Stubs {
+			s := stub
+			stubs = append(stubs, &s)
+		}		
+		return stubs, nil
+	}
+	stublist, err = yamlToStubList(data)
+	if err != nil {
+		klog.V(8).Infof("invalid yaml: %s", err.Error())
+	} else {
+		for _, stub := range stublist.Stubs {
+			stubs = append(stubs, &stub)
+		}
+		return stubs, nil
+	}
+	return nil, err
 }
 
 // containsStub checks to see if a []byte has a stub in it
@@ -136,6 +183,30 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 		stubs = append(stubs, stub)
 	}
 	return stubs, nil
+}
+
+func jsonToStubList(data []byte) (*StubList, error) {
+	stublist := &StubList{}
+	err := json.Unmarshal(data, stublist)
+	if err != nil {
+		return nil, err
+	}
+	return stublist, nil	
+}
+
+func yamlToStubList(data []byte) (*StubList, error) {
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	var stublist *StubList
+	for {
+		err := decoder.Decode(stublist)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return stublist, err
+		}
+	}
+	return stublist, nil
 }
 
 // IsDeprecatedIn returns true if the version is deprecated in the targetVersion

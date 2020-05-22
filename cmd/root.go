@@ -42,6 +42,7 @@ var (
 	ignoreRemovals     bool
 	targetVersion      string
 	namespace          string
+	listFormat 				 bool
 )
 
 func init() {
@@ -58,6 +59,7 @@ func init() {
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
+	detectCmd.PersistentFlags().BoolVar(&listFormat, "list-format", false, "The format of resources are in the form of a list")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -183,7 +185,12 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error reading stdin:", err)
 				os.Exit(1)
 			}
-			output, err := api.IsVersioned(fileData)
+			var output []*api.Output
+			if listFormat {
+				output, err = api.IsListVersioned(fileData)
+			} else {
+				output, err = api.IsVersioned(fileData)
+			}			
 			if err != nil {
 				fmt.Println("Error checking for versions:", err)
 				os.Exit(1)
@@ -206,7 +213,14 @@ var detectCmd = &cobra.Command{
 			klog.V(5).Infof("retCode: %d", retCode)
 			os.Exit(retCode)
 		}
-		output, err := finder.CheckForAPIVersion(args[0])
+
+		var output []*api.Output
+		var err error
+		if listFormat {		 
+			output, err = finder.CheckForListOfAPIVersion(args[0])
+		} else {
+			output, err = finder.CheckForAPIVersion(args[0])
+		}
 		if err != nil {
 			fmt.Println("Error reading file:", err)
 			os.Exit(1)

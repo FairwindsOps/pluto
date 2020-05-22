@@ -42,7 +42,7 @@ var (
 	ignoreRemovals     bool
 	targetVersion      string
 	namespace          string
-	listFormat 				 bool
+	listFormat         bool
 )
 
 func init() {

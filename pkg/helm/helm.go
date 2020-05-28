@@ -58,7 +58,7 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version, namespace, store string) *Helm {
+func NewHelm(version, store, namespace string) *Helm {
 	return &Helm{
 		Version:   version,
 		Kube:      getConfigInstance(),

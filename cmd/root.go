@@ -144,7 +144,7 @@ var detectHelmCmd = &cobra.Command{
 		if helmVersion == "3" && helmStore != "" {
 			fmt.Println("helm-store work only with helm v2")
 		}
-		h := helm.NewHelm(helmVersion, namespace, helmStore)
+		h := helm.NewHelm(helmVersion, helmStore, namespace)
 		err := h.FindVersions()
 		if err != nil {
 			klog.V(0).Infof("Error running helm-detect: %s\n\n", err)

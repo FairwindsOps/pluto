@@ -77,10 +77,10 @@ var (
 			Name: "sh.helm.release.v1.helmtest.v1",
 			Labels: map[string]string{
 				"MODIFIED_AT": "1585859667",
-				"NAME": "helmtest",
-				"OWNER": "TILLER",
-				"STATUS": "DEPLOYED",
-				"VERSION": "1",
+				"NAME":        "helmtest",
+				"OWNER":       "TILLER",
+				"STATUS":      "DEPLOYED",
+				"VERSION":     "1",
 			},
 		},
 		Data: map[string][]byte{
@@ -126,7 +126,7 @@ var (
 	}
 )
 
-func newMockHelm(version, namespace, store string) *Helm {
+func newMockHelm(version, store, namespace string) *Helm {
 	return &Helm{
 		Version:   version,
 		Namespace: namespace,
@@ -221,16 +221,16 @@ func TestHelm_getManifestsVersionTwo(t *testing.T) {
 			name:        "helm 2 target namespace",
 			namespace:   "demo1",
 			helmVersion: "2",
-	  	store:       "configmaps",
+			store:       "configmaps",
 			configMap:   &helmConfigMap2,
 			want:        wantOutputNamespaced,
 		},
 	}
 	for _, tt := range tests {
-		h := newMockHelm(tt.helmVersion, tt.namespace, tt.store)
+		h := newMockHelm(tt.helmVersion, tt.store, tt.namespace)
 		if tt.configMap != nil {
 			_, err := h.Kube.Client.CoreV1().ConfigMaps(tt.namespace).Create(tt.configMap)
-	  	if err != nil {
+			if err != nil {
 				t.Errorf("failed putting configMap in mocked kube. test: %s", tt.name)
 			}
 		}
@@ -276,7 +276,7 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		h := newMockHelm(tt.helmVersion, "", "secrets")
+		h := newMockHelm(tt.helmVersion, "secrets", "")
 		if tt.secret != nil {
 			_, err := h.Kube.Client.CoreV1().Secrets("default").Create(tt.secret)
 			if err != nil {

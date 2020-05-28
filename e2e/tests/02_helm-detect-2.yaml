@@ -1,7 +1,7 @@
 version: "2"
 name: "Static Code Files (including helm)"
 testcases:
-- name: install helm 2 configmaps
+- name: install helm 2 configmaps and secrets
   steps:
   - script: |
       kubectl create ns helm-system
@@ -34,6 +34,23 @@ testcases:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "NAME                                       NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "kindled-toucan/kindled-toucan-basic-demo   demo1       Deployment   apps/v1                 false                        false"
+
+- name: helm2 detect in-cluster show-all wide namespaced confimaps
+  steps:
+  - script: pluto detect-helm --helm-version=2 --helm-store configmaps -A -t v1.15.0 -owide -n demo1
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "NAME                                       NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
+    - result.systemout ShouldContainSubstring "kindled-toucan/kindled-toucan-basic-demo   demo1       Deployment   apps/v1                 false                        false"
+
+- name: helm detect show all wide namespaced secrets
+  steps:
+  - script: pluto detect-helm --helm-version=2 --helm-store secrets -A -t v1.16.0 -owide
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME                                             NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
+    - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   default     Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
+
 - name: cleanup
   steps:
   - script: |

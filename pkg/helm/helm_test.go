@@ -210,6 +210,14 @@ func TestHelm_getManifestsVersionTwo(t *testing.T) {
 			want:        wantOutput,
 		},
 		{
+			name:        "helm 2 bad store",
+			helmVersion: "2",
+			store:       "badstore",
+			secret:      &helmSecret2,
+			wantErr:     true,
+			errMessage:  "helm-store should be configmap or secrets",
+		},
+		{
 			name:        "helm 2 other namespace",
 			namespace:   "demo1",
 			helmVersion: "2",
@@ -299,6 +307,7 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 	tests := []struct {
 		name        string
 		helmVersion string
+		store       string
 		wantErr     bool
 		errMessage  string
 		secret      *v1.Secret
@@ -307,6 +316,7 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 		{
 			name:        "two - bad client",
 			helmVersion: "2",
+			store:       "configmaps",
 			wantErr:     true,
 			errMessage:  "helm 3 function called without helm 3 version set",
 		},
@@ -321,6 +331,7 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 	for _, tt := range tests {
 		h := &Helm{
 			Version: tt.helmVersion,
+			Store:   tt.store,
 			Kube:    newBadKubeClient(),
 		}
 		t.Run(tt.name, func(t *testing.T) {

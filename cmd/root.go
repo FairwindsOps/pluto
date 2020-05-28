@@ -137,17 +137,11 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if helmStore != "secrets" && helmStore != "configmaps" && helmVersion == "2" {
-			fmt.Println("helm-store should be configmaps or secrets")
-			os.Exit(1)
-		}
-		if helmVersion == "3" && helmStore != "" {
-			fmt.Println("helm-store work only with helm v2")
-		}
 		h := helm.NewHelm(helmVersion, helmStore, namespace)
 		err := h.FindVersions()
 		if err != nil {
-			klog.V(0).Infof("Error running helm-detect: %s\n\n", err)
+			fmt.Println("Error running helm-detect:", err)
+			os.Exit(1)
 		}
 		instance := &api.Instance{
 			TargetVersion:      targetVersion,
@@ -165,6 +159,12 @@ var detectHelmCmd = &cobra.Command{
 		retCode := instance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
+	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if helmStore != "secrets" && helmStore != "configmaps" && helmVersion == "2" {
+			fmt.Println("helm-store should be configmaps or secrets")
+			os.Exit(1)
+		}
 	},
 }
 

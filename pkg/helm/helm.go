@@ -23,6 +23,8 @@ import (
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/fairwindsops/pluto/pkg/api"
 )
 
@@ -33,6 +35,7 @@ type Helm struct {
 	Version   string
 	Kube      *kube
 	Namespace string
+	Store     string
 }
 
 // Release represents a single helm release
@@ -55,11 +58,12 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version string, namespace string) *Helm {
+func NewHelm(version, namespace, store string) *Helm {
 	return &Helm{
 		Version:   version,
 		Kube:      getConfigInstance(),
 		Namespace: namespace,
+		Store:     store,
 	}
 }
 
@@ -78,13 +82,23 @@ func (h *Helm) FindVersions() error {
 	return err
 }
 
-// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps
+// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps or Secrets
 func (h *Helm) getReleasesVersionTwo() error {
+	var helmClient *helmstoragev2.Storage
 	if h.Version != "2" {
 		return fmt.Errorf("helm 2 function called without helm 2 version set")
 	}
-	hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
-	helmClient := helmstoragev2.Init(hcm)
+	// helm store it's data in configmaps by default, but can be configured
+	// to use secrets instead (v2 only)
+	if h.Store == "secrets" {
+		opts := metav1.ListOptions{LabelSelector: "OWNER=TILLER"}
+		h.Kube.Client.CoreV1().Secrets(h.Namespace).List(opts)
+		hs := driverv2.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
+		helmClient = helmstoragev2.Init(hs)
+	 } else {
+		hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
+		helmClient = helmstoragev2.Init(hcm)
+	 }
 	list, err := helmClient.ListReleases()
 	if err != nil {
 		return err

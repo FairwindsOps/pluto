@@ -38,6 +38,7 @@ var (
 	outputFormat       string
 	showAll            bool
 	helmVersion        string
+	helmStore          string
 	ignoreDeprecations bool
 	ignoreRemovals     bool
 	targetVersion      string
@@ -58,6 +59,7 @@ func init() {
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
+	detectHelmCmd.PersistentFlags().StringVar(&helmStore, "helm-store", "configmaps", "Helm storage for v2 (configmaps|secrets)")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -135,11 +137,17 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(helmVersion, namespace)
+		if helmStore != "secrets" && helmStore != "configmaps" && helmVersion == "2" {
+			fmt.Println("helm-store should be configmaps or secrets")
+			os.Exit(1)
+		}
+		if helmVersion == "3" && helmStore != "" {
+			fmt.Println("helm-store work only with helm v2")
+		}
+		h := helm.NewHelm(helmVersion, namespace, helmStore)
 		err := h.FindVersions()
 		if err != nil {
-			fmt.Println("Error running helm-detect:", err)
-			os.Exit(1)
+			klog.V(0).Infof("Error running helm-detect: %s\n\n", err)
 		}
 		instance := &api.Instance{
 			TargetVersion:      targetVersion,

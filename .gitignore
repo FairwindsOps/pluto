@@ -8,3 +8,6 @@ coverage.txt
 cover.html
 
 /pluto
+
+# Editor
+.vscode

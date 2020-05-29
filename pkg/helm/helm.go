@@ -33,6 +33,7 @@ type Helm struct {
 	Version   string
 	Kube      *kube
 	Namespace string
+	Store     string
 }
 
 // Release represents a single helm release
@@ -55,11 +56,12 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version string, namespace string) *Helm {
+func NewHelm(version, store, namespace string) *Helm {
 	return &Helm{
 		Version:   version,
 		Kube:      getConfigInstance(),
 		Namespace: namespace,
+		Store:     store,
 	}
 }
 
@@ -78,13 +80,22 @@ func (h *Helm) FindVersions() error {
 	return err
 }
 
-// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps
+// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps or Secrets
 func (h *Helm) getReleasesVersionTwo() error {
+	var helmClient *helmstoragev2.Storage
 	if h.Version != "2" {
 		return fmt.Errorf("helm 2 function called without helm 2 version set")
 	}
-	hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
-	helmClient := helmstoragev2.Init(hcm)
+	switch h.Store {
+	case "secrets":
+		hs := driverv2.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
+		helmClient = helmstoragev2.Init(hs)
+	case "configmaps":
+		hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
+		helmClient = helmstoragev2.Init(hcm)
+	default:
+		return fmt.Errorf("helm-store should be configmap or secrets")
+	}
 	list, err := helmClient.ListReleases()
 	if err != nil {
 		return err

@@ -107,6 +107,8 @@ invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1      
 lunging-bat-metrics-server       Deployment   apps/v1                            false     false
 ```
 
+In case you have configured helm 2 with `--storage=secret`, you can add the optional `--helm-store secrets`. Default configuration for helm 2 is configmaps.
+
 If you only have access to a certain namespace (helm 3), or if you only want to see information for a single namespace, you can pass the `--namespace` or `-n` flag to restrict the output. Due to the way that helm2 stores configmaps, you will still need access to the tiller namespace if you are using helm 2.
 
 ```

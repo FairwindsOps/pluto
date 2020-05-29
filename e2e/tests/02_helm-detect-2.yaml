@@ -43,7 +43,7 @@ testcases:
     - result.systemout ShouldContainSubstring "NAME                                       NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "kindled-toucan/kindled-toucan-basic-demo   demo1       Deployment   apps/v1                 false                        false"
 
-- name: helm detect show all wide namespaced secrets
+- name: helm2 detect show all wide namespaced secrets
   steps:
   - script: pluto detect-helm --helm-version=2 --helm-store secrets -A -t v1.16.0 -owide
     assertions:

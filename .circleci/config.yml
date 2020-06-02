@@ -9,16 +9,6 @@ executors:
       - image: circleci/golang:1.14-stretch
 
 references:
-  set_environment_variables: &set_environment_variables
-    run:
-      name: Set Environment Variables
-      command: |
-        echo 'export CI_SHA1=$CIRCLE_SHA1' >> ${BASH_ENV}
-        echo 'export CI_BRANCH=$CIRCLE_BRANCH' >> ${BASH_ENV}
-        echo 'export CI_BUILD_NUM=$CIRCLE_BUILD_NUM' >> ${BASH_ENV}
-        echo 'export CI_TAG=$CIRCLE_TAG' >> ${BASH_ENV}
-        echo 'export GOPROXY=https://proxy.golang.org' >> ${BASH_ENV}
-        echo 'export GO111MODULE=on' >> ${BASH_ENV}
   install_goreleaser: &install_goreleaser
     run:
       name: Install GoReleaser
@@ -70,25 +60,6 @@ jobs:
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
       - run: bash <(curl -s https://codecov.io/bash)
 
-  build:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v8.0-stretch
-    steps:
-      - checkout
-      - setup_remote_docker
-      - *set_environment_variables
-      - *docker_build
-
-  build_and_push:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v8.0-stretch
-    steps:
-      - checkout
-      - setup_remote_docker
-      - *set_environment_variables
-      - *docker_build
-      - *docker_push
-
   release_binary:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
@@ -101,31 +72,32 @@ jobs:
       - *install_goreleaser
       - run: goreleaser
 
-  release_images:
-    working_directory: /go/src/github.com/fairwindsops/polaris/
-    docker:
-      - image: quay.io/reactiveops/ci-images:v8.0-stretch
-    steps:
-      - checkout
-      - setup_remote_docker
-      - *set_environment_variables
-      - *docker_build
-      - *docker_push
-
 workflows:
   version: 2
 
   test:
     jobs:
       - test
-      - build:
+      - rok8s-scripts/docker_build_and_push:
+          name: build-and-push-container
+          docker-push: false
+          enable_docker_layer_caching: true
+          config_file: deploy/build.config
           requires:
             - test
           filters:
             branches:
               only: /pull\/[0-9]+/
-      - build_and_push:
+      - rok8s-scripts/docker_build_and_push:
+          name: build-and-push-container
+          docker-push: true
+          enable_docker_layer_caching: true
+          config_file: deploy/build.config
           context: org-global
+          docker-login: true
+          password-variable: "fairwinds_quay_token"
+          registry: quay.io
+          username: fairwinds+circleci
           requires:
             - test
           filters:

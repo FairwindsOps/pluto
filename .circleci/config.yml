@@ -34,14 +34,14 @@ references:
 
   docker_build: &docker_build
     run:
-      name: Docker login and build
+      name: Docker build
       command: |
         docker-pull -f .circleci/build.config
         docker-build -f .circleci/build.config
 
   docker_push: &docker_push
     run:
-      name: Docker login, build, and push
+      name: Docker login and push
       command: |
         docker login quay.io -u="${fairwinds_quay_user}" -p="${fairwinds_quay_token}"
         docker-push -f .circleci/build.config

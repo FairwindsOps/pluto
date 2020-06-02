@@ -32,6 +32,20 @@ references:
       tags:
         ignore: /.*/
 
+  docker_build: &docker_build
+    run:
+      name: Docker login and build
+      command: |
+        docker-pull -f .circleci/build.config
+        docker-build -f .circleci/build.config
+
+  docker_push: &docker_push
+    run:
+      name: Docker login, build, and push
+      command: |
+        docker login quay.io -u="${fairwinds_quay_user}" -p="${fairwinds_quay_token}"
+        docker-push -f .circleci/build.config
+
 jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
@@ -46,7 +60,26 @@ jobs:
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
       - run: bash <(curl -s https://codecov.io/bash)
 
-  release:
+  build:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v8.0-stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - *set_environment_variables
+      - *docker_build
+
+  build_and_push:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v8.0-stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - *set_environment_variables
+      - *docker_build
+      - *docker_push
+
+  release_binary:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
       - image: circleci/golang:1.13
@@ -58,18 +91,50 @@ jobs:
       - *install_goreleaser
       - run: goreleaser
 
+  release_images:
+    working_directory: /go/src/github.com/fairwindsops/polaris/
+    docker:
+      - image: quay.io/reactiveops/ci-images:v8.0-stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - *set_environment_variables
+      - *docker_build
+      - *docker_push
+
 workflows:
   version: 2
-  test-and-release:
+
+  test:
     jobs:
-      - test:
+      - test
+      - build:
+          requires:
+            - test
           filters:
             branches:
-              only: /.*/
+              only: /pull\/[0-9]+/
+      - build_and_push:
+          context: org-global
+          requires:
+            - test
+          filters:
+            branches:
+              ignore: /pull\/[0-9]+/
+
+  release:
+    jobs:
       - rok8s-scripts/kubernetes_e2e_tests:
           name: run functional tests
           <<: *e2e_config
-      - release:
+      - release_binary:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - release_images:
+          context: org-global
           filters:
             branches:
               ignore: /.*/

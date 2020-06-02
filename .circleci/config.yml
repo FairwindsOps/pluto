@@ -68,7 +68,7 @@ workflows:
           name: build-and-push-container
           docker-push: false
           enable_docker_layer_caching: true
-          config_file: deploy/build.config
+          config_file: .circleci/build.config
           requires:
             - test
           filters:
@@ -78,7 +78,7 @@ workflows:
           name: build-and-push-container
           docker-push: true
           enable_docker_layer_caching: true
-          config_file: deploy/build.config
+          config_file: .circleci/build.config
           context: org-global
           docker-login: true
           password-variable: "fairwinds_quay_token"

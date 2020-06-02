@@ -134,6 +134,10 @@ workflows:
 
   release:
     jobs:
+      - test:
+          filters:
+            branches:
+              only: /.*/
       - rok8s-scripts/kubernetes_e2e_tests:
           name: run functional tests
           <<: *e2e_config

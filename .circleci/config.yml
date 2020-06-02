@@ -106,10 +106,3 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-      - release_images:
-          context: org-global
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/

@@ -82,15 +82,19 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		c, _ := utf8.DecodeRuneInString(targetVersion)
-		if c != 'v' {
-			fmt.Printf("Your --target-version must begin with a 'v'. Got '%s'\n", targetVersion)
-			os.Exit(1)
-		}
+		for flag, version := range map[string]string{
+			"target-version": targetVersion,
+		} {
+			c, _ := utf8.DecodeRuneInString(version)
+			if c != 'v' {
+				fmt.Printf("Your --%s must begin with a 'v'. Got '%s'\n", flag, version)
+				os.Exit(1)
+			}
 
-		if !semver.IsValid(targetVersion) {
-			fmt.Printf("You must pass a valid semver to --target-version. Got '%s'\n", targetVersion)
-			os.Exit(1)
+			if !semver.IsValid(version) {
+				fmt.Printf("You must pass a valid semver to --%s. Got '%s'\n", flag, version)
+				os.Exit(1)
+			}
 		}
 	},
 }
@@ -113,7 +117,9 @@ var detectFilesCmd = &cobra.Command{
 		}
 
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s": targetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			Outputs:            dir.Outputs,
@@ -144,7 +150,9 @@ var detectHelmCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s": targetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,
@@ -197,7 +205,9 @@ var detectCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			instance := &api.Instance{
-				TargetVersion:      targetVersion,
+				TargetVersions: map[string]string{
+					"k8s": targetVersion,
+				},
 				OutputFormat:       outputFormat,
 				ShowAll:            showAll,
 				IgnoreDeprecations: ignoreDeprecations,
@@ -220,7 +230,9 @@ var detectCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s": targetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,

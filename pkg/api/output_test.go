@@ -29,6 +29,7 @@ var testOutput1 = &Output{
 		DeprecatedIn:   "",
 		RemovedIn:      "",
 		ReplacementAPI: "",
+		Component:      "foo",
 	},
 }
 var testOutput2 = &Output{
@@ -39,6 +40,7 @@ var testOutput2 = &Output{
 		DeprecatedIn:   "v1.9.0",
 		RemovedIn:      "v1.16.0",
 		ReplacementAPI: "apps/v1",
+		Component:      "foo",
 	},
 }
 
@@ -48,7 +50,9 @@ func init() {
 
 func ExampleInstance_DisplayOutput_showAll_normal() {
 	instance := &Instance{
-		TargetVersion: "v1.15.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.15.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -66,7 +70,9 @@ func ExampleInstance_DisplayOutput_showAll_normal() {
 
 func ExampleInstance_DisplayOutput_showAll_wide() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -84,7 +90,9 @@ func ExampleInstance_DisplayOutput_showAll_wide() {
 
 func ExampleInstance_DisplayOutput_normal() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -101,7 +109,9 @@ func ExampleInstance_DisplayOutput_normal() {
 
 func ExampleInstance_DisplayOutput_wide() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -118,7 +128,9 @@ func ExampleInstance_DisplayOutput_wide() {
 
 func ExampleInstance_DisplayOutput_showAll_json() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -129,12 +141,14 @@ func ExampleInstance_DisplayOutput_showAll_json() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":""},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-version":"v1.16.0"}
+	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":""},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-versions":{"foo":"v1.16.0"}}
 }
 
 func ExampleInstance_DisplayOutput_showAll_yaml() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -166,12 +180,15 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	//   deprecated: true
 	//   removed: true
 	// show-all: true
-	// target-version: v1.16.0
+	// target-versions:
+	//   foo: v1.16.0
 }
 
 func ExampleInstance_DisplayOutput_noOutput() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 		},
@@ -185,7 +202,9 @@ func ExampleInstance_DisplayOutput_noOutput() {
 
 func ExampleInstance_DisplayOutput_badFormat() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
@@ -200,10 +219,12 @@ func ExampleInstance_DisplayOutput_badFormat() {
 
 func ExampleInstance_DisplayOutput_zeroLength() {
 	instance := &Instance{
-		TargetVersion: "v1.16.0",
-		Outputs:       []*Output{},
-		OutputFormat:  "normal",
-		ShowAll:       false,
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
+		Outputs:      []*Output{},
+		OutputFormat: "normal",
+		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 
@@ -238,6 +259,7 @@ func TestGetReturnCode(t *testing.T) {
 						APIVersion: &Version{
 							DeprecatedIn: "v1.16.0",
 							RemovedIn:    "v1.20.0",
+							Component:    "foo",
 						},
 					},
 				},
@@ -254,6 +276,7 @@ func TestGetReturnCode(t *testing.T) {
 						APIVersion: &Version{
 							DeprecatedIn: "v1.16.0",
 							RemovedIn:    "v1.20.0",
+							Component:    "foo",
 						},
 					},
 				},
@@ -270,6 +293,7 @@ func TestGetReturnCode(t *testing.T) {
 						APIVersion: &Version{
 							RemovedIn:    "v1.16.0",
 							DeprecatedIn: "v1.12.0",
+							Component:    "foo",
 						},
 					},
 				},
@@ -282,7 +306,9 @@ func TestGetReturnCode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			instance := &Instance{
-				TargetVersion:      "v1.16.0",
+				TargetVersions: map[string]string{
+					"foo": "v1.16.0",
+				},
 				IgnoreDeprecations: tt.args.ignoreDeprecations,
 				IgnoreRemovals:     tt.args.ignoreRemovals,
 				Outputs:            tt.args.outputs,

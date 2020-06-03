@@ -52,12 +52,19 @@ type Version struct {
 	RemovedIn string `json:"removed-in" yaml:"removed-in"`
 	// ReplacementAPI is the apiVersion that replaces the deprecated one
 	ReplacementAPI string `json:"replacement-api" yaml:"replacement-api"`
+	// Component is the component associated with this version
+	Component string `json:"-" yaml:"-"`
 }
 
 func checkVersion(stub *Stub) *Version {
 	for _, version := range VersionList {
-		if version.Kind == stub.Kind {
+		// We allow empty kinds to deprecate whole APIs.
+		if version.Kind == "" || version.Kind == stub.Kind {
 			if version.Name == stub.APIVersion {
+				if version.Kind == "" {
+					version.Kind = stub.Kind
+				}
+
 				return &version
 			}
 		}
@@ -138,30 +145,50 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 	return stubs, nil
 }
 
-// IsDeprecatedIn returns true if the version is deprecated in the targetVersion
+// IsDeprecatedIn returns true if the version is deprecated in the applicable targetVersion
 // Will return false if the targetVersion passed is not a valid semver string
-func (v *Version) isDeprecatedIn(targetVersion string) bool {
-	if !semver.IsValid(targetVersion) {
-		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
-		return false
+func (v *Version) isDeprecatedIn(targetVersions map[string]string) bool {
+	for component, targetVersion := range targetVersions {
+		if !semver.IsValid(targetVersion) {
+			klog.V(3).Infof("targetVersion %s for %s is not valid semVer", targetVersion, component)
+			return false
+		}
 	}
+
 	if v.DeprecatedIn == "" {
 		return false
 	}
+
+	targetVersion, ok := targetVersions[v.Component]
+	if !ok {
+		klog.V(3).Infof("targetVersion missing for component %s", v.Component)
+		return false
+	}
+
 	comparison := semver.Compare(targetVersion, v.DeprecatedIn)
 	return comparison >= 0
 }
 
-// IsRemovedIn returns true if the version is deprecated in the targetVersion
+// IsRemovedIn returns true if the version is deprecated in the applicable targetVersion
 // Will return false if the targetVersion passed is not a valid semver string
-func (v *Version) isRemovedIn(targetVersion string) bool {
-	if !semver.IsValid(targetVersion) {
-		klog.V(3).Infof("targetVersion %s is not valid semVer", targetVersion)
-		return false
+func (v *Version) isRemovedIn(targetVersions map[string]string) bool {
+	for component, targetVersion := range targetVersions {
+		if !semver.IsValid(targetVersion) {
+			klog.V(3).Infof("targetVersion %s for %s is not valid semVer", targetVersion, component)
+			return false
+		}
 	}
+
 	if v.RemovedIn == "" {
 		return false
 	}
+
+	targetVersion, ok := targetVersions[v.Component]
+	if !ok {
+		klog.V(3).Infof("targetVersion missing for component %s", v.Component)
+		return false
+	}
+
 	comparison := semver.Compare(targetVersion, v.RemovedIn)
 	return comparison >= 0
 }

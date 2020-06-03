@@ -35,7 +35,7 @@ func Test_VersionListIsValid(t *testing.T) {
 }
 
 var TestVersionList = []Version{
-	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1", "foo"},
 }
 
 func Example_printVersionsTabular() {

@@ -75,6 +75,14 @@ var VersionList = []Version{
 	{"rbac.istio.io", "AuthorizationPolicies", "v1.4.0", "v1.4.0", "security.istio.io/v1beta1", "istio"},
 	{"authentication.istio.io/v1alpha1", "", "v1.5.0", "v1.6.0", "security.istio.io/v1beta1", "istio"},
 	{"networking.istio.io/v1alpha3", "", "v1.5.0", "", "networking.istio.io/v1beta1", "istio"},
+
+	// cert-manager API versions.
+	{"certmanager.k8s.io/v1alpha1", "Certificate", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
+	{"certmanager.k8s.io/v1alpha1", "Issuer", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
+	{"certmanager.k8s.io/v1alpha1", "ClusterIssuer", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
+	{"certmanager.k8s.io/v1alpha1", "CertificateRequest", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
+	{"certmanager.k8s.io/v1alpha1", "Order", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
+	{"certmanager.k8s.io/v1alpha1", "Challenge", "v0.11.0", "v0.11.0", "cert-manager.io/v1alpha2", "cert-manager"},
 }
 
 // PrintVersionList prints out the list of versions

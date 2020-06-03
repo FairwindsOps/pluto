@@ -76,6 +76,12 @@ func Example_printVersionsTabular() {
 	// AuthorizationPolicies--------- rbac.istio.io------------------------- v1.4.0--------- v1.4.0------ security.istio.io/v1beta1--------
 	// ------------------------------ authentication.istio.io/v1alpha1------ v1.5.0--------- v1.6.0------ security.istio.io/v1beta1--------
 	// ------------------------------ networking.istio.io/v1alpha3---------- v1.5.0--------- n/a--------- networking.istio.io/v1beta1------
+	// Certificate------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Issuer------------------------ certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// ClusterIssuer----------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// CertificateRequest------------ certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Order------------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Challenge--------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
 }
 
 func ExamplePrintVersionList_json() {

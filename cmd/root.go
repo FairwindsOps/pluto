@@ -32,18 +32,19 @@ import (
 )
 
 var (
-	version            string
-	versionCommit      string
-	directory          string
-	outputFormat       string
-	showAll            bool
-	helmVersion        string
-	helmStore          string
-	ignoreDeprecations bool
-	ignoreRemovals     bool
-	targetVersion      string
-	istioTargetVersion string
-	namespace          string
+	version                  string
+	versionCommit            string
+	directory                string
+	outputFormat             string
+	showAll                  bool
+	helmVersion              string
+	helmStore                string
+	ignoreDeprecations       bool
+	ignoreRemovals           bool
+	targetVersion            string
+	istioTargetVersion       string
+	certManagerTargetVersion string
+	namespace                string
 )
 
 func init() {
@@ -54,6 +55,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
 	rootCmd.PersistentFlags().StringVar(&istioTargetVersion, "istio-target-version", "v1.6.0", "The version of Istio you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVar(&certManagerTargetVersion, "cert-manager-target-version", "v1.15.0", "The version of cert-manager you wish to check deprecations for.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
@@ -85,8 +87,9 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		for flag, version := range map[string]string{
-			"target-version":       targetVersion,
-			"istio-target-version": istioTargetVersion,
+			"target-version":              targetVersion,
+			"istio-target-version":        istioTargetVersion,
+			"cert-manager-target-version": certManagerTargetVersion,
 		} {
 			c, _ := utf8.DecodeRuneInString(version)
 			if c != 'v' {
@@ -121,8 +124,9 @@ var detectFilesCmd = &cobra.Command{
 
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s":   targetVersion,
-				"istio": istioTargetVersion,
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
@@ -155,8 +159,9 @@ var detectHelmCmd = &cobra.Command{
 		}
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s":   targetVersion,
-				"istio": istioTargetVersion,
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
@@ -237,8 +242,9 @@ var detectCmd = &cobra.Command{
 		}
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s":   targetVersion,
-				"istio": istioTargetVersion,
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,

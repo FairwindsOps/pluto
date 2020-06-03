@@ -29,11 +29,11 @@ import (
 // Helm represents all current releases that we can find in the cluster
 type Helm struct {
 	Releases  []*Release
-	Outputs   []*api.Output
 	Version   string
 	Kube      *kube
 	Namespace string
 	Store     string
+	Instance  *api.Instance
 }
 
 // Release represents a single helm release
@@ -56,12 +56,13 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version, store, namespace string) *Helm {
+func NewHelm(version, store, namespace string, instance *api.Instance) *Helm {
 	return &Helm{
 		Version:   version,
 		Kube:      getConfigInstance(),
 		Namespace: namespace,
 		Store:     store,
+		Instance:  instance,
 	}
 }
 
@@ -156,7 +157,7 @@ func (h *Helm) getReleasesVersionThree() error {
 
 func (h *Helm) findVersions() error {
 	for _, release := range h.Releases {
-		outList, err := checkForAPIVersion([]byte(release.Manifest))
+		outList, err := h.checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
 			return fmt.Errorf("error parsing release '%s'\n   %w", release.Name, err)
 		}
@@ -164,15 +165,15 @@ func (h *Helm) findVersions() error {
 			out.Name = release.Name + "/" + out.Name
 			out.Namespace = release.Namespace
 		}
-		h.Outputs = append(h.Outputs, outList...)
+		h.Instance.Outputs = append(h.Instance.Outputs, outList...)
 
 	}
 	return nil
 }
 
 // checkForAPIVersion calls the api pkg to parse our releases for deprecated APIs
-func checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
-	outputs, err := api.IsVersioned(manifest)
+func (h *Helm) checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
+	outputs, err := h.Instance.IsVersioned(manifest)
 	if err != nil {
 		return nil, err
 	}

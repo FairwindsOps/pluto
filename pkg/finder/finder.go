@@ -29,12 +29,14 @@ import (
 type Dir struct {
 	RootPath string
 	FileList []string
-	Outputs  []*api.Output
+	Instance *api.Instance
 }
 
 // NewFinder returns a new struct with config portions complete.
-func NewFinder(path string) *Dir {
-	cfg := &Dir{}
+func NewFinder(path string, instance *api.Instance) *Dir {
+	cfg := &Dir{
+		Instance: instance,
+	}
 	if path == "" {
 		cwd, err := os.Getwd()
 		if err != nil {
@@ -58,8 +60,8 @@ func (dir *Dir) FindVersions() error {
 	if err != nil {
 		return err
 	}
-	if dir.Outputs != nil {
-		for _, file := range dir.Outputs {
+	if dir.Instance.Outputs != nil {
+		for _, file := range dir.Instance.Outputs {
 			klog.V(6).Infof("%s - %s - %s", file.APIVersion.DeprecatedIn, file.APIVersion.Name, file.Name)
 		}
 	}
@@ -91,12 +93,12 @@ func (dir *Dir) listFiles() error {
 func (dir *Dir) scanFiles() error {
 	for _, file := range dir.FileList {
 		klog.V(8).Infof("processing file: %s", file)
-		apiFile, err := CheckForAPIVersion(file)
+		apiFile, err := dir.CheckForAPIVersion(file)
 		if err != nil {
 			klog.V(2).Infof("error scanning file %s: %s", file, err.Error())
 		}
 		if apiFile != nil {
-			dir.Outputs = append(dir.Outputs, apiFile...)
+			dir.Instance.Outputs = append(dir.Instance.Outputs, apiFile...)
 		}
 	}
 	return nil
@@ -105,12 +107,12 @@ func (dir *Dir) scanFiles() error {
 // CheckForAPIVersion checks a filename to see if
 // it is an api-versioned Kubernetes object.
 // Returns the File object if it is.
-func CheckForAPIVersion(file string) ([]*api.Output, error) {
+func (dir *Dir) CheckForAPIVersion(file string) ([]*api.Output, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
-	outputs, err := api.IsVersioned(data)
+	outputs, err := dir.Instance.IsVersioned(data)
 	if err != nil {
 		return nil, err
 	}

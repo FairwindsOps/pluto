@@ -135,6 +135,35 @@ func newMockHelm(version, store, namespace string) *Helm {
 		Namespace: namespace,
 		Kube:      getMockConfigInstance(),
 		Store:     store,
+		Instance: &api.Instance{
+			TargetVersions: map[string]string{
+				"k8s":          "v1.16.0",
+				"istio":        "1.6.1",
+				"cert-manager": "v0.15.0",
+			},
+			DeprecatedVersions: []api.Version{
+				{
+					Name:           "extensions/v1beta1",
+					Kind:           "Deployment",
+					DeprecatedIn:   "v1.9.0",
+					RemovedIn:      "v1.16.0",
+					ReplacementAPI: "apps/v1",
+					Component:      "k8s",
+				},
+				{
+					Name:           "apps/v1",
+					Kind:           "Deployment",
+					DeprecatedIn:   "",
+					RemovedIn:      "",
+					ReplacementAPI: "",
+					Component:      "k8s",
+				},
+			},
+			ShowAll:            false,
+			IgnoreDeprecations: false,
+			IgnoreRemovals:     false,
+			OutputFormat:       "normal",
+		},
 	}
 }
 
@@ -161,21 +190,21 @@ func Test_checkForAPIVersion(t *testing.T) {
 		},
 		{
 			name:     "got version",
-			manifest: []byte("apiVersion: apps/v1\nkind: Deployment"),
-			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: "", Component: "k8s"}}},
+			manifest: []byte("apiVersion: extensions/v1beta1\nkind: Deployment"),
+			want:     []*api.Output{{APIVersion: &api.Version{Name: "extensions/v1beta1", Kind: "Deployment", DeprecatedIn: "v1.9.0", RemovedIn: "v1.16.0", ReplacementAPI: "apps/v1", Component: "k8s"}}},
 			wantErr:  false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := checkForAPIVersion(tt.manifest)
+			h := newMockHelm("3", "configmap", "")
+			got, err := h.checkForAPIVersion(tt.manifest)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
 			assert.NoError(t, err)
 			assert.EqualValues(t, tt.want, got)
-
 		})
 	}
 }
@@ -258,7 +287,7 @@ func TestHelm_getManifestsVersionTwo(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, h.Outputs)
+			assert.Equal(t, tt.want, h.Instance.Outputs)
 		})
 	}
 }
@@ -301,7 +330,7 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, h.Outputs)
+			assert.Equal(t, tt.want, h.Instance.Outputs)
 		})
 	}
 }

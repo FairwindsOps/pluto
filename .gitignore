@@ -8,3 +8,4 @@ coverage.txt
 cover.html
 
 /pluto
+pkged.go

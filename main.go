@@ -16,6 +16,7 @@ package main
 
 import (
 	"github.com/fairwindsops/pluto/cmd"
+	"github.com/markbates/pkger"
 )
 
 var (
@@ -26,5 +27,6 @@ var (
 )
 
 func main() {
+	_ = pkger.Include("/versions.yaml")
 	cmd.Execute(version, commit)
 }

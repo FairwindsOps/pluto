@@ -141,7 +141,7 @@ func ExampleInstance_DisplayOutput_showAll_json() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":""},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1"},"deprecated":true,"removed":true}],"show-all":true,"target-versions":{"foo":"v1.16.0"}}
+	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":"","component":"foo"},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true}],"show-all":true,"target-versions":{"foo":"v1.16.0"}}
 }
 
 func ExampleInstance_DisplayOutput_showAll_yaml() {
@@ -168,6 +168,7 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	//     deprecated-in: ""
 	//     removed-in: ""
 	//     replacement-api: ""
+	//     component: foo
 	//   deprecated: false
 	//   removed: false
 	// - name: some name two
@@ -177,6 +178,7 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	//     deprecated-in: v1.9.0
 	//     removed-in: v1.16.0
 	//     replacement-api: apps/v1
+	//     component: foo
 	//   deprecated: true
 	//   removed: true
 	// show-all: true

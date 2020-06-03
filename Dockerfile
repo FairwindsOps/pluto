@@ -9,6 +9,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
+RUN go get github.com/markbates/pkger/cmd/pkger
 RUN VERSION=$version COMMIT=$commit make build-linux
 
 

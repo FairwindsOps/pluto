@@ -42,6 +42,7 @@ var (
 	ignoreDeprecations bool
 	ignoreRemovals     bool
 	targetVersion      string
+	istioTargetVersion string
 	namespace          string
 )
 
@@ -52,6 +53,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVar(&istioTargetVersion, "istio-target-version", "v1.6.0", "The version of Istio you wish to check deprecations for.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
@@ -83,7 +85,8 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		for flag, version := range map[string]string{
-			"target-version": targetVersion,
+			"target-version":       targetVersion,
+			"istio-target-version": istioTargetVersion,
 		} {
 			c, _ := utf8.DecodeRuneInString(version)
 			if c != 'v' {
@@ -118,7 +121,8 @@ var detectFilesCmd = &cobra.Command{
 
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s": targetVersion,
+				"k8s":   targetVersion,
+				"istio": istioTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
@@ -151,7 +155,8 @@ var detectHelmCmd = &cobra.Command{
 		}
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s": targetVersion,
+				"k8s":   targetVersion,
+				"istio": istioTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
@@ -206,7 +211,8 @@ var detectCmd = &cobra.Command{
 			}
 			instance := &api.Instance{
 				TargetVersions: map[string]string{
-					"k8s": targetVersion,
+					"k8s":   targetVersion,
+					"istio": istioTargetVersion,
 				},
 				OutputFormat:       outputFormat,
 				ShowAll:            showAll,
@@ -231,7 +237,8 @@ var detectCmd = &cobra.Command{
 		}
 		instance := &api.Instance{
 			TargetVersions: map[string]string{
-				"k8s": targetVersion,
+				"k8s":   targetVersion,
+				"istio": istioTargetVersion,
 			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,

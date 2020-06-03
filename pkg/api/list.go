@@ -70,6 +70,11 @@ var VersionList = []Version{
 
 	// Unknown Removal, but deprecated
 	{"storage.k8s.io/v1beta1", "CSINode", "v1.17.0", "", "", "k8s"},
+
+	// Istio API versions
+	{"rbac.istio.io", "AuthorizationPolicies", "v1.4.0", "v1.4.0", "security.istio.io/v1beta1", "istio"},
+	{"authentication.istio.io/v1alpha1", "", "v1.5.0", "v1.6.0", "security.istio.io/v1beta1", "istio"},
+	{"networking.istio.io/v1alpha3", "", "v1.5.0", "", "networking.istio.io/v1beta1", "istio"},
 }
 
 // PrintVersionList prints out the list of versions

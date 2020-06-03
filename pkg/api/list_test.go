@@ -73,6 +73,9 @@ func Example_printVersionsTabular() {
 	// RoleList---------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
 	// RoleBindingList--------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
 	// CSINode----------------------- storage.k8s.io/v1beta1---------------- v1.17.0-------- n/a--------- n/a------------------------------
+	// AuthorizationPolicies--------- rbac.istio.io------------------------- v1.4.0--------- v1.4.0------ security.istio.io/v1beta1--------
+	// ------------------------------ authentication.istio.io/v1alpha1------ v1.5.0--------- v1.6.0------ security.istio.io/v1beta1--------
+	// ------------------------------ networking.istio.io/v1alpha3---------- v1.5.0--------- n/a--------- networking.istio.io/v1beta1------
 }
 
 func ExamplePrintVersionList_json() {

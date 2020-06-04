@@ -26,4 +26,4 @@ COPY --from=build-env /go/src/github.com/fairwindsops/pluto /
 
 WORKDIR /opt/app
 
-CMD ["/pluto"]
+ENTRYPOINT ["/pluto"]

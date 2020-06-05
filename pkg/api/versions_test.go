@@ -379,13 +379,17 @@ func TestVersion_IsRemovedIn(t *testing.T) {
 
 func ExampleInstance_printVersionsTabular() {
 	instance := Instance{
-		DeprecatedVersions: []Version{testVersionDeployment},
+		DeprecatedVersions: []Version{
+			testVersionDeployment,
+			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", Component: "custom"},
+		},
 	}
 	_ = instance.printVersionsTabular()
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
+	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- custom-----
 }
 
 func ExampleInstance_PrintVersionList_json() {
@@ -420,8 +424,8 @@ func ExampleInstance_PrintVersionList_normal() {
 	_ = instance.PrintVersionList("normal")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
 }
 
 func ExampleInstance_PrintVersionList_wide() {
@@ -431,8 +435,8 @@ func ExampleInstance_PrintVersionList_wide() {
 	_ = instance.PrintVersionList("wide")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
 }
 
 func ExampleInstance_PrintVersionList_badformat() {

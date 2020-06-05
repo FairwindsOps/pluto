@@ -249,9 +249,9 @@ deprecated-versions:
 You can test that it's working by using `list-versions`:
 
 ```
-$ pluto list-versions -f new.yaml  -owide
-KIND                           NAME                                   DEPRECATED IN   REMOVED IN   REPLACEMENT
-AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1
+$ pluto list-versions -f new.yaml
+KIND                           NAME                                   DEPRECATED IN   REMOVED IN   REPLACEMENT   COMPONENT
+AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1       custom
 ```
 _NOTE: This output is truncated to show only the additional version. Normally this will include the defaults as well_
 

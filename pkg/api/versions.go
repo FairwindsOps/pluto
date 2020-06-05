@@ -240,7 +240,7 @@ func (instance *Instance) printVersionsTabular() error {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
-	_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t")
+	_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t COMPONENT\t")
 
 	for _, version := range instance.DeprecatedVersions {
 		deprecatedIn := version.DeprecatedIn
@@ -257,7 +257,7 @@ func (instance *Instance) printVersionsTabular() error {
 			replacementAPI = "n/a"
 		}
 
-		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI)
+		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI, version.Component)
 	}
 	err := w.Flush()
 	if err != nil {

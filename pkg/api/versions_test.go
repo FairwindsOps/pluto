@@ -187,7 +187,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "yaml has version",
 			data:    []byte("kind: Deployment\napiVersion: apps/v1"),
-			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: ""}}},
+			want:    []*Output{{APIVersion: &Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: "", Component: "k8s"}}},
 			wantErr: false,
 		},
 		{
@@ -211,7 +211,7 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
-			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", RemovedIn: "v1.16.0", DeprecatedIn: "v1.9.0", ReplacementAPI: "apps/v1"}}},
+			want:    []*Output{{APIVersion: &Version{Kind: "Deployment", Name: "extensions/v1beta1", RemovedIn: "v1.16.0", DeprecatedIn: "v1.9.0", ReplacementAPI: "apps/v1", Component: "k8s"}}},
 			wantErr: false,
 		},
 	}
@@ -232,45 +232,45 @@ func Test_IsVersioned(t *testing.T) {
 func TestVersion_IsDeprecatedIn(t *testing.T) {
 
 	tests := []struct {
-		name          string
-		targetVersion string
-		want          bool
-		deprecatedIn  string
+		name           string
+		targetVersions map[string]string
+		want           bool
+		deprecatedIn   string
 	}{
 		{
-			name:          "not deprecated yet 1.15.0",
-			targetVersion: "v1.15.0",
-			deprecatedIn:  "v1.16.0",
-			want:          false,
+			name:           "not deprecated yet 1.15.0",
+			targetVersions: map[string]string{"foo": "v1.15.0"},
+			deprecatedIn:   "v1.16.0",
+			want:           false,
 		},
 		{
-			name:          "equal values",
-			targetVersion: "v1.16.0",
-			deprecatedIn:  "v1.16.0",
-			want:          true,
+			name:           "equal values",
+			targetVersions: map[string]string{"foo": "v1.16.0"},
+			deprecatedIn:   "v1.16.0",
+			want:           true,
 		},
 		{
-			name:          "greater than",
-			targetVersion: "v1.17.0",
-			deprecatedIn:  "v1.16.0",
-			want:          true,
+			name:           "greater than",
+			targetVersions: map[string]string{"foo": "v1.17.0"},
+			deprecatedIn:   "v1.16.0",
+			want:           true,
 		},
 		{
-			name:          "Bad semVer",
-			targetVersion: "foo",
-			deprecatedIn:  "v1.16.0",
-			want:          false,
+			name:           "Bad semVer",
+			targetVersions: map[string]string{"foo": "foo"},
+			deprecatedIn:   "v1.16.0",
+			want:           false,
 		},
 		{
-			name:          "blank deprecatedIn - not deprecated",
-			targetVersion: "v1.16.0",
-			deprecatedIn:  "",
-			want:          false,
+			name:           "blank deprecatedIn - not deprecated",
+			targetVersions: map[string]string{"foo": "v1.16.0"},
+			deprecatedIn:   "",
+			want:           false,
 		},
 	}
 	for _, tt := range tests {
-		deprecatedVersion := &Version{DeprecatedIn: tt.deprecatedIn}
-		got := deprecatedVersion.isDeprecatedIn(tt.targetVersion)
+		deprecatedVersion := &Version{DeprecatedIn: tt.deprecatedIn, Component: "foo"}
+		got := deprecatedVersion.isDeprecatedIn(tt.targetVersions)
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }
@@ -278,45 +278,45 @@ func TestVersion_IsDeprecatedIn(t *testing.T) {
 func TestVersion_IsRemovedIn(t *testing.T) {
 
 	tests := []struct {
-		name          string
-		targetVersion string
-		want          bool
-		removedIn     string
+		name           string
+		targetVersions map[string]string
+		want           bool
+		removedIn      string
 	}{
 		{
-			name:          "not removed yet 1.15.0",
-			targetVersion: "v1.15.0",
-			removedIn:     "v1.16.0",
-			want:          false,
+			name:           "not removed yet 1.15.0",
+			targetVersions: map[string]string{"foo": "v1.15.0"},
+			removedIn:      "v1.16.0",
+			want:           false,
 		},
 		{
-			name:          "equal values",
-			targetVersion: "v1.16.0",
-			removedIn:     "v1.16.0",
-			want:          true,
+			name:           "equal values",
+			targetVersions: map[string]string{"foo": "v1.16.0"},
+			removedIn:      "v1.16.0",
+			want:           true,
 		},
 		{
-			name:          "greater than",
-			targetVersion: "v1.17.0",
-			removedIn:     "v1.16.0",
-			want:          true,
+			name:           "greater than",
+			targetVersions: map[string]string{"foo": "v1.17.0"},
+			removedIn:      "v1.16.0",
+			want:           true,
 		},
 		{
-			name:          "bad semVer",
-			targetVersion: "foo",
-			removedIn:     "v1.16.0",
-			want:          false,
+			name:           "bad semVer",
+			targetVersions: map[string]string{"foo": "foo"},
+			removedIn:      "v1.16.0",
+			want:           false,
 		},
 		{
-			name:          "blank removedIn - not removed",
-			targetVersion: "v1.16.0",
-			removedIn:     "",
-			want:          false,
+			name:           "blank removedIn - not removed",
+			targetVersions: map[string]string{"foo": "v1.16.0"},
+			removedIn:      "",
+			want:           false,
 		},
 	}
 	for _, tt := range tests {
-		removedVersion := &Version{RemovedIn: tt.removedIn}
-		got := removedVersion.isRemovedIn(tt.targetVersion)
+		removedVersion := &Version{RemovedIn: tt.removedIn, Component: "foo"}
+		got := removedVersion.isRemovedIn(tt.targetVersions)
 		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
 	}
 }

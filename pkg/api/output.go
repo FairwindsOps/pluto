@@ -22,12 +22,12 @@ type Output struct {
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
 type Instance struct {
-	Outputs            []*Output `json:"items,omitempty" yaml:"items,omitempty"`
-	IgnoreDeprecations bool      `json:"-" yaml:"-"`
-	IgnoreRemovals     bool      `json:"-" yaml:"-"`
-	OutputFormat       string    `json:"-" yaml:"-"`
-	ShowAll            bool      `json:"show-all,omitempty" yaml:"show-all,omitempty"`
-	TargetVersion      string    `json:"target-version,omitempty" yaml:"target-version,omitempty"`
+	Outputs            []*Output         `json:"items,omitempty" yaml:"items,omitempty"`
+	IgnoreDeprecations bool              `json:"-" yaml:"-"`
+	IgnoreRemovals     bool              `json:"-" yaml:"-"`
+	OutputFormat       string            `json:"-" yaml:"-"`
+	ShowAll            bool              `json:"show-all,omitempty" yaml:"show-all,omitempty"`
+	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -81,11 +81,11 @@ func (instance *Instance) DisplayOutput() error {
 func (instance *Instance) filterOutput() {
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
-		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersion)
-		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersion)
+		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)
+		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
 		if instance.ShowAll {
 			usableOutputs = append(usableOutputs, output)
-		} else if output.APIVersion.isDeprecatedIn(instance.TargetVersion) || output.APIVersion.isRemovedIn(instance.TargetVersion) {
+		} else if output.APIVersion.isDeprecatedIn(instance.TargetVersions) || output.APIVersion.isRemovedIn(instance.TargetVersions) {
 			usableOutputs = append(usableOutputs, output)
 		}
 	}
@@ -153,11 +153,11 @@ func (instance *Instance) GetReturnCode() int {
 	var deprecations int
 	var removals int
 	for _, output := range instance.Outputs {
-		if output.APIVersion.isRemovedIn(instance.TargetVersion) {
+		if output.APIVersion.isRemovedIn(instance.TargetVersions) {
 
 			removals = removals + 1
 		}
-		if output.APIVersion.isDeprecatedIn(instance.TargetVersion) {
+		if output.APIVersion.isDeprecatedIn(instance.TargetVersions) {
 			deprecations = deprecations + 1
 		}
 	}

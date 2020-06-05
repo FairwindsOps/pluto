@@ -35,7 +35,7 @@ func Test_VersionListIsValid(t *testing.T) {
 }
 
 var TestVersionList = []Version{
-	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1"},
+	{"apps/v1beta1", "Deployment", "v1.9.0", "v1.16.0", "apps/v1", "foo"},
 }
 
 func Example_printVersionsTabular() {
@@ -73,6 +73,15 @@ func Example_printVersionsTabular() {
 	// RoleList---------------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
 	// RoleBindingList--------------- rbac.authorization.k8s.io/v1alpha1---- v1.17.0-------- v1.20.0----- rbac.authorization.k8s.io/v1-----
 	// CSINode----------------------- storage.k8s.io/v1beta1---------------- v1.17.0-------- n/a--------- n/a------------------------------
+	// AuthorizationPolicies--------- rbac.istio.io------------------------- v1.4.0--------- v1.4.0------ security.istio.io/v1beta1--------
+	// ------------------------------ authentication.istio.io/v1alpha1------ v1.5.0--------- v1.6.0------ security.istio.io/v1beta1--------
+	// ------------------------------ networking.istio.io/v1alpha3---------- v1.5.0--------- n/a--------- networking.istio.io/v1beta1------
+	// Certificate------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Issuer------------------------ certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// ClusterIssuer----------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// CertificateRequest------------ certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Order------------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
+	// Challenge--------------------- certmanager.k8s.io/v1alpha1----------- v0.11.0-------- v0.11.0----- cert-manager.io/v1alpha2---------
 }
 
 func ExamplePrintVersionList_json() {

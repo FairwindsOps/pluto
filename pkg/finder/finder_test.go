@@ -32,6 +32,7 @@ var deploymentAppsV1YamlFile = []*api.Output{{
 		Name:         "apps/v1",
 		Kind:         "Deployment",
 		DeprecatedIn: "",
+		Component:    "k8s",
 	}},
 }
 
@@ -45,6 +46,7 @@ var deploymentExtensionsV1YamlFile = []*api.Output{{
 		DeprecatedIn:   "v1.9.0",
 		RemovedIn:      "v1.16.0",
 		ReplacementAPI: "apps/v1",
+		Component:      "k8s",
 	}},
 }
 
@@ -58,6 +60,7 @@ var deploymentExtensionsV1JSONFile = []*api.Output{{
 		DeprecatedIn:   "v1.9.0",
 		RemovedIn:      "v1.16.0",
 		ReplacementAPI: "apps/v1",
+		Component:      "k8s",
 	}},
 }
 

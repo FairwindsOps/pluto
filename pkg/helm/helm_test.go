@@ -97,6 +97,7 @@ var (
 				DeprecatedIn:   "v1.9.0",
 				RemovedIn:      "v1.16.0",
 				ReplacementAPI: "apps/v1",
+				Component:      "k8s",
 			},
 		},
 		{
@@ -108,6 +109,7 @@ var (
 				DeprecatedIn:   "",
 				RemovedIn:      "",
 				ReplacementAPI: "",
+				Component:      "k8s",
 			},
 		},
 	}
@@ -121,6 +123,7 @@ var (
 				DeprecatedIn:   "",
 				RemovedIn:      "",
 				ReplacementAPI: "",
+				Component:      "k8s",
 			},
 		},
 	}
@@ -159,7 +162,7 @@ func Test_checkForAPIVersion(t *testing.T) {
 		{
 			name:     "got version",
 			manifest: []byte("apiVersion: apps/v1\nkind: Deployment"),
-			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: ""}}},
+			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: "", Component: "k8s"}}},
 			wantErr:  false,
 		},
 	}

@@ -216,7 +216,11 @@ $ pluto detect-helm --helm-version 3 -ojson | jq .
       "removed": false
     }
   ],
-  "target-version": "v1.16.0"
+  "target-versions": {
+    "k8s": "v1.16.0",
+    "istio": "v1.6.0",
+    "cert-manager": "v1.15.0"
+  }
 }
 ```
 
@@ -260,7 +264,10 @@ items:
     replacement-api: apiextensions.k8s.io/v1
   deprecated: true
   removed: false
-target-version: v1.16.0
+target-version:
+  k8s: v1.16.0
+  istio: v1.6.0
+  cert-manager: v1.15.0
 ```
 
 ### CI Pipelines
@@ -294,3 +301,19 @@ $ echo $?
 ```
 
 Notice that there is a deprecated version, but it was reported as non-deprecated because it has not yet been deprecated in v1.15.0. This particular run exited 0.
+
+You can target the Istio version you are concerned with by using the `--istio-target-version` flag. For example:
+
+```
+$ pluto detect-helm --istio-target-version "v1.6.0"
+NAME      KIND      VERSION                        REPLACEMENT                   REMOVED   DEPRECATED  
+default   Gateway   networking.istio.io/v1alpha3   networking.istio.io/v1beta1   false     true
+```
+
+You can target the cert-manager version you are concerned with by using the `--cert-manager-target-version` flag. For example:
+
+```
+$ pluto detect-helm --cert-manager-target-version "v1.15.0"
+NAME      KIND            VERSION                       REPLACEMENT                REMOVED   DEPRECATED  
+default   ClusterIssuer   certmanager.k8s.io/v1alpha1   cert-manager.io/v1alpha2   true      true
+```

@@ -32,17 +32,19 @@ import (
 )
 
 var (
-	version            string
-	versionCommit      string
-	directory          string
-	outputFormat       string
-	showAll            bool
-	helmVersion        string
-	helmStore          string
-	ignoreDeprecations bool
-	ignoreRemovals     bool
-	targetVersion      string
-	namespace          string
+	version                  string
+	versionCommit            string
+	directory                string
+	outputFormat             string
+	showAll                  bool
+	helmVersion              string
+	helmStore                string
+	ignoreDeprecations       bool
+	ignoreRemovals           bool
+	targetVersion            string
+	istioTargetVersion       string
+	certManagerTargetVersion string
+	namespace                string
 )
 
 func init() {
@@ -52,6 +54,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 
 	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVar(&istioTargetVersion, "istio-target-version", "v1.6.0", "The version of Istio you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVar(&certManagerTargetVersion, "cert-manager-target-version", "v1.15.0", "The version of cert-manager you wish to check deprecations for.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
 
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
@@ -82,15 +86,21 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		c, _ := utf8.DecodeRuneInString(targetVersion)
-		if c != 'v' {
-			fmt.Printf("Your --target-version must begin with a 'v'. Got '%s'\n", targetVersion)
-			os.Exit(1)
-		}
+		for flag, version := range map[string]string{
+			"target-version":              targetVersion,
+			"istio-target-version":        istioTargetVersion,
+			"cert-manager-target-version": certManagerTargetVersion,
+		} {
+			c, _ := utf8.DecodeRuneInString(version)
+			if c != 'v' {
+				fmt.Printf("Your --%s must begin with a 'v'. Got '%s'\n", flag, version)
+				os.Exit(1)
+			}
 
-		if !semver.IsValid(targetVersion) {
-			fmt.Printf("You must pass a valid semver to --target-version. Got '%s'\n", targetVersion)
-			os.Exit(1)
+			if !semver.IsValid(version) {
+				fmt.Printf("You must pass a valid semver to --%s. Got '%s'\n", flag, version)
+				os.Exit(1)
+			}
 		}
 	},
 }
@@ -113,7 +123,11 @@ var detectFilesCmd = &cobra.Command{
 		}
 
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			Outputs:            dir.Outputs,
@@ -144,7 +158,11 @@ var detectHelmCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,
@@ -197,7 +215,10 @@ var detectCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			instance := &api.Instance{
-				TargetVersion:      targetVersion,
+				TargetVersions: map[string]string{
+					"k8s":   targetVersion,
+					"istio": istioTargetVersion,
+				},
 				OutputFormat:       outputFormat,
 				ShowAll:            showAll,
 				IgnoreDeprecations: ignoreDeprecations,
@@ -220,7 +241,11 @@ var detectCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		instance := &api.Instance{
-			TargetVersion:      targetVersion,
+			TargetVersions: map[string]string{
+				"k8s":          targetVersion,
+				"istio":        istioTargetVersion,
+				"cert-manager": certManagerTargetVersion,
+			},
 			OutputFormat:       outputFormat,
 			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,

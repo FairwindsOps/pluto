@@ -424,7 +424,7 @@ func Test_helmToRelease(t *testing.T) {
 			helmRelease: map[string]interface{}{"foo": make(chan int)},
 			want:        nil,
 			wantErr:     true,
-			errMsg:      "error marshaling release to json: json: unsupported type: chan int",
+			errMsg:      "error marshaling release: json: unsupported type: chan int",
 		},
 	}
 	for _, tt := range tests {

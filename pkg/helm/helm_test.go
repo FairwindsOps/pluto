@@ -17,13 +17,12 @@ package helm
 import (
 	"testing"
 
+	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
-	"github.com/fairwindsops/pluto/pkg/api"
 )
 
 var (
@@ -192,6 +191,12 @@ func Test_checkForAPIVersion(t *testing.T) {
 			name:     "got version",
 			manifest: []byte("apiVersion: extensions/v1beta1\nkind: Deployment"),
 			want:     []*api.Output{{APIVersion: &api.Version{Name: "extensions/v1beta1", Kind: "Deployment", DeprecatedIn: "v1.9.0", RemovedIn: "v1.16.0", ReplacementAPI: "apps/v1", Component: "k8s"}}},
+			wantErr:  false,
+		},
+		{
+			name:     "nil return",
+			manifest: []byte("apiVersion: v1beta1\nkind: SomeOtherThing"),
+			want:     nil,
 			wantErr:  false,
 		},
 	}
@@ -402,6 +407,36 @@ func TestHelm_FindVersions(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+		})
+	}
+}
+
+func Test_helmToRelease(t *testing.T) {
+	tests := []struct {
+		name        string
+		helmRelease interface{}
+		want        *Release
+		wantErr     bool
+		errMsg      string
+	}{
+		{
+			name:        "test err in json.Marshal",
+			helmRelease: map[string]interface{}{"foo": make(chan int)},
+			want:        nil,
+			wantErr:     true,
+			errMsg:      "error marshaling release to json: json: unsupported type: chan int",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := helmToRelease(tt.helmRelease)
+			if tt.wantErr {
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+
 		})
 	}
 }

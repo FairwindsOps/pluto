@@ -217,13 +217,21 @@ func (instance *Instance) PrintVersionList(outputFormat string) error {
 			return err
 		}
 	case "json":
-		data, err := json.Marshal(instance.DeprecatedVersions)
+		versionFile := VersionFile{
+			DeprecatedVersions: instance.DeprecatedVersions,
+			TargetVersions:     instance.TargetVersions,
+		}
+		data, err := json.Marshal(versionFile)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(data))
 	case "yaml":
-		data, err := yaml.Marshal(instance.DeprecatedVersions)
+		versionFile := VersionFile{
+			DeprecatedVersions: instance.DeprecatedVersions,
+			TargetVersions:     instance.TargetVersions,
+		}
+		data, err := yaml.Marshal(versionFile)
 		if err != nil {
 			return err
 		}

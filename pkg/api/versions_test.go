@@ -399,7 +399,7 @@ func ExampleInstance_PrintVersionList_json() {
 	_ = instance.PrintVersionList("json")
 
 	// Output:
-	// [{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"}]
+	// {"deprecated-versions":[{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"}]}
 }
 
 func ExampleInstance_PrintVersionList_yaml() {
@@ -409,12 +409,13 @@ func ExampleInstance_PrintVersionList_yaml() {
 	_ = instance.PrintVersionList("yaml")
 
 	// Output:
-	// - version: extensions/v1beta1
-	//   kind: Deployment
-	//   deprecated-in: v1.9.0
-	//   removed-in: v1.16.0
-	//   replacement-api: apps/v1
-	//   component: k8s
+	// deprecated-versions:
+	//   - version: extensions/v1beta1
+	//     kind: Deployment
+	//     deprecated-in: v1.9.0
+	//     removed-in: v1.16.0
+	//     replacement-api: apps/v1
+	//     component: k8s
 }
 
 func ExampleInstance_PrintVersionList_normal() {

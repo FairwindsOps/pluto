@@ -88,12 +88,8 @@ This indicates that we have two files in our directory that have deprecated apiV
 
 ```
 $ pluto detect-helm --helm-version 3 -owide
-NAME                                         KIND                           VERSION                                REPLACEMENT                       REMOVED   DEPRECATED
-audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true      true
-cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
-kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              false     true
-rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           false     true
-vault-agent-injector-cfg                     MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     true
+NAME                                         NAMESPACE               KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
+cert-manager/cert-manager-webhook            cert-manager            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
 ```
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
@@ -142,11 +138,9 @@ The wide output provides more information about when an apiVersion was removed o
 
 ```
 $ pluto detect-helm --helm-version 3 -owide
-NAME                                         KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
-audit-dashboard-prod-rabbitmq-ha             StatefulSet                    apps/v1beta1                           apps/v1                           true         v1.9.0          true      v1.16.0
-cert-manager-webhook                         MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
-kubecost-cost-analyzer-priority              PriorityClass                  scheduling.k8s.io/v1beta1              scheduling.k8s.io/v1              true         v1.14.0         false     v1.17.0
-rbacdefinitions.rbacmanager.reactiveops.io   CustomResourceDefinition       apiextensions.k8s.io/v1beta1           apiextensions.k8s.io/v1           true         v1.16.0         false     v1.19.0
+└─ pluto detect-helm -owide
+NAME                                         NAMESPACE               KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
+cert-manager/cert-manager-webhook            cert-manager            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
 ```
 
 #### JSON
@@ -156,118 +150,48 @@ $ pluto detect-helm --helm-version 3 -ojson | jq .
 {
   "items": [
     {
-      "name": "audit-dashboard-prod-rabbitmq-ha",
-      "api": {
-        "version": "apps/v1beta1",
-        "kind": "StatefulSet",
-        "deprecated-in": "v1.9.0",
-        "removed-in": "v1.16.0",
-        "replacement-api": "apps/v1"
-      },
-      "deprecated": true,
-      "removed": true
-    },
-    {
-      "name": "cert-manager-webhook",
+      "name": "cert-manager/cert-manager-webhook",
+      "namespace": "cert-manager",
       "api": {
         "version": "admissionregistration.k8s.io/v1beta1",
         "kind": "MutatingWebhookConfiguration",
         "deprecated-in": "v1.16.0",
         "removed-in": "v1.19.0",
-        "replacement-api": "admissionregistration.k8s.io/v1"
-      },
-      "deprecated": true,
-      "removed": false
-    },
-    {
-      "name": "kubecost-cost-analyzer-priority",
-      "api": {
-        "version": "scheduling.k8s.io/v1beta1",
-        "kind": "PriorityClass",
-        "deprecated-in": "v1.14.0",
-        "removed-in": "v1.17.0",
-        "replacement-api": "scheduling.k8s.io/v1"
-      },
-      "deprecated": true,
-      "removed": false
-    },
-    {
-      "name": "rbacdefinitions.rbacmanager.reactiveops.io",
-      "api": {
-        "version": "apiextensions.k8s.io/v1beta1",
-        "kind": "CustomResourceDefinition",
-        "deprecated-in": "v1.16.0",
-        "removed-in": "v1.19.0",
-        "replacement-api": "apiextensions.k8s.io/v1"
-      },
-      "deprecated": true,
-      "removed": false
-    },
-    {
-      "name": "vault-agent-injector-cfg",
-      "api": {
-        "version": "admissionregistration.k8s.io/v1beta1",
-        "kind": "MutatingWebhookConfiguration",
-        "deprecated-in": "v1.16.0",
-        "removed-in": "v1.19.0",
-        "replacement-api": "admissionregistration.k8s.io/v1"
+        "replacement-api": "admissionregistration.k8s.io/v1",
+        "component": "k8s"
       },
       "deprecated": true,
       "removed": false
     }
   ],
   "target-versions": {
-    "k8s": "v1.16.0",
+    "cert-manager": "v0.15.1",
     "istio": "v1.6.0",
-    "cert-manager": "v1.15.0"
+    "k8s": "v1.16.0"
   }
 }
+
 ```
 
 #### YAML
 
 ```yaml
 items:
-- name: audit-dashboard-prod-rabbitmq-ha
-  api:
-    version: apps/v1beta1
-    kind: StatefulSet
-    deprecated-in: v1.9.0
-    removed-in: v1.16.0
-    replacement-api: apps/v1
-  deprecated: true
-  removed: true
-- name: cert-manager-webhook
+- name: cert-manager/cert-manager-webhook
+  namespace: cert-manager
   api:
     version: admissionregistration.k8s.io/v1beta1
     kind: MutatingWebhookConfiguration
     deprecated-in: v1.16.0
     removed-in: v1.19.0
     replacement-api: admissionregistration.k8s.io/v1
+    component: k8s
   deprecated: true
   removed: false
-- name: kubecost-cost-analyzer-priority
-  api:
-    version: scheduling.k8s.io/v1beta1
-    kind: PriorityClass
-    deprecated-in: v1.14.0
-    removed-in: v1.17.0
-    replacement-api: scheduling.k8s.io/v1
-  deprecated: true
-  removed: false
-- name: rbacdefinitions.rbacmanager.reactiveops.io
-  api:
-    version: apiextensions.k8s.io/v1beta1
-    kind: CustomResourceDefinition
-    deprecated-in: v1.16.0
-    removed-in: v1.19.0
-    replacement-api: apiextensions.k8s.io/v1
-  deprecated: true
-  removed: false
-target-version:
-  k8s: v1.16.0
+target-versions:
+  cert-manager: v0.15.1
   istio: v1.6.0
-  cert-manager: v1.15.0
+  k8s: v1.16.0
 ```
 
 ### CI Pipelines
@@ -289,12 +213,14 @@ If you wish to bypass the generation of exit codes 2 and 3, you may do so with t
 
 By default, Pluto was designed with deprecations related to Kubernetes v1.16.0. However, as more deprecations are introduced, we will try to keep it updated.
 
-You can target the version you are concerned with by using the `--target-version` or `-t` flag. For example:
+You can target the version you are concerned with by using the `--target-versions` or `-t` flag. You must pass the `component=version`, and the version must begin with a `v` (this is a limitation of the semver library we are using to verify).
+
+For example:
 
 ```
-$ pluto detect-helm --target-version "v1.15.0" --show-all
-KIND                VERSION          DEPRECATED   DEPRECATED IN   RESOURCE NAME
-StatefulSet         apps/v1beta1     false        v1.16.0         audit-dashboard-prod-rabbitmq-ha
+$ pluto detect-helm --target-version k8s=v1.15.0 --show-all
+NAME                                                         KIND                           VERSION                                REPLACEMENT                       REMOVED   DEPRECATED
+cert-manager/cert-manager-webhook                            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     false
 
 $ echo $?
 0
@@ -302,18 +228,33 @@ $ echo $?
 
 Notice that there is a deprecated version, but it was reported as non-deprecated because it has not yet been deprecated in v1.15.0. This particular run exited 0.
 
-You can target the Istio version you are concerned with by using the `--istio-target-version` flag. For example:
+### Adding Custom Version Checks
+
+If you want to check additional apiVersions and/or types, you can pass an additional file with the `--additional-versions` or `-f` flag.
+
+The file should look something like this:
 
 ```
-$ pluto detect-helm --istio-target-version "v1.6.0"
-NAME      KIND      VERSION                        REPLACEMENT                   REMOVED   DEPRECATED  
-default   Gateway   networking.istio.io/v1alpha3   networking.istio.io/v1beta1   false     true
+target-versions:
+  custom: v1.0.0
+deprecated-versions:
+- version: someother/v1beta1
+  kind: AnotherCRD
+  deprecated-in: v1.9.0
+  removed-in: v1.16.0
+  replacement-api: apps/v1
+  component: custom
 ```
 
-You can target the cert-manager version you are concerned with by using the `--cert-manager-target-version` flag. For example:
+You can test that it's working by using `list-versions`:
 
 ```
-$ pluto detect-helm --cert-manager-target-version "v1.15.0"
-NAME      KIND            VERSION                       REPLACEMENT                REMOVED   DEPRECATED  
-default   ClusterIssuer   certmanager.k8s.io/v1alpha1   cert-manager.io/v1alpha2   true      true
+$ pluto list-versions -f new.yaml
+KIND                           NAME                                   DEPRECATED IN   REMOVED IN   REPLACEMENT   COMPONENT
+AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1       custom
 ```
+_NOTE: This output is truncated to show only the additional version. Normally this will include the defaults as well_
+
+The `target-versions` field in this custom file will set the default target version for that component. You can still override this with `--target-versions custom=vX.X.X` when you run Pluto.
+
+Please note that we do not allow overriding anything contained in the default [versions.yaml](versions.yaml) that Pluto uses.

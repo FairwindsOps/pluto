@@ -28,6 +28,7 @@ type Instance struct {
 	OutputFormat       string            `json:"-" yaml:"-"`
 	ShowAll            bool              `json:"show-all,omitempty" yaml:"show-all,omitempty"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
+	DeprecatedVersions []Version         `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables

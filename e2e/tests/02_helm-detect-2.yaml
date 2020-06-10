@@ -9,43 +9,18 @@ testcases:
     assertions:
     - result.code ShouldEqual 0
 
-- name: helm2 detect in-cluster show-all
-  steps:
-  - script: pluto detect-helm --helm-version=2 -A -t v1.15.0
-    assertions:
-    - result.code ShouldEqual 2
-    - result.systemout ShouldContainSubstring "NAME                                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED "
-    - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       false     true"
-    - result.systemout ShouldContainSubstring "lunging-bat/lunging-bat-metrics-server           Deployment   apps/v1                            false     false"
-
 - name: helm2 detect in-cluster
   steps:
-  - script: pluto detect-helm --helm-version=2 -t v1.16.0
+  - script: pluto detect-helm --helm-version=2 --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
     - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
     - result.systemout ShouldNotContainSubstring "lunging-bat/lunging-bat-metrics-server        Deployment   apps/v1                            false     false"
 
-- name: helm2 detect in-cluster show-all wide namespaced
-  steps:
-  - script: pluto detect-helm --helm-version=2 -A -t v1.15.0 -owide -n demo1
-    assertions:
-    - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "NAME                                       NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
-    - result.systemout ShouldContainSubstring "kindled-toucan/kindled-toucan-basic-demo   demo1       Deployment   apps/v1                 false                        false"
-
-- name: helm2 detect in-cluster show-all wide namespaced confimaps
-  steps:
-  - script: pluto detect-helm --helm-version=2 --helm-store configmaps -A -t v1.15.0 -owide -n demo1
-    assertions:
-    - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "NAME                                       NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
-    - result.systemout ShouldContainSubstring "kindled-toucan/kindled-toucan-basic-demo   demo1       Deployment   apps/v1                 false                        false"
-
 - name: helm2 detect show all wide namespaced secrets
   steps:
-  - script: pluto detect-helm --helm-version=2 --helm-store secrets -A -t v1.16.0 -owide
+  - script: pluto detect-helm --helm-version=2 --helm-store secrets -A --target-versions k8s=v1.16.0 -owide
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                                             NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"

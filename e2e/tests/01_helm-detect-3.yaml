@@ -11,16 +11,15 @@ testcases:
 
 - name: helm detect show all
   steps:
-  - script: pluto detect-helm --helm-version=3 -A -t v1.16.0
+  - script: pluto detect-helm --helm-version=3 --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
     - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
-    - result.systemout ShouldContainSubstring "test/test-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: helm detect
   steps:
-  - script: pluto detect-helm --helm-version=3 -t v1.16.0
+  - script: pluto detect-helm --helm-version=3 --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
@@ -29,7 +28,7 @@ testcases:
 
 - name: helm detect ignore deprecations
   steps:
-  - script: pluto detect-helm --helm-version=3 --ignore-deprecations -t v1.15.0
+  - script: pluto detect-helm --helm-version=3 --ignore-deprecations --target-versions k8s=v1.15.0
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
@@ -38,28 +37,19 @@ testcases:
 
 - name: helm detect show all ignore removals
   steps:
-  - script: pluto detect-helm --helm-version=3 -A --ignore-removals --ignore-deprecations -t v1.16.0
+  - script: pluto detect-helm --helm-version=3 --ignore-removals --ignore-deprecations --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
     - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
-    - result.systemout ShouldContainSubstring "test/test-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: helm detect -owide
   steps:
-  - script: pluto detect-helm --helm-version=3 -owide -t v1.16.0
+  - script: pluto detect-helm --helm-version=3 -owide --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                           NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   default     Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
-
-- name: helm detect show all wide namespaced
-  steps:
-  - script: pluto detect-helm --helm-version=3 -A -t v1.16.0 -owide -n demo2
-    assertions:
-    - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "NAME                     NAMESPACE   KIND         VERSION   REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
-    - result.systemout ShouldContainSubstring "demo2/demo2-basic-demo   demo2       Deployment   apps/v1                 false                        false"
 
 - name: cleanup
   steps:

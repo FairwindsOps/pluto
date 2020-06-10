@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"unicode/utf8"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
@@ -32,32 +31,30 @@ import (
 )
 
 var (
-	version                  string
-	versionCommit            string
-	directory                string
-	outputFormat             string
-	showAll                  bool
-	helmVersion              string
-	helmStore                string
-	ignoreDeprecations       bool
-	ignoreRemovals           bool
-	targetVersion            string
-	istioTargetVersion       string
-	certManagerTargetVersion string
-	namespace                string
+	version                string
+	versionCommit          string
+	additionalVersionsFile string
+	directory              string
+	outputFormat           string
+	showAll                bool
+	helmVersion            string
+	helmStore              string
+	ignoreDeprecations     bool
+	ignoreRemovals         bool
+	namespace              string
+	apiInstance            *api.Instance
+	targetVersions         map[string]string
 )
 
 func init() {
-	rootCmd.AddCommand(detectFilesCmd)
 	rootCmd.PersistentFlags().BoolVarP(&showAll, "show-all", "A", false, "If enabled, will show files that have non-deprecated and non-removed apiVersion. Only applies to tabular output.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
-
-	rootCmd.PersistentFlags().StringVarP(&targetVersion, "target-version", "t", "v1.16.0", "The version of Kubernetes you wish to check deprecations for.")
-	rootCmd.PersistentFlags().StringVar(&istioTargetVersion, "istio-target-version", "v1.6.0", "The version of Istio you wish to check deprecations for.")
-	rootCmd.PersistentFlags().StringVar(&certManagerTargetVersion, "cert-manager-target-version", "v1.15.0", "The version of cert-manager you wish to check deprecations for.")
+	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
+	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|json|yaml)")
 
+	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
 
 	rootCmd.AddCommand(detectHelmCmd)
@@ -85,23 +82,81 @@ var rootCmd = &cobra.Command{
 		}
 		os.Exit(1)
 	},
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		for flag, version := range map[string]string{
-			"target-version":              targetVersion,
-			"istio-target-version":        istioTargetVersion,
-			"cert-manager-target-version": certManagerTargetVersion,
-		} {
-			c, _ := utf8.DecodeRuneInString(version)
-			if c != 'v' {
-				fmt.Printf("Your --%s must begin with a 'v'. Got '%s'\n", flag, version)
-				os.Exit(1)
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		defaultVersions, defaultTargetVersions, err := api.GetDefaultVersionList()
+		if err != nil {
+			return err
+		}
+		var deprecatedVersionList []api.Version
+		if additionalVersionsFile != "" {
+			klog.V(2).Infof("looking for versions file: %s", additionalVersionsFile)
+			data, err := ioutil.ReadFile(additionalVersionsFile)
+			if err != nil {
+				return err
 			}
+			additionalVersions, additionalTargetVersions, err := api.UnMarshalVersions(data)
+			if err != nil {
+				return err
+			}
+			deprecatedVersionList, err = api.CombineAdditionalVersions(additionalVersions, defaultVersions)
+			if err != nil {
+				return err
+			}
+			for c, v := range additionalTargetVersions {
+				klog.V(2).Infof("received target version from config: %s %s", c, v)
+				// Only add them to default target versions if they do not supersed any previously included
+				// This prevents overwriting the internal defaults
+				if _, found := defaultTargetVersions[c]; !found {
+					defaultTargetVersions[c] = v
+				}
+			}
+		} else {
+			klog.V(2).Info("no additional versions needed")
+			deprecatedVersionList = defaultVersions
+		}
 
-			if !semver.IsValid(version) {
-				fmt.Printf("You must pass a valid semver to --%s. Got '%s'\n", flag, version)
-				os.Exit(1)
+		// From this compiled list of deprecations, build a component list
+		var componentList []string
+		for _, v := range deprecatedVersionList {
+			if !stringInSlice(v.Component, componentList) {
+				componentList = append(componentList, v.Component)
 			}
 		}
+
+		// Combine the default target versions and the ones that are passed. Ones that are passed in take precedence
+		if targetVersions != nil {
+			for k, v := range defaultTargetVersions {
+				if _, found := targetVersions[k]; !found {
+					klog.V(2).Infof("assuming default targetVersion %s %s", k, v)
+					targetVersions[k] = v
+				}
+			}
+		} else {
+			targetVersions = defaultTargetVersions
+		}
+
+		// Verify that we have valid target versions for all components
+		for component, version := range targetVersions {
+			if !semver.IsValid(version) {
+				return fmt.Errorf("you must use valid semver for all target versions with a leading 'v' - got %s %s", component, version)
+			}
+		}
+		for _, c := range componentList {
+			if _, found := targetVersions[c]; !found {
+				return fmt.Errorf("you must pass a targetVersion for every component in the list - missing component: %s", c)
+			}
+		}
+
+		apiInstance = &api.Instance{
+			TargetVersions:     targetVersions,
+			OutputFormat:       outputFormat,
+			ShowAll:            showAll,
+			IgnoreDeprecations: ignoreDeprecations,
+			IgnoreRemovals:     ignoreRemovals,
+			DeprecatedVersions: deprecatedVersionList,
+		}
+
+		return nil
 	},
 }
 
@@ -110,37 +165,25 @@ var detectFilesCmd = &cobra.Command{
 	Short: "detect-files",
 	Long:  `Detect Kubernetes apiVersions in a directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		dir := finder.NewFinder(directory)
+
+		dir := finder.NewFinder(directory, apiInstance)
 		err := dir.FindVersions()
 		if err != nil {
 			fmt.Println("Error running finder:", err)
 			os.Exit(1)
 		}
 
-		if dir.Outputs == nil {
+		if dir.Instance.Outputs == nil {
 			fmt.Println("No api-versioned files found in specified directory.")
 			os.Exit(0)
 		}
 
-		instance := &api.Instance{
-			TargetVersions: map[string]string{
-				"k8s":          targetVersion,
-				"istio":        istioTargetVersion,
-				"cert-manager": certManagerTargetVersion,
-			},
-			OutputFormat:       outputFormat,
-			ShowAll:            showAll,
-			Outputs:            dir.Outputs,
-			IgnoreDeprecations: ignoreDeprecations,
-			IgnoreRemovals:     ignoreRemovals,
-		}
-
-		err = instance.DisplayOutput()
+		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := instance.GetReturnCode()
+		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},
@@ -151,30 +194,19 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(helmVersion, helmStore, namespace)
+		h := helm.NewHelm(helmVersion, helmStore, namespace, apiInstance)
 		err := h.FindVersions()
 		if err != nil {
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-		instance := &api.Instance{
-			TargetVersions: map[string]string{
-				"k8s":          targetVersion,
-				"istio":        istioTargetVersion,
-				"cert-manager": certManagerTargetVersion,
-			},
-			OutputFormat:       outputFormat,
-			ShowAll:            showAll,
-			IgnoreDeprecations: ignoreDeprecations,
-			IgnoreRemovals:     ignoreRemovals,
-			Outputs:            h.Outputs,
-		}
-		err = instance.DisplayOutput()
+
+		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := instance.GetReturnCode()
+		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},
@@ -200,6 +232,7 @@ var detectCmd = &cobra.Command{
 		return fmt.Errorf("invalid file specified: %s", args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		var err error
 		klog.V(3).Infof("arg0: %s", args[0])
 
 		if args[0] == "-" {
@@ -209,55 +242,39 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error reading stdin:", err)
 				os.Exit(1)
 			}
-			output, err := api.IsVersioned(fileData)
+
+			apiInstance.Outputs, err = apiInstance.IsVersioned(fileData)
 			if err != nil {
 				fmt.Println("Error checking for versions:", err)
 				os.Exit(1)
 			}
-			instance := &api.Instance{
-				TargetVersions: map[string]string{
-					"k8s":   targetVersion,
-					"istio": istioTargetVersion,
-				},
-				OutputFormat:       outputFormat,
-				ShowAll:            showAll,
-				IgnoreDeprecations: ignoreDeprecations,
-				IgnoreRemovals:     ignoreRemovals,
-				Outputs:            output,
-			}
 
-			err = instance.DisplayOutput()
+			err = apiInstance.DisplayOutput()
 			if err != nil {
 				fmt.Println("Error parsing output:", err)
 				os.Exit(1)
 			}
-			retCode := instance.GetReturnCode()
+			retCode := apiInstance.GetReturnCode()
 			klog.V(5).Infof("retCode: %d", retCode)
 			os.Exit(retCode)
 		}
-		output, err := finder.CheckForAPIVersion(args[0])
+
+		// File input
+		dir := finder.Dir{
+			Instance: apiInstance,
+		}
+		apiInstance.Outputs, err = dir.CheckForAPIVersion(args[0])
 		if err != nil {
 			fmt.Println("Error reading file:", err)
 			os.Exit(1)
 		}
-		instance := &api.Instance{
-			TargetVersions: map[string]string{
-				"k8s":          targetVersion,
-				"istio":        istioTargetVersion,
-				"cert-manager": certManagerTargetVersion,
-			},
-			OutputFormat:       outputFormat,
-			ShowAll:            showAll,
-			IgnoreDeprecations: ignoreDeprecations,
-			IgnoreRemovals:     ignoreRemovals,
-			Outputs:            output,
-		}
-		err = instance.DisplayOutput()
+
+		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error parsing output:", err)
 			os.Exit(1)
 		}
-		retCode := instance.GetReturnCode()
+		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
 	},
@@ -268,7 +285,7 @@ var listVersionsCmd = &cobra.Command{
 	Short: "Outputs a JSON object of the versions that Pluto knows about.",
 	Long:  `Outputs a JSON object of the versions that Pluto knows about.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := api.PrintVersionList(outputFormat)
+		err := apiInstance.PrintVersionList(outputFormat)
 		if err != nil {
 			os.Exit(1)
 		}
@@ -294,4 +311,13 @@ func isFileOrStdin(name string) bool {
 		return false
 	}
 	return !info.IsDir()
+}
+
+func stringInSlice(s string, slice []string) bool {
+	for _, v := range slice {
+		if s == v {
+			return true
+		}
+	}
+	return false
 }

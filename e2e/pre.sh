@@ -2,5 +2,6 @@
 
 set -e
 
-go build -ldflags "-s -w" -o pluto
+go get github.com/markbates/pkger/cmd/pkger
+make build
 docker cp ./ e2e-command-runner:/pluto

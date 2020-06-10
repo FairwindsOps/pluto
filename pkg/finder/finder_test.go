@@ -24,18 +24,6 @@ import (
 
 var testPath = "testdata"
 
-var deploymentAppsV1Yaml = "testdata/deployment-apps-v1.yaml"
-var deploymentAppsV1YamlFile = []*api.Output{{
-	Name:      "utilities",
-	Namespace: "test-namespaces",
-	APIVersion: &api.Version{
-		Name:         "apps/v1",
-		Kind:         "Deployment",
-		DeprecatedIn: "",
-		Component:    "k8s",
-	}},
-}
-
 var deploymentExtensionsV1Yaml = "testdata/deployment-extensions-v1beta1.yaml"
 var deploymentExtensionsV1YamlFile = []*api.Output{{
 	Name:      "utilities",
@@ -65,20 +53,47 @@ var deploymentExtensionsV1JSONFile = []*api.Output{{
 }
 
 var testFiles = []string{
-	deploymentAppsV1Yaml,
 	deploymentExtensionsV1JSON,
 	deploymentExtensionsV1Yaml,
 	"testdata/other.txt",
 }
 
 var testOutput = []*api.Output{
-	deploymentAppsV1YamlFile[0],
 	deploymentExtensionsV1JSONFile[0],
 	deploymentExtensionsV1YamlFile[0],
 }
 
-func TestNewFinder(t *testing.T) {
+var testVersionDeployment = api.Version{
+	Name:           "extensions/v1beta1",
+	Kind:           "Deployment",
+	DeprecatedIn:   "v1.9.0",
+	RemovedIn:      "v1.16.0",
+	ReplacementAPI: "apps/v1",
+	Component:      "k8s",
+}
 
+func newMockFinder() *Dir {
+	dir := &Dir{
+		RootPath: testPath,
+		Instance: &api.Instance{
+			TargetVersions: map[string]string{
+				"k8s":          "v1.16.0",
+				"istio":        "1.6.1",
+				"cert-manager": "v0.15.0",
+			},
+			DeprecatedVersions: []api.Version{
+				testVersionDeployment,
+			},
+			ShowAll:            false,
+			IgnoreDeprecations: false,
+			IgnoreRemovals:     false,
+			OutputFormat:       "normal",
+		},
+	}
+	return dir
+}
+
+func TestNewFinder(t *testing.T) {
 	wd, _ := os.Getwd()
 	tests := []struct {
 		name string
@@ -86,20 +101,49 @@ func TestNewFinder(t *testing.T) {
 		want *Dir
 	}{
 		{
-			name: "basic",
+			name: "one",
 			path: testPath,
-			want: &Dir{RootPath: testPath},
+			want: newMockFinder(),
 		},
 		{
-			// This is a bit silly, but it does test the return of the function.
-			name: "empty",
+			name: "cwd",
 			path: "",
-			want: &Dir{RootPath: wd},
+			want: &Dir{
+				RootPath: wd,
+				Instance: &api.Instance{
+					TargetVersions: map[string]string{
+						"k8s":          "v1.16.0",
+						"istio":        "1.6.1",
+						"cert-manager": "v0.15.0",
+					},
+					DeprecatedVersions: []api.Version{
+						testVersionDeployment,
+					},
+					ShowAll:            false,
+					IgnoreDeprecations: false,
+					IgnoreRemovals:     false,
+					OutputFormat:       "normal",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewFinder(tt.path)
+			got := NewFinder(tt.path, &api.Instance{
+				TargetVersions: map[string]string{
+					"k8s":          "v1.16.0",
+					"istio":        "1.6.1",
+					"cert-manager": "v0.15.0",
+				},
+				DeprecatedVersions: []api.Version{
+					testVersionDeployment,
+				},
+				ShowAll:            false,
+				IgnoreDeprecations: false,
+				IgnoreRemovals:     false,
+				OutputFormat:       "normal",
+			},
+			)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -128,7 +172,8 @@ func TestDir_listFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir := NewFinder(tt.directory)
+			dir := newMockFinder()
+			dir.RootPath = tt.directory
 			err := dir.listFiles()
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -149,14 +194,20 @@ func Test_checkForAPIVersion(t *testing.T) {
 	}{
 		{
 			name:    "deployments extensions/v1beta1",
-			file:    deploymentAppsV1Yaml,
+			file:    deploymentExtensionsV1Yaml,
 			wantErr: false,
-			want:    deploymentAppsV1YamlFile,
+			want:    deploymentExtensionsV1YamlFile,
+		},
+		{
+			name:    "file dne",
+			file:    "foo",
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CheckForAPIVersion(tt.file)
+			dir := newMockFinder()
+			got, err := dir.CheckForAPIVersion(tt.file)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -178,13 +229,11 @@ func TestDir_scanFiles(t *testing.T) {
 		{
 			name:     "pass",
 			wantErr:  false,
-			fileList: []string{deploymentAppsV1Yaml},
-			want:     deploymentAppsV1YamlFile,
+			fileList: []string{deploymentExtensionsV1Yaml},
+			want:     deploymentExtensionsV1YamlFile,
 		},
 	}
-	dir := &Dir{
-		RootPath: testPath,
-	}
+	dir := newMockFinder()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir.FileList = tt.fileList
@@ -194,7 +243,7 @@ func TestDir_scanFiles(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.EqualValues(t, tt.fileList, dir.FileList)
-				assert.EqualValues(t, tt.want, dir.Outputs)
+				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})
 	}
@@ -218,15 +267,14 @@ func TestDir_FindVersions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir := &Dir{
-				RootPath: tt.path,
-			}
+			dir := newMockFinder()
+			dir.Instance.Outputs = nil
 			err := dir.FindVersions()
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.EqualValues(t, tt.want, dir.Outputs)
+				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})
 	}

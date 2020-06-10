@@ -17,13 +17,12 @@ package helm
 import (
 	"testing"
 
+	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
-	"github.com/fairwindsops/pluto/pkg/api"
 )
 
 var (
@@ -135,6 +134,35 @@ func newMockHelm(version, store, namespace string) *Helm {
 		Namespace: namespace,
 		Kube:      getMockConfigInstance(),
 		Store:     store,
+		Instance: &api.Instance{
+			TargetVersions: map[string]string{
+				"k8s":          "v1.16.0",
+				"istio":        "1.6.1",
+				"cert-manager": "v0.15.0",
+			},
+			DeprecatedVersions: []api.Version{
+				{
+					Name:           "extensions/v1beta1",
+					Kind:           "Deployment",
+					DeprecatedIn:   "v1.9.0",
+					RemovedIn:      "v1.16.0",
+					ReplacementAPI: "apps/v1",
+					Component:      "k8s",
+				},
+				{
+					Name:           "apps/v1",
+					Kind:           "Deployment",
+					DeprecatedIn:   "",
+					RemovedIn:      "",
+					ReplacementAPI: "",
+					Component:      "k8s",
+				},
+			},
+			ShowAll:            false,
+			IgnoreDeprecations: false,
+			IgnoreRemovals:     false,
+			OutputFormat:       "normal",
+		},
 	}
 }
 
@@ -161,21 +189,27 @@ func Test_checkForAPIVersion(t *testing.T) {
 		},
 		{
 			name:     "got version",
-			manifest: []byte("apiVersion: apps/v1\nkind: Deployment"),
-			want:     []*api.Output{{APIVersion: &api.Version{Name: "apps/v1", Kind: "Deployment", DeprecatedIn: "", RemovedIn: "", ReplacementAPI: "", Component: "k8s"}}},
+			manifest: []byte("apiVersion: extensions/v1beta1\nkind: Deployment"),
+			want:     []*api.Output{{APIVersion: &api.Version{Name: "extensions/v1beta1", Kind: "Deployment", DeprecatedIn: "v1.9.0", RemovedIn: "v1.16.0", ReplacementAPI: "apps/v1", Component: "k8s"}}},
+			wantErr:  false,
+		},
+		{
+			name:     "nil return",
+			manifest: []byte("apiVersion: v1beta1\nkind: SomeOtherThing"),
+			want:     nil,
 			wantErr:  false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := checkForAPIVersion(tt.manifest)
+			h := newMockHelm("3", "configmap", "")
+			got, err := h.checkForAPIVersion(tt.manifest)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
 			assert.NoError(t, err)
 			assert.EqualValues(t, tt.want, got)
-
 		})
 	}
 }
@@ -258,7 +292,7 @@ func TestHelm_getManifestsVersionTwo(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, h.Outputs)
+			assert.Equal(t, tt.want, h.Instance.Outputs)
 		})
 	}
 }
@@ -301,7 +335,7 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, h.Outputs)
+			assert.Equal(t, tt.want, h.Instance.Outputs)
 		})
 	}
 }
@@ -373,6 +407,36 @@ func TestHelm_FindVersions(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 			}
+		})
+	}
+}
+
+func Test_helmToRelease(t *testing.T) {
+	tests := []struct {
+		name        string
+		helmRelease interface{}
+		want        *Release
+		wantErr     bool
+		errMsg      string
+	}{
+		{
+			name:        "test err in json.Marshal",
+			helmRelease: map[string]interface{}{"foo": make(chan int)},
+			want:        nil,
+			wantErr:     true,
+			errMsg:      "error marshaling release: json: unsupported type: chan int",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := helmToRelease(tt.helmRelease)
+			if tt.wantErr {
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+
 		})
 	}
 }

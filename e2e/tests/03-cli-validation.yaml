@@ -3,13 +3,31 @@ name: "CLI Validation"
 testcases:
 - name: Pass bad semver with no v
   steps:
-  - script: pluto detect-files -d assets/deprecated116 -t "foo"
+  - script: pluto detect-files -d assets/deprecated116 --target-versions foo=1.0.0
     assertions:
     - result.code ShouldEqual 1
-    - result.systemout ShouldEqual "Your --target-version must begin with a 'v'. Got 'foo'"
+    - result.systemerr ShouldContainSubstring "you must use valid semver for all target versions with a leading 'v' - got foo 1.0.0"
 - name: Pass bad semver starting with v
   steps:
-  - script: pluto detect-files -d assets/deprecated116 -t "vfoo"
+  - script: pluto detect-files -d assets/deprecated116 --target-versions foo=vfoo
     assertions:
     - result.code ShouldEqual 1
-    - result.systemout ShouldEqual "You must pass a valid semver to --target-version. Got 'vfoo'"
+    - result.systemerr ShouldContainSubstring "you must use valid semver for all target versions with a leading 'v' - got foo vfoo"
+- name: list-versions -ojson
+  steps:
+  - script: pluto list-versions
+    assertions:
+    - result.code ShouldEqual 0
+- name: list-versions additional file  duplicate
+  steps:
+  - script: pluto list-versions -f assets/additional-versions/duplicate.yaml
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring 'duplicate cannot be added to defaults'
+    - result.systemerr ShouldContainSubstring 'extensions/v1beta1'
+- name: list-versions additional file
+  steps:
+  - script: pluto list-versions -f assets/additional-versions/new.yaml
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1"

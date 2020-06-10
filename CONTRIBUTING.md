@@ -22,6 +22,36 @@ This contains the various structs and helper functions to deal with Kubernetes o
 
 This package is for dealing with a set of static files and analyzing the apiVersions in them. It can search through a directory and find any files that conform to the specifications of the versions package.
 
+### Helm
+
+This package deals with finding helm release manifests that are in your running Kubernetes cluster.
+
+## Versions Updates
+
+The versions.yaml file contains the source of truth for the standard list of deprecated versions that Pluto can deal with. If you wish to update it or change the default targetVersions, it is easiest to use Pluto to do that.
+
+Just create a deprecated-versions yaml file that has the additional versions and/or target versions you wish to edit. Here's an example:
+
+```
+target-versions:
+  other: v1.0.0
+deprecated-versions:
+- version: someother/v1beta1
+  kind: AnotherCRD
+  deprecated-in: v1.9.0
+  removed-in: v1.16.0
+  replacement-api: apps/v1
+  component: new-component
+```
+
+Put this somewhere temporary, like /tmp/new.yaml. Then you can run:
+
+```
+pluto list-versions -f /tmp/new.yaml -oyaml > versions.yaml
+```
+
+This will ensure that you have parsable valid versions, and it should make patching easier.
+
 ## Getting Started
 
 We label issues with the ["good first issue" tag](https://github.com/FairwindsOps/pluto/labels/good%20first%20issue) if we believe they'll be a good starting point for new contributors. If you're interested in working on an issue, please start a conversation on that issue, and we can help answer any questions as they come up.
@@ -29,6 +59,7 @@ We label issues with the ["good first issue" tag](https://github.com/FairwindsOp
 ## Setting Up Your Development Environment
 ### Prerequisites
 * A properly configured Golang environment with Go 1.13 or higher
+* Install `pkger` - [documentation](https://github.com/markbates/pkger#cli)
 
 ### Installation
 * Clone the project with `go get github.com/fairwindsops/pluto`

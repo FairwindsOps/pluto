@@ -19,7 +19,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"text/tabwriter"
 
+	"github.com/markbates/pkger"
 	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog"
@@ -53,11 +56,17 @@ type Version struct {
 	// ReplacementAPI is the apiVersion that replaces the deprecated one
 	ReplacementAPI string `json:"replacement-api" yaml:"replacement-api"`
 	// Component is the component associated with this version
-	Component string `json:"-" yaml:"-"`
+	Component string `json:"component" yaml:"component"`
 }
 
-func checkVersion(stub *Stub) *Version {
-	for _, version := range VersionList {
+// VersionFile is a file with a list of deprecated versions
+type VersionFile struct {
+	DeprecatedVersions []Version         `json:"deprecated-versions" yaml:"deprecated-versions"`
+	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
+}
+
+func (instance *Instance) checkVersion(stub *Stub) *Version {
+	for _, version := range instance.DeprecatedVersions {
 		// We allow empty kinds to deprecate whole APIs.
 		if version.Kind == "" || version.Kind == stub.Kind {
 			if version.Name == stub.APIVersion {
@@ -75,7 +84,7 @@ func checkVersion(stub *Stub) *Version {
 // IsVersioned returns a version if the file data sent
 // can be unmarshaled into a stub and matches a known
 // version in the VersionList
-func IsVersioned(data []byte) ([]*Output, error) {
+func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 	var outputs []*Output
 	stubs, err := containsStub(data)
 	if err != nil {
@@ -84,7 +93,7 @@ func IsVersioned(data []byte) ([]*Output, error) {
 	if len(stubs) > 0 {
 		for _, stub := range stubs {
 			var output Output
-			version := checkVersion(stub)
+			version := instance.checkVersion(stub)
 			if version != nil {
 				output.Name = stub.Metadata.Name
 				output.Namespace = stub.Metadata.Namespace
@@ -191,4 +200,145 @@ func (v *Version) isRemovedIn(targetVersions map[string]string) bool {
 
 	comparison := semver.Compare(targetVersion, v.RemovedIn)
 	return comparison >= 0
+}
+
+// PrintVersionList prints out the list of versions
+// in a specific format
+func (instance *Instance) PrintVersionList(outputFormat string) error {
+	switch outputFormat {
+	case "normal":
+		err := instance.printVersionsTabular()
+		if err != nil {
+			return err
+		}
+	case "wide":
+		err := instance.printVersionsTabular()
+		if err != nil {
+			return err
+		}
+	case "json":
+		versionFile := VersionFile{
+			DeprecatedVersions: instance.DeprecatedVersions,
+			TargetVersions:     instance.TargetVersions,
+		}
+		data, err := json.Marshal(versionFile)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(data))
+	case "yaml":
+		versionFile := VersionFile{
+			DeprecatedVersions: instance.DeprecatedVersions,
+			TargetVersions:     instance.TargetVersions,
+		}
+		data, err := yaml.Marshal(versionFile)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(data))
+	default:
+		errText := "The output format must one of (normal|json|yaml)"
+		fmt.Println(errText)
+		return fmt.Errorf(errText)
+	}
+	return nil
+}
+
+func (instance *Instance) printVersionsTabular() error {
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
+
+	_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t COMPONENT\t")
+
+	for _, version := range instance.DeprecatedVersions {
+		deprecatedIn := version.DeprecatedIn
+		if deprecatedIn == "" {
+			deprecatedIn = "n/a"
+		}
+		removedIn := version.RemovedIn
+		if removedIn == "" {
+			removedIn = "n/a"
+		}
+
+		replacementAPI := version.ReplacementAPI
+		if replacementAPI == "" {
+			replacementAPI = "n/a"
+		}
+
+		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI, version.Component)
+	}
+	err := w.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UnMarshalVersions reads data from a versions file and returns the versions
+// If included, it will also return the map of targetVersions
+func UnMarshalVersions(data []byte) ([]Version, map[string]string, error) {
+	versionFile := &VersionFile{}
+	err := yaml.Unmarshal(data, versionFile)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not unmarshal versions file from data: %s", err.Error())
+	}
+	if versionFile.TargetVersions == nil {
+		return versionFile.DeprecatedVersions, nil, nil
+	}
+	return versionFile.DeprecatedVersions, versionFile.TargetVersions, nil
+
+}
+
+// GetDefaultVersionList gets the default versions from the versions.yaml file
+func GetDefaultVersionList() ([]Version, map[string]string, error) {
+	defaultVersionFile, err := pkger.Open("/versions.yaml")
+	if err != nil {
+		return nil, nil, err
+	}
+	defer defaultVersionFile.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(defaultVersionFile)
+	if err != nil {
+		return nil, nil, err
+	}
+	data := buf.Bytes()
+
+	defaultVersions, defaultTargetVersions, err := UnMarshalVersions(data)
+	if err != nil {
+		return nil, nil, err
+	}
+	return defaultVersions, defaultTargetVersions, nil
+}
+
+// CombineAdditionalVersions adds additional versions into the defaults. If the additional versions
+// contain any that already exist in the defaults, return an error
+func CombineAdditionalVersions(additional []Version, defaults []Version) ([]Version, error) {
+	returnList := defaults
+	for _, version := range additional {
+		klog.V(3).Infof("attempting to combine into defaults: %v", version)
+		if version.isContainedIn(defaults) {
+			return nil, fmt.Errorf("duplicate cannot be added to defaults: %s %s", version.Kind, version.Name)
+		}
+		returnList = append(returnList, version)
+	}
+	return returnList, nil
+}
+
+func (v Version) isContainedIn(versionList []Version) bool {
+	for _, version := range versionList {
+		if isDuplicate(v, version) {
+			return true
+		}
+	}
+	return false
+}
+
+func isDuplicate(a Version, b Version) bool {
+	if a.Kind == b.Kind {
+		if a.Name == b.Name {
+			return true
+		}
+	}
+	return false
 }

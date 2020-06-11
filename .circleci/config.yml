@@ -71,7 +71,8 @@ workflows:
           name: build-container
           docker-push: false
           docker-login: false
-          enable_docker_layer_caching: true
+          password-variable: "dne"
+          enable_docker_layer_caching: false
           config_file: .circleci/build.config
           requires:
             - test
@@ -81,7 +82,7 @@ workflows:
       - rok8s-scripts/docker_build_and_push:
           name: build-and-push-container
           docker-push: true
-          enable_docker_layer_caching: true
+          enable_docker_layer_caching: false
           config_file: .circleci/build.config
           context: org-global
           docker-login: true

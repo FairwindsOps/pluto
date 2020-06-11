@@ -64,16 +64,16 @@ jobs:
 
 workflows:
   version: 2
-
   test:
     jobs:
       - test
       - rok8s-scripts/docker_build_and_push:
           name: build-container
           docker-push: false
-          enable_docker_layer_caching: true
+          docker-login: false
+          password-variable: "dne"
+          enable_docker_layer_caching: false
           config_file: .circleci/build.config
-          password-variable: "fairwinds_quay_token"
           requires:
             - test
           filters:
@@ -82,7 +82,7 @@ workflows:
       - rok8s-scripts/docker_build_and_push:
           name: build-and-push-container
           docker-push: true
-          enable_docker_layer_caching: true
+          enable_docker_layer_caching: false
           config_file: .circleci/build.config
           context: org-global
           docker-login: true
@@ -105,6 +105,23 @@ workflows:
           name: run functional tests
           <<: *e2e_config
       - release_binary:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - rok8s-scripts/docker_build_and_push:
+          name: build-and-push-container
+          docker-push: true
+          enable_docker_layer_caching: false
+          config_file: .circleci/build.config
+          context: org-global
+          docker-login: true
+          password-variable: "fairwinds_quay_token"
+          registry: quay.io
+          username: fairwinds+circleci
+          requires:
+            - test
           filters:
             branches:
               ignore: /.*/

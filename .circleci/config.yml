@@ -69,13 +69,13 @@ workflows:
       - test
       - rok8s-scripts/kubernetes_e2e_tests:
           requires:
-            -test
+            - test
           filters:
             branches:
               only: /.*/
             tags:
               ignore: /.*/
-          name: run functional tests
+          name: functional tests
           <<: *e2e_config
       - rok8s-scripts/docker_build_and_push:
           name: build-container
@@ -86,7 +86,7 @@ workflows:
           config_file: .circleci/build.config
           requires:
             - test
-            - rok8s-scripts/kubernetes_e2e_tests
+            - functional tests
           filters:
             branches:
               only: /pull\/[0-9]+/
@@ -102,7 +102,7 @@ workflows:
           username: fairwinds+circleci
           requires:
             - test
-            - rok8s-scripts/kubernetes_e2e_tests
+            - functional tests
           filters:
             branches:
               ignore: /pull\/[0-9]+/

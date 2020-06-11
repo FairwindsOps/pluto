@@ -20,8 +20,9 @@ import (
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
-	// This is required to auth to gcp (i.e. GKE)
+	// This is required to auth to cloud providers (i.e. GKE)
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 )
 

@@ -64,16 +64,15 @@ jobs:
 
 workflows:
   version: 2
-
   test:
     jobs:
       - test
       - rok8s-scripts/docker_build_and_push:
           name: build-container
           docker-push: false
+          docker-login: false
           enable_docker_layer_caching: true
           config_file: .circleci/build.config
-          password-variable: "fairwinds_quay_token"
           requires:
             - test
           filters:
@@ -113,7 +112,7 @@ workflows:
       - rok8s-scripts/docker_build_and_push:
           name: build-and-push-container
           docker-push: true
-          enable_docker_layer_caching: true
+          enable_docker_layer_caching: false
           config_file: .circleci/build.config
           context: org-global
           docker-login: true

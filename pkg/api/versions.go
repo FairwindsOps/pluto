@@ -17,6 +17,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -140,6 +141,7 @@ func jsonToStub(data []byte) ([]*Stub, error) {
 func yamlToStub(data []byte) ([]*Stub, error) {
 	decoder := yaml.NewDecoder(bytes.NewReader(data))
 	var stubs []*Stub
+	var tError *yaml.TypeError
 	for {
 		stub := &Stub{}
 		err := decoder.Decode(stub)
@@ -147,8 +149,11 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 			if err == io.EOF {
 				break
 			}
-			klog.Infof("skipping for invalid yaml in manifest: %s", err)
-			continue
+			if errors.As(err, &tError) {
+				klog.Infof("skipping for invalid yaml in manifest: %s", err)
+				continue
+			}
+			return stubs, err
 		}
 		stubs = append(stubs, stub)
 	}

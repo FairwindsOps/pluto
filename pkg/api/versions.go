@@ -147,7 +147,8 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 			if err == io.EOF {
 				break
 			}
-			return stubs, err
+			klog.Infof("skipping for invalid yaml in manifest: %s", err)
+			continue
 		}
 		stubs = append(stubs, stub)
 	}

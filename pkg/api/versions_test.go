@@ -110,7 +110,7 @@ func Test_yamlToStub(t *testing.T) {
 			name:    "not yaml",
 			data:    []byte("some text\nthat is not yaml"),
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "yaml is stub",
@@ -150,7 +150,7 @@ func Test_containsStub(t *testing.T) {
 			name:    "not yaml",
 			data:    []byte("some text\nthat is not yaml"),
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "yaml is stub",

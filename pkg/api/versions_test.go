@@ -148,9 +148,9 @@ func Test_containsStub(t *testing.T) {
 		},
 		{
 			name:    "not yaml",
-			data:    []byte("some text\nthat is not yaml"),
+			data:    []byte("*."),
 			want:    nil,
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name:    "yaml is stub",

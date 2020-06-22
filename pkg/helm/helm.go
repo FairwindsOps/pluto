@@ -22,6 +22,7 @@ import (
 	driverv2 "helm.sh/helm/pkg/storage/driver"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
+	"k8s.io/klog"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 )
@@ -107,7 +108,8 @@ func (h *Helm) getReleasesVersionTwo() error {
 		}
 		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
-			return fmt.Errorf("error determining most recent deployed for '%s'\n   %w", release.Name, err)
+			klog.Infof("cannot determine most recent deployed for %s - %s", release.Name, err)
+			continue
 		}
 		if release.Version != deployed.Version {
 			continue
@@ -138,7 +140,8 @@ func (h *Helm) getReleasesVersionThree() error {
 	for _, release := range list {
 		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
-			return fmt.Errorf("error determining most recent deployed for '%s'\n   %w", release.Name, err)
+			klog.Infof("cannot determine most recent deployed for %s - %s", release.Name, err)
+			continue
 		}
 		if release.Version != deployed.Version {
 			continue
@@ -157,6 +160,7 @@ func (h *Helm) getReleasesVersionThree() error {
 
 func (h *Helm) findVersions() error {
 	for _, release := range h.Releases {
+		klog.V(2).Infof("parsing release %s", release.Name)
 		outList, err := h.checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
 			return fmt.Errorf("error parsing release '%s'\n   %w", release.Name, err)

@@ -108,7 +108,7 @@ func (h *Helm) getReleasesVersionTwo() error {
 		}
 		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
-			klog.Infof("cannot determine most recent deployed for %s - %s", release.Name, err)
+			klog.Infof("cannot determine most recent deployed for %s/%s - %s", release.Namespace, release.Name, err)
 			continue
 		}
 		if release.Version != deployed.Version {
@@ -116,7 +116,7 @@ func (h *Helm) getReleasesVersionTwo() error {
 		}
 		rel, err := helmToRelease(release)
 		if err != nil {
-			return fmt.Errorf("error converting helm release '%s' to internal object\n   %w", release.Name, err)
+			return fmt.Errorf("error converting helm release '%s/%s' to internal object\n   %w", release.Namespace, release.Name, err)
 		}
 		h.Releases = append(h.Releases, rel)
 	}
@@ -140,7 +140,7 @@ func (h *Helm) getReleasesVersionThree() error {
 	for _, release := range list {
 		deployed, err := helmClient.Deployed(release.Name)
 		if err != nil {
-			klog.Infof("cannot determine most recent deployed for %s - %s", release.Name, err)
+			klog.Infof("cannot determine most recent deployed for %s/%s - %s", release.Namespace, release.Name, err)
 			continue
 		}
 		if release.Version != deployed.Version {
@@ -148,7 +148,7 @@ func (h *Helm) getReleasesVersionThree() error {
 		}
 		rel, err := helmToRelease(release)
 		if err != nil {
-			return fmt.Errorf("error converting helm release '%s' to internal object\n   %w", release.Name, err)
+			return fmt.Errorf("error converting helm release '%s/%s' to internal object\n   %w", release.Namespace, release.Name, err)
 		}
 		h.Releases = append(h.Releases, rel)
 	}
@@ -163,7 +163,7 @@ func (h *Helm) findVersions() error {
 		klog.V(2).Infof("parsing release %s", release.Name)
 		outList, err := h.checkForAPIVersion([]byte(release.Manifest))
 		if err != nil {
-			return fmt.Errorf("error parsing release '%s'\n   %w", release.Name, err)
+			return fmt.Errorf("error parsing release '%s/%s'\n   %w", release.Namespace, release.Name, err)
 		}
 		for _, out := range outList {
 			out.Name = release.Name + "/" + out.Name

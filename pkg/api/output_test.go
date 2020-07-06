@@ -24,11 +24,11 @@ var testOutput1 = &Output{
 	Name:      "some name one",
 	Namespace: "pluto-namespace",
 	APIVersion: &Version{
-		Name:           "apps/v1",
+		Name:           "extensions/v1beta1",
 		Kind:           "Deployment",
-		DeprecatedIn:   "",
-		RemovedIn:      "",
-		ReplacementAPI: "",
+		DeprecatedIn:   "v1.9.0",
+		RemovedIn:      "v1.16.0",
+		ReplacementAPI: "apps/v1",
 		Component:      "foo",
 	},
 }
@@ -40,6 +40,18 @@ var testOutput2 = &Output{
 		DeprecatedIn:   "v1.9.0",
 		RemovedIn:      "v1.16.0",
 		ReplacementAPI: "apps/v1",
+		Component:      "foo",
+	},
+}
+
+var testOutputNoOutput = &Output{
+	Name: "not a deprecated object",
+	APIVersion: &Version{
+		Name:           "apps/v1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "",
+		RemovedIn:      "",
+		ReplacementAPI: "",
 		Component:      "foo",
 	},
 }
@@ -63,6 +75,7 @@ func ExampleInstance_DisplayOutput_normal() {
 
 	// Output:
 	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
+	// some name one-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
 	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
 }
 
@@ -80,8 +93,9 @@ func ExampleInstance_DisplayOutput_wide() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- NAMESPACE-- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
-	// some name two-- <UNKNOWN>-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
+	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
+	// some name one-- pluto-namespace-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
+	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
 func ExampleInstance_DisplayOutput_json() {
@@ -98,7 +112,7 @@ func ExampleInstance_DisplayOutput_json() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// {"items":[{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true}],"target-versions":{"foo":"v1.16.0"}}
+	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true}],"target-versions":{"foo":"v1.16.0"}}
 }
 
 func ExampleInstance_DisplayOutput_yaml() {
@@ -116,6 +130,17 @@ func ExampleInstance_DisplayOutput_yaml() {
 
 	// Output:
 	// items:
+	// - name: some name one
+	//   namespace: pluto-namespace
+	//   api:
+	//     version: extensions/v1beta1
+	//     kind: Deployment
+	//     deprecated-in: v1.9.0
+	//     removed-in: v1.16.0
+	//     replacement-api: apps/v1
+	//     component: foo
+	//   deprecated: true
+	//   removed: true
 	// - name: some name two
 	//   api:
 	//     version: extensions/v1beta1
@@ -136,7 +161,7 @@ func ExampleInstance_DisplayOutput_noOutput() {
 			"foo": "v1.16.0",
 		},
 		Outputs: []*Output{
-			testOutput1,
+			testOutputNoOutput,
 		},
 		OutputFormat: "normal",
 	}

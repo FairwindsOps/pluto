@@ -41,20 +41,14 @@ func (instance *Instance) DisplayOutput() error {
 	var outData []byte
 	switch instance.OutputFormat {
 	case "normal":
-		t, err := instance.tabOut()
-		if err != nil {
-			return err
-		}
+		t := instance.tabOut()
 		err = t.Flush()
 		if err != nil {
 			return err
 		}
 		return nil
 	case "wide":
-		t, err := instance.tabOut()
-		if err != nil {
-			return err
-		}
+		t := instance.tabOut()
 		err = t.Flush()
 		if err != nil {
 			return err
@@ -92,13 +86,13 @@ func (instance *Instance) filterOutput() {
 
 }
 
-func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
+func (instance *Instance) tabOut() *tabwriter.Writer {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if len(instance.Outputs) == 0 {
 		_, _ = fmt.Fprintln(w, "No output to display")
-		return w, nil
+		return w
 	}
 
 	if instance.OutputFormat == "normal" {
@@ -140,7 +134,7 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 
 	}
-	return w, nil
+	return w
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.

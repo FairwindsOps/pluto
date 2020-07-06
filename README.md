@@ -115,15 +115,14 @@ cert-manager/cert-manager-webhook   cert-manager   MutatingWebhookConfiguration 
 
 ### Helm Chart Checking (local files)
 
-You can run `helm template <chart-dir> | pluto detect --show-all -`
+You can run `helm template <chart-dir> | pluto detect -`
 
 This will output something like so:
 
 ```
-$ helm template e2e/tests/assets/helm3chart | pluto detect --show-all -
+$ helm template e2e/tests/assets/helm3chart | pluto detect -
 KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
 Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1
-Deployment   apps/v1              false        n/a             RELEASE-NAME-helm3chart
 ```
 
 ## Other Usage Options
@@ -218,15 +217,14 @@ You can target the version you are concerned with by using the `--target-version
 For example:
 
 ```
-$ pluto detect-helm --target-version k8s=v1.15.0 --show-all
-NAME                                                         KIND                           VERSION                                REPLACEMENT                       REMOVED   DEPRECATED
-cert-manager/cert-manager-webhook                            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   false     false
+$ pluto detect-helm --target-version k8s=v1.15.0
+No output to display
 
 $ echo $?
 0
 ```
 
-Notice that there is a deprecated version, but it was reported as non-deprecated because it has not yet been deprecated in v1.15.0. This particular run exited 0.
+Notice that there is no output, despite the fact that we might have recognized apiVersions present in the cluster that are not yet deprecated or removed in v1.15.0. This particular run exited 0.
 
 ### Adding Custom Version Checks
 

@@ -170,11 +170,6 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// if dir.Instance.Outputs == nil {
-		// 	fmt.Println("No deprecated or removed apiVersions were found.")
-		// 	os.Exit(0)
-		// }
-
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)

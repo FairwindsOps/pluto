@@ -48,46 +48,6 @@ func init() {
 	padChar = byte('-')
 }
 
-func ExampleInstance_DisplayOutput_showAll_normal() {
-	instance := &Instance{
-		TargetVersions: map[string]string{
-			"foo": "v1.15.0",
-		},
-		Outputs: []*Output{
-			testOutput1,
-			testOutput2,
-		},
-		OutputFormat: "normal",
-		ShowAll:      true,
-	}
-	_ = instance.DisplayOutput()
-
-	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
-	// some name one-- Deployment-- apps/v1------------- ------------- false---- false-------
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ false---- true--------
-}
-
-func ExampleInstance_DisplayOutput_showAll_wide() {
-	instance := &Instance{
-		TargetVersions: map[string]string{
-			"foo": "v1.16.0",
-		},
-		Outputs: []*Output{
-			testOutput1,
-			testOutput2,
-		},
-		OutputFormat: "wide",
-		ShowAll:      true,
-	}
-	_ = instance.DisplayOutput()
-
-	// Output:
-	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN--
-	// some name one-- pluto-namespace-- Deployment-- apps/v1------------- ------------- false------- --------------- false---- ------------
-	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
-}
-
 func ExampleInstance_DisplayOutput_normal() {
 	instance := &Instance{
 		TargetVersions: map[string]string{
@@ -98,7 +58,6 @@ func ExampleInstance_DisplayOutput_normal() {
 			testOutput2,
 		},
 		OutputFormat: "normal",
-		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 
@@ -117,7 +76,6 @@ func ExampleInstance_DisplayOutput_wide() {
 			testOutput2,
 		},
 		OutputFormat: "wide",
-		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 
@@ -126,7 +84,7 @@ func ExampleInstance_DisplayOutput_wide() {
 	// some name two-- <UNKNOWN>-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
-func ExampleInstance_DisplayOutput_showAll_json() {
+func ExampleInstance_DisplayOutput_json() {
 	instance := &Instance{
 		TargetVersions: map[string]string{
 			"foo": "v1.16.0",
@@ -136,15 +94,14 @@ func ExampleInstance_DisplayOutput_showAll_json() {
 			testOutput2,
 		},
 		OutputFormat: "json",
-		ShowAll:      true,
 	}
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// {"items":[{"name":"some name one","namespace":"pluto-namespace","api":{"version":"apps/v1","kind":"Deployment","deprecated-in":"","removed-in":"","replacement-api":"","component":"foo"},"deprecated":false,"removed":false},{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true}],"show-all":true,"target-versions":{"foo":"v1.16.0"}}
+	// {"items":[{"name":"some name two","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"foo"},"deprecated":true,"removed":true}],"target-versions":{"foo":"v1.16.0"}}
 }
 
-func ExampleInstance_DisplayOutput_showAll_yaml() {
+func ExampleInstance_DisplayOutput_yaml() {
 	instance := &Instance{
 		TargetVersions: map[string]string{
 			"foo": "v1.16.0",
@@ -154,23 +111,11 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 			testOutput2,
 		},
 		OutputFormat: "yaml",
-		ShowAll:      true,
 	}
 	_ = instance.DisplayOutput()
 
 	// Output:
 	// items:
-	// - name: some name one
-	//   namespace: pluto-namespace
-	//   api:
-	//     version: apps/v1
-	//     kind: Deployment
-	//     deprecated-in: ""
-	//     removed-in: ""
-	//     replacement-api: ""
-	//     component: foo
-	//   deprecated: false
-	//   removed: false
 	// - name: some name two
 	//   api:
 	//     version: extensions/v1beta1
@@ -181,7 +126,6 @@ func ExampleInstance_DisplayOutput_showAll_yaml() {
 	//     component: foo
 	//   deprecated: true
 	//   removed: true
-	// show-all: true
 	// target-versions:
 	//   foo: v1.16.0
 }
@@ -195,11 +139,10 @@ func ExampleInstance_DisplayOutput_noOutput() {
 			testOutput1,
 		},
 		OutputFormat: "normal",
-		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 
-	// Output: APIVersions were found, but none were deprecated. Try --show-all.
+	// Output: No output to display
 }
 
 func ExampleInstance_DisplayOutput_badFormat() {
@@ -212,7 +155,6 @@ func ExampleInstance_DisplayOutput_badFormat() {
 			testOutput2,
 		},
 		OutputFormat: "foo",
-		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 
@@ -226,7 +168,6 @@ func ExampleInstance_DisplayOutput_zeroLength() {
 		},
 		Outputs:      []*Output{},
 		OutputFormat: "normal",
-		ShowAll:      false,
 	}
 	_ = instance.DisplayOutput()
 

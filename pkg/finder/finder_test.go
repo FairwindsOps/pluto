@@ -84,7 +84,6 @@ func newMockFinder() *Dir {
 			DeprecatedVersions: []api.Version{
 				testVersionDeployment,
 			},
-			ShowAll:            false,
 			IgnoreDeprecations: false,
 			IgnoreRemovals:     false,
 			OutputFormat:       "normal",
@@ -119,7 +118,6 @@ func TestNewFinder(t *testing.T) {
 					DeprecatedVersions: []api.Version{
 						testVersionDeployment,
 					},
-					ShowAll:            false,
 					IgnoreDeprecations: false,
 					IgnoreRemovals:     false,
 					OutputFormat:       "normal",
@@ -138,7 +136,6 @@ func TestNewFinder(t *testing.T) {
 				DeprecatedVersions: []api.Version{
 					testVersionDeployment,
 				},
-				ShowAll:            false,
 				IgnoreDeprecations: false,
 				IgnoreRemovals:     false,
 				OutputFormat:       "normal",

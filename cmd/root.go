@@ -36,7 +36,6 @@ var (
 	additionalVersionsFile string
 	directory              string
 	outputFormat           string
-	showAll                bool
 	helmVersion            string
 	helmStore              string
 	ignoreDeprecations     bool
@@ -47,7 +46,6 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&showAll, "show-all", "A", false, "If enabled, will show files that have non-deprecated and non-removed apiVersion. Only applies to tabular output.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
@@ -150,7 +148,6 @@ var rootCmd = &cobra.Command{
 		apiInstance = &api.Instance{
 			TargetVersions:     targetVersions,
 			OutputFormat:       outputFormat,
-			ShowAll:            showAll,
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
 			DeprecatedVersions: deprecatedVersionList,
@@ -173,10 +170,10 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if dir.Instance.Outputs == nil {
-			fmt.Println("No api-versioned files found in specified directory.")
-			os.Exit(0)
-		}
+		// if dir.Instance.Outputs == nil {
+		// 	fmt.Println("No deprecated or removed apiVersions were found.")
+		// 	os.Exit(0)
+		// }
 
 		err = apiInstance.DisplayOutput()
 		if err != nil {

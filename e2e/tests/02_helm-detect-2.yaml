@@ -20,7 +20,7 @@ testcases:
 
 - name: helm2 detect wide namespaced secrets
   steps:
-  - script: pluto detect-helm --helm-version=2 --helm-store secrets -A --target-versions k8s=v1.16.0 -owide
+  - script: pluto detect-helm --helm-version=2 --helm-store secrets --target-versions k8s=v1.16.0 -owide
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                                             NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"

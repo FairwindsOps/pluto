@@ -23,7 +23,7 @@ testcases:
   - script: pluto detect-files -d assets/non-deprecated --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "There were no apiVersions found that match our records."
+    - result.systemout ShouldContainSubstring "There were no resources found with known deprecated apiVersions."
 
 - name: static files target v1.8.0 not removed or deprecated
   steps:

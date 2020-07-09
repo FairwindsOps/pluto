@@ -230,7 +230,7 @@ func ExampleInstance_DisplayOutput_zeroLength() {
 	}
 	_ = instance.DisplayOutput()
 
-	// Output: There were no apiVersions found that match our records.
+	// Output: There were no resources found with known deprecated apiVersions.
 }
 
 func TestGetReturnCode(t *testing.T) {

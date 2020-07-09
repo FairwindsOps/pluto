@@ -18,9 +18,9 @@ testcases:
     - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
     - result.systemout ShouldNotContainSubstring "lunging-bat/lunging-bat-metrics-server        Deployment   apps/v1                            false     false"
 
-- name: helm2 detect show all wide namespaced secrets
+- name: helm2 detect wide namespaced secrets
   steps:
-  - script: pluto detect-helm --helm-version=2 --helm-store secrets -A --target-versions k8s=v1.16.0 -owide
+  - script: pluto detect-helm --helm-version=2 --helm-store secrets --target-versions k8s=v1.16.0 -owide
     assertions:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                                             NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"

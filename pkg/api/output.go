@@ -26,7 +26,6 @@ type Instance struct {
 	IgnoreDeprecations bool              `json:"-" yaml:"-"`
 	IgnoreRemovals     bool              `json:"-" yaml:"-"`
 	OutputFormat       string            `json:"-" yaml:"-"`
-	ShowAll            bool              `json:"show-all,omitempty" yaml:"show-all,omitempty"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
 }
@@ -42,20 +41,14 @@ func (instance *Instance) DisplayOutput() error {
 	var outData []byte
 	switch instance.OutputFormat {
 	case "normal":
-		t, err := instance.tabOut()
-		if err != nil {
-			return err
-		}
+		t := instance.tabOut()
 		err = t.Flush()
 		if err != nil {
 			return err
 		}
 		return nil
 	case "wide":
-		t, err := instance.tabOut()
-		if err != nil {
-			return err
-		}
+		t := instance.tabOut()
 		err = t.Flush()
 		if err != nil {
 			return err
@@ -84,9 +77,8 @@ func (instance *Instance) filterOutput() {
 	for _, output := range instance.Outputs {
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
-		if instance.ShowAll {
-			usableOutputs = append(usableOutputs, output)
-		} else if output.APIVersion.isDeprecatedIn(instance.TargetVersions) || output.APIVersion.isRemovedIn(instance.TargetVersions) {
+
+		if output.Deprecated || output.Removed {
 			usableOutputs = append(usableOutputs, output)
 		}
 	}
@@ -94,13 +86,13 @@ func (instance *Instance) filterOutput() {
 
 }
 
-func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
+func (instance *Instance) tabOut() *tabwriter.Writer {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if len(instance.Outputs) == 0 {
-		_, _ = fmt.Fprintln(w, "APIVersions were found, but none were deprecated. Try --show-all.")
-		return w, nil
+		_, _ = fmt.Fprintln(w, "No output to display")
+		return w
 	}
 
 	if instance.OutputFormat == "normal" {
@@ -142,7 +134,7 @@ func (instance *Instance) tabOut() (*tabwriter.Writer, error) {
 		}
 
 	}
-	return w, nil
+	return w
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.

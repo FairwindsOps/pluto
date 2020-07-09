@@ -158,7 +158,6 @@ func newMockHelm(version, store, namespace string) *Helm {
 					Component:      "k8s",
 				},
 			},
-			ShowAll:            false,
 			IgnoreDeprecations: false,
 			IgnoreRemovals:     false,
 			OutputFormat:       "normal",

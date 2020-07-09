@@ -33,8 +33,8 @@ type Instance struct {
 
 // DisplayOutput prints the output based on desired variables
 func (instance *Instance) DisplayOutput() error {
-	if len(instance.Outputs) == 0 {
-		fmt.Println("There were no apiVersions found that match our records.")
+	if len(instance.Outputs) == 0 && (instance.OutputFormat == "normal" || instance.OutputFormat == "wide") {
+		fmt.Println("There were no resources found with known deprecated apiVersions.")
 		return nil
 	}
 	instance.filterOutput()

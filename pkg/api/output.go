@@ -26,6 +26,7 @@ type Output struct {
 	Deprecated bool `json:"deprecated" yaml:"deprecated"`
 	// Removed is a boolean indicating whether or not the version has been removed
 	Removed bool `json:"removed" yaml:"removed"`
+	// CustomColumns is a list of column headers you want to show
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
@@ -36,6 +37,7 @@ type Instance struct {
 	OutputFormat       string            `json:"-" yaml:"-"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
+	CustomColumns      []string          `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -64,6 +66,13 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		return nil
+	case "custom-columns":
+		c := instance.customColumns()
+		t := instance.tabOut(c)
+		err = t.Flush()
+		if err != nil {
+			return err
+		}
 	case "json":
 		outData, err = json.Marshal(instance)
 		if err != nil {

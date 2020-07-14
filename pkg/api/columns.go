@@ -99,3 +99,29 @@ func (instance *Instance) wideColumns() columnList {
 	}
 	return columnList
 }
+
+// customnColumns returns a custom list of columns based on names
+func (instance *Instance) customColumns() columnList {
+
+	possibleColumns := []column{
+		new(name),
+		new(namespace),
+		new(kind),
+		new(version),
+		new(replacement),
+		new(deprecated),
+		new(deprecatedIn),
+		new(removed),
+		new(removedIn),
+	}
+
+	var outputColumns = make(map[int]column)
+	for _, d := range instance.CustomColumns {
+		for i, c := range possibleColumns {
+			if d == c.header() {
+				outputColumns[i] = c
+			}
+		}
+	}
+	return outputColumns
+}

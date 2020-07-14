@@ -71,7 +71,6 @@ func (ri removedIn) value(output *Output) string { return output.APIVersion.Remo
 
 // normalColumns returns the list of columns for -onormal
 func (instance *Instance) normalColumns() columnList {
-
 	columnList := columnList{
 		0: new(name),
 		1: new(kind),
@@ -85,7 +84,6 @@ func (instance *Instance) normalColumns() columnList {
 
 // wideColumns returns the list of columns for -owide
 func (instance *Instance) wideColumns() columnList {
-
 	columnList := columnList{
 		0: new(name),
 		1: new(namespace),
@@ -102,7 +100,6 @@ func (instance *Instance) wideColumns() columnList {
 
 // customnColumns returns a custom list of columns based on names
 func (instance *Instance) customColumns() columnList {
-
 	possibleColumns := []column{
 		new(name),
 		new(namespace),

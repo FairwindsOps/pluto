@@ -98,7 +98,7 @@ func (instance *Instance) wideColumns() columnList {
 	return columnList
 }
 
-// customnColumns returns a custom list of columns based on names
+// customColumns returns a custom list of columns based on names
 func (instance *Instance) customColumns() columnList {
 	possibleColumns := []column{
 		new(name),

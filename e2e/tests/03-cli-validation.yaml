@@ -38,3 +38,10 @@ testcases:
     - result.code ShouldEqual 1
     - result.systemerr ShouldContainSubstring "invalid custom column option FOO"
     - result.systemerr ShouldContainSubstring "E0713"
+- name: Custom output with no columns falg
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions foo=vfoo -o custom
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring "when --output=custom you must specify --columns"
+    - result.systemerr ShouldContainSubstring "E0713"

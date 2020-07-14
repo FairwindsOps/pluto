@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
@@ -112,6 +113,13 @@ var rootCmd = &cobra.Command{
 			if len(customColumns) < 1 {
 				return fmt.Errorf("when --output=custom you must specify --columns")
 			}
+			// Uppercase all columns entered on CLI
+			var tempColumns []string
+			for _, colString := range customColumns {
+				tempColumns = append(tempColumns, strings.ToUpper(colString))
+			}
+
+			customColumns = tempColumns
 			for _, c := range customColumns {
 				if !stringInSlice(c, possibleColumns) {
 					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, possibleColumns)

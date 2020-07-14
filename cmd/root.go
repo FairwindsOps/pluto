@@ -55,18 +55,6 @@ var outputOptions = []string{
 	"custom",
 }
 
-var possibleColumns = []string{
-	"NAME",
-	"NAMESPACE",
-	"KIND",
-	"VERSION",
-	"REPLACEMENT",
-	"DEPRECATED",
-	"DEPRECATED IN",
-	"REMOVED",
-	"REMOVED IN",
-}
-
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
@@ -121,8 +109,8 @@ var rootCmd = &cobra.Command{
 
 			customColumns = tempColumns
 			for _, c := range customColumns {
-				if !stringInSlice(c, possibleColumns) {
-					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, possibleColumns)
+				if !stringInSlice(c, api.PossibleColumnNames) {
+					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, api.PossibleColumnNames)
 				}
 			}
 		}

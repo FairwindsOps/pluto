@@ -10,6 +10,31 @@ type column interface {
 
 type columnList map[int]column
 
+//PossibleColumnNames is the list of implmented columns
+var PossibleColumnNames = []string{
+	"NAME",
+	"NAMESPACE",
+	"KIND",
+	"VERSION",
+	"REPLACEMENT",
+	"DEPRECATED",
+	"DEPRECATED IN",
+	"REMOVED",
+	"REMOVED IN",
+}
+
+var possibleColumns = []column{
+	new(name),
+	new(namespace),
+	new(kind),
+	new(version),
+	new(replacement),
+	new(deprecated),
+	new(deprecatedIn),
+	new(removed),
+	new(removedIn),
+}
+
 // name is the output name
 type name struct{}
 
@@ -100,18 +125,6 @@ func (instance *Instance) wideColumns() columnList {
 
 // customColumns returns a custom list of columns based on names
 func (instance *Instance) customColumns() columnList {
-	possibleColumns := []column{
-		new(name),
-		new(namespace),
-		new(kind),
-		new(version),
-		new(replacement),
-		new(deprecated),
-		new(deprecatedIn),
-		new(removed),
-		new(removedIn),
-	}
-
 	var outputColumns = make(map[int]column)
 	for _, d := range instance.CustomColumns {
 		for i, c := range possibleColumns {

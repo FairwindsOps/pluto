@@ -46,3 +46,11 @@ testcases:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
+
+- name: static files custom
+  steps:
+  - script: pluto detect-files -d assets/ -o custom --columns "NAME,NAMESPACE,VERSION,KIND,DEPRECATED,DEPRECATED IN"
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              DEPRECATED   DEPRECATED IN"
+    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   true         v1.9.0"

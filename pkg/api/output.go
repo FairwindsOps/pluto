@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"text/tabwriter"
 
 	"gopkg.in/yaml.v2"
@@ -13,11 +14,20 @@ var padChar = byte(' ')
 
 // Output is a thing that has an apiVersion in it
 type Output struct {
-	Name       string   `json:"name,omitempty" yaml:"name,omitempty"`
-	Namespace  string   `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	// Name is the name of the object in question.
+	// This might be an object name, or a release
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Namespace is the namespace that the object is in
+	// The output may resolve this to UNKNOWN if there is no way of determining it
+	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	// APIVersion is the version object corresponding to this output
 	APIVersion *Version `json:"api,omitempty" yaml:"api,omitempty"`
-	Deprecated bool     `json:"deprecated" yaml:"deprecated"`
-	Removed    bool     `json:"removed" yaml:"removed"`
+	// Deprecated is a boolean indicating whether or not the version is deprecated
+	Deprecated bool `json:"deprecated" yaml:"deprecated"`
+	// Removed is a boolean indicating whether or not the version has been removed
+	Removed bool `json:"removed" yaml:"removed"`
+	// CustomColumns is a list of column headers to be displayed when -ocustom
+	CustomColumns []string `json:"-" yaml:"-"`
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
@@ -28,6 +38,7 @@ type Instance struct {
 	OutputFormat       string            `json:"-" yaml:"-"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
+	CustomColumns      []string          `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -41,19 +52,28 @@ func (instance *Instance) DisplayOutput() error {
 	var outData []byte
 	switch instance.OutputFormat {
 	case "normal":
-		t := instance.tabOut()
+		c := instance.normalColumns()
+		t := instance.tabOut(c)
 		err = t.Flush()
 		if err != nil {
 			return err
 		}
 		return nil
 	case "wide":
-		t := instance.tabOut()
+		c := instance.wideColumns()
+		t := instance.tabOut(c)
 		err = t.Flush()
 		if err != nil {
 			return err
 		}
 		return nil
+	case "custom":
+		c := instance.customColumns()
+		t := instance.tabOut(c)
+		err = t.Flush()
+		if err != nil {
+			return err
+		}
 	case "json":
 		outData, err = json.Marshal(instance)
 		if err != nil {
@@ -66,8 +86,6 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		fmt.Println(string(outData))
-	default:
-		fmt.Println("output format should be one of (json,yaml,normal,wide)")
 	}
 	return nil
 }
@@ -86,7 +104,7 @@ func (instance *Instance) filterOutput() {
 
 }
 
-func (instance *Instance) tabOut() *tabwriter.Writer {
+func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
@@ -95,45 +113,37 @@ func (instance *Instance) tabOut() *tabwriter.Writer {
 		return w
 	}
 
-	if instance.OutputFormat == "normal" {
-		_, _ = fmt.Fprintln(w, "NAME\t KIND\t VERSION\t REPLACEMENT\t REMOVED\t DEPRECATED\t")
+	columnIndexes := make([]int, 0, len(columns))
+	for k := range columns {
+		columnIndexes = append(columnIndexes, k)
+	}
+	sort.Ints(columnIndexes)
 
-		for _, output := range instance.Outputs {
-			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.Deprecated)
-			removed := fmt.Sprintf("%t", output.Removed)
-			version := output.APIVersion.Name
-			name := output.Name
-			replacement := output.APIVersion.ReplacementAPI
-
-			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", name, kind, version, replacement, removed, deprecated)
+	var headers string
+	for _, k := range columnIndexes {
+		if k == 0 {
+			headers = fmt.Sprintf("%s\t", columns[k].header())
+		} else {
+			headers = fmt.Sprintf("%s %s\t", headers, columns[k].header())
 		}
 	}
+	_, _ = fmt.Fprintln(w, headers)
 
-	if instance.OutputFormat == "wide" {
-		_, _ = fmt.Fprintln(w, "NAME\t NAMESPACE\t KIND\t VERSION\t REPLACEMENT\t DEPRECATED\t DEPRECATED IN\t REMOVED\t REMOVED IN\t")
-
-		for _, output := range instance.Outputs {
-			kind := output.APIVersion.Kind
-			deprecated := fmt.Sprintf("%t", output.Deprecated)
-			removed := fmt.Sprintf("%t", output.Removed)
-			version := output.APIVersion.Name
-			name := output.Name
-			replacement := output.APIVersion.ReplacementAPI
-			deprecatedIn := output.APIVersion.DeprecatedIn
-			removedIn := output.APIVersion.RemovedIn
-
-			var namespace string
-			if output.Namespace == "" {
-				namespace = "<UNKNOWN>"
+	var rows string
+	for _, o := range instance.Outputs {
+		var row string
+		for _, k := range columnIndexes {
+			if k == 0 {
+				row = fmt.Sprintf("%s\t", columns[k].value(o))
 			} else {
-				namespace = output.Namespace
+				row = fmt.Sprintf("%s %s\t", row, columns[k].value(o))
 			}
-
-			_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", name, namespace, kind, version, replacement, deprecated, deprecatedIn, removed, removedIn)
 		}
-
+		rows = rows + row + "\n"
 	}
+
+	_, _ = fmt.Fprintln(w, rows)
+
 	return w
 }
 

@@ -98,6 +98,26 @@ func ExampleInstance_DisplayOutput_wide() {
 	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0-----
 }
 
+func ExampleInstance_DisplayOutput_custom() {
+	instance := &Instance{
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat:  "custom",
+		CustomColumns: []string{"NAMESPACE", "NAME", "DEPRECATED IN", "DEPRECATED", "REPLACEMENT", "VERSION", "KIND"},
+	}
+	_ = instance.DisplayOutput()
+
+	// Output:
+	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN--
+	// some name one-- pluto-namespace-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0---------
+	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0---------
+}
+
 func ExampleInstance_DisplayOutput_json() {
 	instance := &Instance{
 		TargetVersions: map[string]string{
@@ -168,22 +188,6 @@ func ExampleInstance_DisplayOutput_noOutput() {
 	_ = instance.DisplayOutput()
 
 	// Output: No output to display
-}
-
-func ExampleInstance_DisplayOutput_badFormat() {
-	instance := &Instance{
-		TargetVersions: map[string]string{
-			"foo": "v1.16.0",
-		},
-		Outputs: []*Output{
-			testOutput1,
-			testOutput2,
-		},
-		OutputFormat: "foo",
-	}
-	_ = instance.DisplayOutput()
-
-	// Output: output format should be one of (json,yaml,normal,wide)
 }
 
 func ExampleInstance_DisplayOutput_zeroLength() {

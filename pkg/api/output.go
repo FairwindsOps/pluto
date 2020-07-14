@@ -26,7 +26,8 @@ type Output struct {
 	Deprecated bool `json:"deprecated" yaml:"deprecated"`
 	// Removed is a boolean indicating whether or not the version has been removed
 	Removed bool `json:"removed" yaml:"removed"`
-	// CustomColumns is a list of column headers you want to show
+	// CustomColumns is a list of column headers to be displayed when -ocustom
+	CustomColumns []string `json:"-" yaml:"-"`
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
@@ -66,7 +67,7 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		return nil
-	case "custom-columns":
+	case "custom":
 		c := instance.customColumns()
 		t := instance.tabOut(c)
 		err = t.Flush()
@@ -85,8 +86,6 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		fmt.Println(string(outData))
-	default:
-		fmt.Println("output format should be one of (json,yaml,normal,wide)")
 	}
 	return nil
 }

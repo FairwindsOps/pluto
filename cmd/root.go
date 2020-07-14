@@ -43,14 +43,36 @@ var (
 	namespace              string
 	apiInstance            *api.Instance
 	targetVersions         map[string]string
+	customColumns          []string
 )
+
+var outputOptions = []string{
+	"json",
+	"yaml",
+	"normal",
+	"wide",
+	"custom",
+}
+
+var possibleColumns = []string{
+	"NAME",
+	"NAMESPACE",
+	"KIND",
+	"VERSION",
+	"REPLACEMENT",
+	"DEPRECATED",
+	"DEPRECATED IN",
+	"REMOVED",
+	"REMOVED IN",
+}
 
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom-columns|json|yaml)")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
+	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to pring when using --output custom")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current workding dir.")
@@ -81,6 +103,22 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		//verify output option
+		if !stringInSlice(outputFormat, outputOptions) {
+			return fmt.Errorf("--output must be one of %v", outputOptions)
+		}
+
+		if outputFormat == "custom" {
+			if len(customColumns) < 1 {
+				return fmt.Errorf("when --output=custom you must specify --columns")
+			}
+			for _, c := range customColumns {
+				if !stringInSlice(c, possibleColumns) {
+					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, possibleColumns)
+				}
+			}
+		}
+
 		defaultVersions, defaultTargetVersions, err := api.GetDefaultVersionList()
 		if err != nil {
 			return err
@@ -148,6 +186,7 @@ var rootCmd = &cobra.Command{
 		apiInstance = &api.Instance{
 			TargetVersions:     targetVersions,
 			OutputFormat:       outputFormat,
+			CustomColumns:      customColumns,
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
 			DeprecatedVersions: deprecatedVersionList,

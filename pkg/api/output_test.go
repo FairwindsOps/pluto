@@ -107,7 +107,7 @@ func ExampleInstance_DisplayOutput_custom() {
 			testOutput1,
 			testOutput2,
 		},
-		OutputFormat:  "custom-columns",
+		OutputFormat:  "custom",
 		CustomColumns: []string{"NAMESPACE", "NAME", "DEPRECATED IN", "DEPRECATED", "REPLACEMENT", "VERSION", "KIND"},
 	}
 	_ = instance.DisplayOutput()
@@ -188,22 +188,6 @@ func ExampleInstance_DisplayOutput_noOutput() {
 	_ = instance.DisplayOutput()
 
 	// Output: No output to display
-}
-
-func ExampleInstance_DisplayOutput_badFormat() {
-	instance := &Instance{
-		TargetVersions: map[string]string{
-			"foo": "v1.16.0",
-		},
-		Outputs: []*Output{
-			testOutput1,
-			testOutput2,
-		},
-		OutputFormat: "foo",
-	}
-	_ = instance.DisplayOutput()
-
-	// Output: output format should be one of (json,yaml,normal,wide)
 }
 
 func ExampleInstance_DisplayOutput_zeroLength() {

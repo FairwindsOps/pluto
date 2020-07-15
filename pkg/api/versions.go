@@ -34,6 +34,7 @@ type Stub struct {
 	Kind       string   `json:"kind" yaml:"kind"`
 	APIVersion string   `json:"apiVersion" yaml:"apiVersion"`
 	Metadata   StubMeta `json:"metadata" yaml:"metadata"`
+	Items      []*Stub  `json:"items,omitempty" yaml:"items,omitempty"`
 }
 
 // StubMeta will catch kube resource metadata
@@ -93,20 +94,38 @@ func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 	}
 	if len(stubs) > 0 {
 		for _, stub := range stubs {
-			var output Output
-			version := instance.checkVersion(stub)
-			if version != nil {
-				output.Name = stub.Metadata.Name
-				output.Namespace = stub.Metadata.Namespace
-				output.APIVersion = version
+			if stub.Kind == "List" {
+				for _, stubItem := range stub.Items {
+					output := instance.buildOutput(stubItem)
+					if output != nil {
+						outputs = append(outputs, output)
+					}
+				}
 			} else {
-				continue
+				output := instance.buildOutput(stub)
+				if output != nil {
+					outputs = append(outputs, output)
+				}
 			}
-			outputs = append(outputs, &output)
 		}
+
 		return outputs, nil
 	}
+
 	return nil, fmt.Errorf("no version found in data")
+}
+
+func (instance *Instance) buildOutput(stub *Stub) *Output {
+	version := instance.checkVersion(stub)
+	if version == nil {
+		return nil
+	}
+
+	return &Output{
+		Name:       stub.Metadata.Name,
+		Namespace:  stub.Metadata.Namespace,
+		APIVersion: version,
+	}
 }
 
 // containsStub checks to see if a []byte has a stub in it

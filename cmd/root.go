@@ -152,16 +152,14 @@ var rootCmd = &cobra.Command{
 
 		// From the compiled list of deprecations and the components flag, build a component list
 		var componentList []string
-		if components != nil {
-			for _, v := range deprecatedVersionList {
-				if !utils.StringInSlice(v.Component, componentList) {
-					if components != nil {
-						if utils.StringInSlice(v.Component, components) {
-							componentList = append(componentList, v.Component)
-						}
-					} else {
+		for _, v := range deprecatedVersionList {
+			if !utils.StringInSlice(v.Component, componentList) {
+				if components != nil {
+					if utils.StringInSlice(v.Component, components) {
 						componentList = append(componentList, v.Component)
 					}
+				} else {
+					componentList = append(componentList, v.Component)
 				}
 			}
 		}

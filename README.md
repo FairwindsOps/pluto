@@ -226,6 +226,10 @@ $ echo $?
 
 Notice that there is no output, despite the fact that we might have recognized apiVersions present in the cluster that are not yet deprecated or removed in v1.15.0. This particular run exited 0.
 
+### Components
+
+By default Pluto will scan for all components in the versionsList that it can find. If you wish to only see deprecations for a specific component, you can use the `--components` flag to specify a list.
+
 ### Adding Custom Version Checks
 
 If you want to check additional apiVersions and/or types, you can pass an additional file with the `--additional-versions` or `-f` flag.

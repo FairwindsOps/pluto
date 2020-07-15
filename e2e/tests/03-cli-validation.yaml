@@ -43,3 +43,9 @@ testcases:
     assertions:
     - result.code ShouldEqual 1
     - result.systemerr ShouldContainSubstring "when --output=custom you must specify --columns"
+- name: no output due to bad components list
+  steps:
+  - script: pluto detect-files -d assets/ --components=foo
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring "cannot find deprecations for zero components"

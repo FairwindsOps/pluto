@@ -21,6 +21,7 @@ var PossibleColumnNames = []string{
 	"DEPRECATED IN",
 	"REMOVED",
 	"REMOVED IN",
+	"COMPONENT",
 }
 
 var possibleColumns = []column{
@@ -33,6 +34,7 @@ var possibleColumns = []column{
 	new(deprecatedIn),
 	new(removed),
 	new(removedIn),
+	new(component),
 }
 
 // name is the output name
@@ -93,6 +95,12 @@ type removedIn struct{}
 
 func (ri removedIn) header() string              { return "REMOVED IN" }
 func (ri removedIn) value(output *Output) string { return output.APIVersion.RemovedIn }
+
+// component is the component that the deprecation came from
+type component struct{}
+
+func (c component) header() string              { return "COMPONENT" }
+func (c component) value(output *Output) string { return output.APIVersion.Component }
 
 // normalColumns returns the list of columns for -onormal
 func (instance *Instance) normalColumns() columnList {

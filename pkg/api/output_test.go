@@ -70,6 +70,7 @@ func ExampleInstance_DisplayOutput_normal() {
 			testOutput2,
 		},
 		OutputFormat: "normal",
+		Components:   []string{"foo"},
 	}
 	_ = instance.DisplayOutput()
 
@@ -89,6 +90,7 @@ func ExampleInstance_DisplayOutput_wide() {
 			testOutput2,
 		},
 		OutputFormat: "wide",
+		Components:   []string{"foo"},
 	}
 	_ = instance.DisplayOutput()
 
@@ -108,6 +110,7 @@ func ExampleInstance_DisplayOutput_custom() {
 			testOutput2,
 		},
 		OutputFormat:  "custom",
+		Components:    []string{"foo"},
 		CustomColumns: []string{"NAMESPACE", "NAME", "DEPRECATED IN", "DEPRECATED", "REPLACEMENT", "VERSION", "KIND"},
 	}
 	_ = instance.DisplayOutput()
@@ -128,6 +131,7 @@ func ExampleInstance_DisplayOutput_json() {
 			testOutput2,
 		},
 		OutputFormat: "json",
+		Components:   []string{"foo"},
 	}
 	_ = instance.DisplayOutput()
 
@@ -144,6 +148,7 @@ func ExampleInstance_DisplayOutput_yaml() {
 			testOutput1,
 			testOutput2,
 		},
+		Components:   []string{"foo"},
 		OutputFormat: "yaml",
 	}
 	_ = instance.DisplayOutput()
@@ -184,6 +189,7 @@ func ExampleInstance_DisplayOutput_noOutput() {
 			testOutputNoOutput,
 		},
 		OutputFormat: "normal",
+		Components:   []string{"foo"},
 	}
 	_ = instance.DisplayOutput()
 

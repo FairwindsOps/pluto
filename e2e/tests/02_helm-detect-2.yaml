@@ -18,6 +18,13 @@ testcases:
     - result.systemout ShouldContainSubstring "invincible-zebu/invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true"
     - result.systemout ShouldNotContainSubstring "lunging-bat/lunging-bat-metrics-server        Deployment   apps/v1                            false     false"
 
+- name: helm2 no output due to component filtering
+  steps:
+  - script: pluto detect-helm --helm-version=2 --target-versions k8s=v1.16.0 --components cert-manager
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldEqual "No output to display"
+
 - name: helm2 detect wide namespaced secrets
   steps:
   - script: pluto detect-helm --helm-version=2 --helm-store secrets --target-versions k8s=v1.16.0 -owide

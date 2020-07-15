@@ -57,12 +57,6 @@ var outputOptions = []string{
 	"custom",
 }
 
-var defaultComponents = []string{
-	"k8s",
-	"istio",
-	"cert-manager",
-}
-
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
@@ -70,7 +64,7 @@ func init() {
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print when using --output custom")
-	rootCmd.PersistentFlags().StringSliceVar(&components, "components", defaultComponents, "A list of components to run checks for.")
+	rootCmd.PersistentFlags().StringSliceVar(&components, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -156,12 +150,18 @@ var rootCmd = &cobra.Command{
 			deprecatedVersionList = defaultVersions
 		}
 
-		// From the compiled list of deprecations and the provider flag, build a component list
+		// From the compiled list of deprecations and the components flag, build a component list
 		var componentList []string
-		for _, v := range deprecatedVersionList {
-			if !utils.StringInSlice(v.Component, componentList) {
-				if utils.StringInSlice(v.Component, components) {
-					componentList = append(componentList, v.Component)
+		if components != nil {
+			for _, v := range deprecatedVersionList {
+				if !utils.StringInSlice(v.Component, componentList) {
+					if components != nil {
+						if utils.StringInSlice(v.Component, components) {
+							componentList = append(componentList, v.Component)
+						}
+					} else {
+						componentList = append(componentList, v.Component)
+					}
 				}
 			}
 		}

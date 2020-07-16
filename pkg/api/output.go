@@ -7,7 +7,6 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"github.com/fairwindsops/pluto/pkg/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -103,7 +102,7 @@ func (instance *Instance) filterOutput() {
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
 
 		if output.Deprecated || output.Removed {
-			if utils.StringInSlice(output.APIVersion.Component, instance.Components) {
+			if StringInSlice(output.APIVersion.Component, instance.Components) {
 				usableOutputs = append(usableOutputs, output)
 			}
 		}

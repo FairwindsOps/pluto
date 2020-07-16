@@ -24,7 +24,6 @@ import (
 	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/fairwindsops/pluto/pkg/finder"
 	"github.com/fairwindsops/pluto/pkg/helm"
-	"github.com/fairwindsops/pluto/pkg/utils"
 	"github.com/rogpeppe/go-internal/semver"
 
 	"github.com/spf13/cobra"
@@ -64,7 +63,7 @@ func init() {
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print when using --output custom")
-	rootCmd.PersistentFlags().StringSliceVar(&components, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
+	rootCmd.PersistentFlags().StringSliceVar(&components, "components", []string{}, "A list of components to run checks for. If empty, will check for all components found in versions.")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -96,7 +95,7 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		//verify output option
-		if !utils.StringInSlice(outputFormat, outputOptions) {
+		if !api.StringInSlice(outputFormat, outputOptions) {
 			return fmt.Errorf("--output must be one of %v", outputOptions)
 		}
 
@@ -112,7 +111,7 @@ var rootCmd = &cobra.Command{
 
 			customColumns = tempColumns
 			for _, c := range customColumns {
-				if !utils.StringInSlice(c, api.PossibleColumnNames) {
+				if !api.StringInSlice(c, api.PossibleColumnNames) {
 					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, api.PossibleColumnNames)
 				}
 			}
@@ -153,14 +152,11 @@ var rootCmd = &cobra.Command{
 		// From the compiled list of deprecations and the components flag, build a component list
 		var componentList []string
 		for _, v := range deprecatedVersionList {
-			if !utils.StringInSlice(v.Component, componentList) {
-				if components != nil {
-					if utils.StringInSlice(v.Component, components) {
-						componentList = append(componentList, v.Component)
-					}
-				} else {
+			if !api.StringInSlice(v.Component, componentList) {
+				if api.StringInSlice(v.Component, components) {
 					componentList = append(componentList, v.Component)
 				}
+				componentList = append(componentList, v.Component)
 			}
 		}
 		if len(componentList) < 1 {
@@ -267,7 +263,7 @@ var detectCmd = &cobra.Command{
 		if len(args) < 1 {
 			return fmt.Errorf("requires a file argument")
 		}
-		if utils.IsFileOrStdin(args[0]) {
+		if api.IsFileOrStdin(args[0]) {
 			return nil
 		}
 		return fmt.Errorf("invalid file specified: %s", args[0])

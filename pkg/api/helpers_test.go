@@ -1,4 +1,4 @@
-package utils
+package api
 
 import (
 	"testing"
@@ -43,16 +43,14 @@ func Test_StringInSlice(t *testing.T) {
 }
 
 func TestIsFileOrStdin(t *testing.T) {
-
 	tests := []struct {
 		name  string
 		input string
 		want  bool
 	}{
-		// TODO: Add test cases.
 		{"stdin", "-", true},
 		{"no file", "notafile.foo", false},
-		{"file", "utils.go", true},
+		{"file", "helpers.go", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -92,6 +92,18 @@ func newMockFinder() *Dir {
 	return dir
 }
 
+// patchFilePath exists because the filePath will be different
+// on every system. This asserts that the current working directory
+// is in the file path and then sets it to an empty string
+func patchFilePath(t *testing.T, outputs []*api.Output) {
+	cwd, _ := os.Getwd()
+	// Account for current working dir
+	for _, output := range outputs {
+		assert.Contains(t, output.FilePath, cwd)
+		output.FilePath = ""
+	}
+}
+
 func TestNewFinder(t *testing.T) {
 	wd, _ := os.Getwd()
 	tests := []struct {
@@ -209,6 +221,7 @@ func Test_checkForAPIVersion(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				patchFilePath(t, got)
 				assert.EqualValues(t, tt.want, got)
 			}
 		})
@@ -240,6 +253,7 @@ func TestDir_scanFiles(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.EqualValues(t, tt.fileList, dir.FileList)
+				patchFilePath(t, dir.Instance.Outputs)
 				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})
@@ -247,7 +261,6 @@ func TestDir_scanFiles(t *testing.T) {
 }
 
 func TestDir_FindVersions(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -271,6 +284,8 @@ func TestDir_FindVersions(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				patchFilePath(t, dir.Instance.Outputs)
+
 				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})

@@ -71,18 +71,13 @@ func (dir *Dir) FindVersions() error {
 // listFiles gets a list of all the files in the directory.
 func (dir *Dir) listFiles() error {
 	var files []string
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	if _, err = os.Stat(dir.RootPath); os.IsNotExist(err) {
+
+	if _, err := os.Stat(dir.RootPath); os.IsNotExist(err) {
 		return fmt.Errorf("specified path does not exist")
 	}
-	err = filepath.Walk(dir.RootPath, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir.RootPath, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			fullPath := fmt.Sprintf("%s/%s", cwd, path)
-			klog.V(6).Infof("full path - %s", fullPath)
-			files = append(files, fullPath)
+			files = append(files, path)
 		}
 		return nil
 	})
@@ -120,6 +115,19 @@ func (dir *Dir) CheckForAPIVersion(file string) ([]*api.Output, error) {
 	outputs, err := dir.Instance.IsVersioned(data)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(outputs) < 1 {
+		return outputs, nil
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	filePath := fmt.Sprintf("%s/%s", cwd, file)
+	for _, output := range outputs {
+		output.FilePath = filePath
 	}
 	return outputs, nil
 }

@@ -45,6 +45,7 @@ var (
 	apiInstance            *api.Instance
 	targetVersions         map[string]string
 	customColumns          []string
+	componentsFromUser     []string
 )
 
 var outputOptions = []string{
@@ -62,6 +63,7 @@ func init() {
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print when using --output custom")
+	rootCmd.PersistentFlags().StringSliceVar(&componentsFromUser, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -93,7 +95,7 @@ var rootCmd = &cobra.Command{
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		//verify output option
-		if !stringInSlice(outputFormat, outputOptions) {
+		if !api.StringInSlice(outputFormat, outputOptions) {
 			return fmt.Errorf("--output must be one of %v", outputOptions)
 		}
 
@@ -109,7 +111,7 @@ var rootCmd = &cobra.Command{
 
 			customColumns = tempColumns
 			for _, c := range customColumns {
-				if !stringInSlice(c, api.PossibleColumnNames) {
+				if !api.StringInSlice(c, api.PossibleColumnNames) {
 					return fmt.Errorf("invalid custom column option %s - must be one of %v", c, api.PossibleColumnNames)
 				}
 			}
@@ -147,12 +149,24 @@ var rootCmd = &cobra.Command{
 			deprecatedVersionList = defaultVersions
 		}
 
-		// From this compiled list of deprecations, build a component list
+		// From the compiled list of deprecations and the components flag, build a component list
 		var componentList []string
 		for _, v := range deprecatedVersionList {
-			if !stringInSlice(v.Component, componentList) {
-				componentList = append(componentList, v.Component)
+			if !api.StringInSlice(v.Component, componentList) {
+				if componentsFromUser == nil {
+					// if the pass-in components are nil, then we use the versions in the main list
+					componentList = append(componentList, v.Component)
+				} else {
+					if api.StringInSlice(v.Component, componentsFromUser) {
+						// if a component list was passed, make sure that it is in the
+						// the list of versions before adding it to the final list
+						componentList = append(componentList, v.Component)
+					}
+				}
 			}
+		}
+		if len(componentList) < 1 {
+			return fmt.Errorf("cannot find deprecations for zero components")
 		}
 
 		// Combine the default target versions and the ones that are passed. Ones that are passed in take precedence
@@ -167,7 +181,7 @@ var rootCmd = &cobra.Command{
 			targetVersions = defaultTargetVersions
 		}
 
-		// Verify that we have valid target versions for all components
+		// verify that we have valid target versions for all components
 		for component, version := range targetVersions {
 			if !semver.IsValid(version) {
 				return fmt.Errorf("you must use valid semver for all target versions with a leading 'v' - got %s %s", component, version)
@@ -179,6 +193,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
+		// this apiInstance will be used by all detection methods
 		apiInstance = &api.Instance{
 			TargetVersions:     targetVersions,
 			OutputFormat:       outputFormat,
@@ -186,6 +201,7 @@ var rootCmd = &cobra.Command{
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
 			DeprecatedVersions: deprecatedVersionList,
+			Components:         componentList,
 		}
 
 		return nil
@@ -253,7 +269,7 @@ var detectCmd = &cobra.Command{
 		if len(args) < 1 {
 			return fmt.Errorf("requires a file argument")
 		}
-		if isFileOrStdin(args[0]) {
+		if api.IsFileOrStdin(args[0]) {
 			return nil
 		}
 		return fmt.Errorf("invalid file specified: %s", args[0])
@@ -327,24 +343,4 @@ func Execute(VERSION string, COMMIT string) {
 		klog.Error(err)
 		os.Exit(1)
 	}
-}
-
-func isFileOrStdin(name string) bool {
-	if name == "-" {
-		return true
-	}
-	info, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
-func stringInSlice(s string, slice []string) bool {
-	for _, v := range slice {
-		if s == v {
-			return true
-		}
-	}
-	return false
 }

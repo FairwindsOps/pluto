@@ -74,7 +74,6 @@ func (instance *Instance) checkVersion(stub *Stub) *Version {
 				if version.Kind == "" {
 					version.Kind = stub.Kind
 				}
-
 				return &version
 			}
 		}

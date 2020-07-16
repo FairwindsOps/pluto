@@ -54,3 +54,10 @@ testcases:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              DEPRECATED   DEPRECATED IN"
     - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   true         v1.9.0"
+
+- name: static files no output due to no matching components
+  steps:
+  - script: pluto detect-files -d assets/ --components=istio
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldEqual "No output to display"

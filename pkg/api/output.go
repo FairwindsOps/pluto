@@ -39,6 +39,7 @@ type Instance struct {
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
 	CustomColumns      []string          `json:"-" yaml:"-"`
+	Components         []string          `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -90,6 +91,10 @@ func (instance *Instance) DisplayOutput() error {
 	return nil
 }
 
+// filterOutput filters the outputs that get printed
+// first it fills out the Deprecated and Removed booleans
+// then it returns the outputs that are either deprecated or removed
+// and in the component list
 func (instance *Instance) filterOutput() {
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
@@ -97,7 +102,9 @@ func (instance *Instance) filterOutput() {
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
 
 		if output.Deprecated || output.Removed {
-			usableOutputs = append(usableOutputs, output)
+			if StringInSlice(output.APIVersion.Component, instance.Components) {
+				usableOutputs = append(usableOutputs, output)
+			}
 		}
 	}
 	instance.Outputs = usableOutputs

@@ -46,6 +46,7 @@ var (
 	targetVersions         map[string]string
 	customColumns          []string
 	componentsFromUser     []string
+	onlyShowRemoved        bool
 )
 
 var outputOptions = []string{
@@ -59,6 +60,7 @@ var outputOptions = []string{
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
+	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
@@ -200,6 +202,7 @@ var rootCmd = &cobra.Command{
 			CustomColumns:      customColumns,
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
+			OnlyShowRemoved:    onlyShowRemoved,
 			DeprecatedVersions: deprecatedVersionList,
 			Components:         componentList,
 		}

@@ -10,7 +10,7 @@ testcases:
     - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
     - result.systemout ShouldNotContainSubstring "utilities   Deployment   apps/v1                            false     false"
 
-- name: static files only show deprecated
+- name: static files only show removed
   steps:
   - script: pluto detect-files -d assets/ --target-versions k8s=v1.15.0 -r
     assertions:

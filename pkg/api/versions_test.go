@@ -135,64 +135,51 @@ func Test_yamlToStub(t *testing.T) {
 
 func Test_containsStub(t *testing.T) {
 	tests := []struct {
-		name    string
-		data    []byte
-		want    []*Stub
-		wantErr bool
+		name string
+		data []byte
+		want []*Stub
 	}{
 		{
-			name:    "yaml not stub",
-			data:    []byte("foo: bar"),
-			want:    []*Stub{{}},
-			wantErr: false,
+			name: "yaml not stub",
+			data: []byte("foo: bar"),
+			want: []*Stub{{}},
 		},
 		{
-			name:    "not yaml",
-			data:    []byte("*."),
-			want:    nil,
-			wantErr: true,
+			name: "not yaml",
+			data: []byte("*."),
+			want: nil,
 		},
 		{
-			name:    "yaml is stub",
-			data:    []byte("kind: foo\napiVersion: bar"),
-			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
-			wantErr: false,
+			name: "yaml is stub",
+			data: []byte("kind: foo\napiVersion: bar"),
+			want: []*Stub{{Kind: "foo", APIVersion: "bar"}},
 		},
 		{
-			name:    "json not stub",
-			data:    []byte("{}"),
-			want:    []*Stub{{}},
-			wantErr: false,
+			name: "json not stub",
+			data: []byte("{}"),
+			want: []*Stub{{}},
 		},
 		{
-			name:    "empty string",
-			data:    []byte(""),
-			want:    nil,
-			wantErr: false,
+			name: "empty string",
+			data: []byte(""),
+			want: nil,
 		},
 		{
-			name:    "no data",
-			data:    []byte{},
-			want:    nil,
-			wantErr: false,
+			name: "no data",
+			data: []byte{},
+			want: nil,
 		},
 		{
-			name:    "json is stub",
-			data:    []byte(`{"kind": "foo", "apiVersion": "bar"}`),
-			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
-			wantErr: false,
+			name: "json is stub",
+			data: []byte(`{"kind": "foo", "apiVersion": "bar"}`),
+			want: []*Stub{{Kind: "foo", APIVersion: "bar"}},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := containsStub(tt.data)
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			}
+			got := containsStub(tt.data)
+			assert.Equal(t, tt.want, got)
+
 		})
 	}
 }

@@ -86,10 +86,7 @@ func (instance *Instance) checkVersion(stub *Stub) *Version {
 // version in the VersionList
 func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 	var outputs []*Output
-	stubs, err := containsStub(data)
-	if err != nil {
-		return nil, err
-	}
+	stubs := containsStub(data)
 	if len(stubs) > 0 {
 		for _, stub := range stubs {
 			var output Output
@@ -109,21 +106,21 @@ func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 }
 
 // containsStub checks to see if a []byte has a stub in it
-func containsStub(data []byte) ([]*Stub, error) {
+func containsStub(data []byte) []*Stub {
 	klog.V(10).Infof("\n%s", string(data))
 	stub, err := jsonToStub(data)
 	if err != nil {
 		klog.V(8).Infof("invalid json: %s", err.Error())
 	} else {
-		return stub, nil
+		return stub
 	}
 	stub, err = yamlToStub(data)
 	if err != nil {
 		klog.V(8).Infof("invalid yaml: %s", err.Error())
 	} else {
-		return stub, nil
+		return stub
 	}
-	return nil, err
+	return nil
 }
 
 func jsonToStub(data []byte) ([]*Stub, error) {

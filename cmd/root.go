@@ -45,7 +45,7 @@ var (
 	apiInstance            *api.Instance
 	targetVersions         map[string]string
 	customColumns          []string
-	components             []string
+	componentsToShow       []string
 )
 
 var outputOptions = []string{
@@ -63,7 +63,7 @@ func init() {
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print when using --output custom")
-	rootCmd.PersistentFlags().StringSliceVar(&components, "components", []string{}, "A list of components to run checks for. If empty, will check for all components found in versions.")
+	rootCmd.PersistentFlags().StringSliceVar(&componentsToShow, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -153,10 +153,16 @@ var rootCmd = &cobra.Command{
 		var componentList []string
 		for _, v := range deprecatedVersionList {
 			if !api.StringInSlice(v.Component, componentList) {
-				if api.StringInSlice(v.Component, components) {
+				if componentsToShow == nil {
+					// if the pass-in components are nil, then we use the versions in the main list
 					componentList = append(componentList, v.Component)
+				} else {
+					if api.StringInSlice(v.Component, componentsToShow) {
+						// if a component list was passed, make sure that it is in the
+						// the list of versions before adding it to the final list
+						componentList = append(componentList, v.Component)
+					}
 				}
-				componentList = append(componentList, v.Component)
 			}
 		}
 		if len(componentList) < 1 {

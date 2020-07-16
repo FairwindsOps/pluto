@@ -135,51 +135,64 @@ func Test_yamlToStub(t *testing.T) {
 
 func Test_containsStub(t *testing.T) {
 	tests := []struct {
-		name string
-		data []byte
-		want []*Stub
+		name    string
+		data    []byte
+		want    []*Stub
+		wantErr bool
 	}{
 		{
-			name: "yaml not stub",
-			data: []byte("foo: bar"),
-			want: []*Stub{{}},
+			name:    "yaml not stub",
+			data:    []byte("foo: bar"),
+			want:    []*Stub{{}},
+			wantErr: false,
 		},
 		{
-			name: "not yaml",
-			data: []byte("*."),
-			want: nil,
+			name:    "not yaml",
+			data:    []byte("*."),
+			want:    nil,
+			wantErr: true,
 		},
 		{
-			name: "yaml is stub",
-			data: []byte("kind: foo\napiVersion: bar"),
-			want: []*Stub{{Kind: "foo", APIVersion: "bar"}},
+			name:    "yaml is stub",
+			data:    []byte("kind: foo\napiVersion: bar"),
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
+			wantErr: false,
 		},
 		{
-			name: "json not stub",
-			data: []byte("{}"),
-			want: []*Stub{{}},
+			name:    "json not stub",
+			data:    []byte("{}"),
+			want:    []*Stub{{}},
+			wantErr: false,
 		},
 		{
-			name: "empty string",
-			data: []byte(""),
-			want: nil,
+			name:    "empty string",
+			data:    []byte(""),
+			want:    nil,
+			wantErr: false,
 		},
 		{
-			name: "no data",
-			data: []byte{},
-			want: nil,
+			name:    "no data",
+			data:    []byte{},
+			want:    nil,
+			wantErr: false,
 		},
 		{
-			name: "json is stub",
-			data: []byte(`{"kind": "foo", "apiVersion": "bar"}`),
-			want: []*Stub{{Kind: "foo", APIVersion: "bar"}},
+			name:    "json is stub",
+			data:    []byte(`{"kind": "foo", "apiVersion": "bar"}`),
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := containsStub(tt.data)
-			assert.Equal(t, tt.want, got)
-
+			got, err := containsStub(tt.data)
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.Equal(t, tt.want, got)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
 		})
 	}
 }
@@ -232,6 +245,12 @@ func Test_IsVersioned(t *testing.T) {
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
 			want:    []*Output{{APIVersion: &testVersionDeployment}},
 			wantErr: false,
+		},
+		{
+			name:    "not yaml",
+			data:    []byte("*."),
+			want:    nil,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

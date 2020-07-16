@@ -284,9 +284,6 @@ func UnMarshalVersions(data []byte) ([]Version, map[string]string, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not unmarshal versions file from data: %s", err.Error())
 	}
-	if versionFile.TargetVersions == nil {
-		return versionFile.DeprecatedVersions, nil, nil
-	}
 	return versionFile.DeprecatedVersions, versionFile.TargetVersions, nil
 
 }

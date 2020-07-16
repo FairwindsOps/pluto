@@ -247,7 +247,7 @@ func ExampleInstance_DisplayOutput_zeroLength() {
 	// Output: There were no resources found with known deprecated apiVersions.
 }
 
-func TestGenReturnCode(t *testing.T) {
+func TestGetReturnCode(t *testing.T) {
 
 	type args struct {
 		outputs            []*Output

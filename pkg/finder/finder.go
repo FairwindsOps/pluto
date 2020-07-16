@@ -117,9 +117,6 @@ func (dir *Dir) CheckForAPIVersion(file string) ([]*api.Output, error) {
 		return nil, err
 	}
 
-	if len(outputs) < 1 {
-		return outputs, nil
-	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err

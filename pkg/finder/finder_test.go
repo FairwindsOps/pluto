@@ -72,9 +72,9 @@ var testVersionDeployment = api.Version{
 	Component:      "k8s",
 }
 
-func newMockFinder() *Dir {
+func newMockFinder(path string) *Dir {
 	dir := &Dir{
-		RootPath: testPath,
+		RootPath: path,
 		Instance: &api.Instance{
 			TargetVersions: map[string]string{
 				"k8s":          "v1.16.0",
@@ -92,6 +92,18 @@ func newMockFinder() *Dir {
 	return dir
 }
 
+// patchFilePath exists because the filePath will be different
+// on every system. This asserts that the current working directory
+// is in the file path and then sets it to an empty string
+func patchFilePath(t *testing.T, outputs []*api.Output) {
+	cwd, _ := os.Getwd()
+	// Account for current working dir
+	for _, output := range outputs {
+		assert.Contains(t, output.FilePath, cwd)
+		output.FilePath = ""
+	}
+}
+
 func TestNewFinder(t *testing.T) {
 	wd, _ := os.Getwd()
 	tests := []struct {
@@ -102,7 +114,7 @@ func TestNewFinder(t *testing.T) {
 		{
 			name: "one",
 			path: testPath,
-			want: newMockFinder(),
+			want: newMockFinder(testPath),
 		},
 		{
 			name: "cwd",
@@ -169,7 +181,7 @@ func TestDir_listFiles(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir := newMockFinder()
+			dir := newMockFinder(testPath)
 			dir.RootPath = tt.directory
 			err := dir.listFiles()
 			if tt.wantErr {
@@ -203,12 +215,13 @@ func Test_checkForAPIVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir := newMockFinder()
+			dir := newMockFinder(testPath)
 			got, err := dir.CheckForAPIVersion(tt.file)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				patchFilePath(t, got)
 				assert.EqualValues(t, tt.want, got)
 			}
 		})
@@ -230,7 +243,7 @@ func TestDir_scanFiles(t *testing.T) {
 			want:     deploymentExtensionsV1YamlFile,
 		},
 	}
-	dir := newMockFinder()
+	dir := newMockFinder(testPath)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir.FileList = tt.fileList
@@ -240,6 +253,7 @@ func TestDir_scanFiles(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.EqualValues(t, tt.fileList, dir.FileList)
+				patchFilePath(t, dir.Instance.Outputs)
 				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})
@@ -247,7 +261,6 @@ func TestDir_scanFiles(t *testing.T) {
 }
 
 func TestDir_FindVersions(t *testing.T) {
-
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -260,17 +273,24 @@ func TestDir_FindVersions(t *testing.T) {
 			path:    testPath,
 			want:    testOutput,
 		},
+		{
+			name:    "fail",
+			wantErr: true,
+			path:    "foo",
+			want:    testOutput,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir := newMockFinder()
+			dir := newMockFinder(tt.path)
 			dir.Instance.Outputs = nil
 			err := dir.FindVersions()
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				patchFilePath(t, dir.Instance.Outputs)
 				assert.EqualValues(t, tt.want, dir.Instance.Outputs)
 			}
 		})

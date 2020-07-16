@@ -116,5 +116,15 @@ func (dir *Dir) CheckForAPIVersion(file string) ([]*api.Output, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	filePath := fmt.Sprintf("%s/%s", cwd, file)
+	for _, output := range outputs {
+		output.FilePath = filePath
+	}
 	return outputs, nil
 }

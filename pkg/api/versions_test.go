@@ -246,6 +246,12 @@ func Test_IsVersioned(t *testing.T) {
 			want:    []*Output{{APIVersion: &testVersionDeployment}},
 			wantErr: false,
 		},
+		{
+			name:    "not yaml",
+			data:    []byte("*."),
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

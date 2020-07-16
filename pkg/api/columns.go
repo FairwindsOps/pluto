@@ -13,6 +13,7 @@ type columnList map[int]column
 //PossibleColumnNames is the list of implmented columns
 var PossibleColumnNames = []string{
 	"NAME",
+	"FILEPATH",
 	"NAMESPACE",
 	"KIND",
 	"VERSION",
@@ -35,6 +36,7 @@ var possibleColumns = []column{
 	new(removed),
 	new(removedIn),
 	new(component),
+	new(filepath),
 }
 
 // name is the output name
@@ -42,6 +44,17 @@ type name struct{}
 
 func (n name) header() string              { return "NAME" }
 func (n name) value(output *Output) string { return output.Name }
+
+// filepath is the full path of the file
+type filepath struct{}
+
+func (f filepath) header() string { return "FILEPATH" }
+func (f filepath) value(output *Output) string {
+	if output.FilePath == "" {
+		return "<UNKNOWN>"
+	}
+	return output.FilePath
+}
 
 // namespace is the output namespace if available
 type namespace struct{}

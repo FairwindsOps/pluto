@@ -17,6 +17,8 @@ type Output struct {
 	// Name is the name of the object in question.
 	// This might be an object name, or a release
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// FilePath is the full path of the file if the output came from a file
+	FilePath string `json:"filePath,omitempty" yaml:"filePath,omitempty"`
 	// Namespace is the namespace that the object is in
 	// The output may resolve this to UNKNOWN if there is no way of determining it
 	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`

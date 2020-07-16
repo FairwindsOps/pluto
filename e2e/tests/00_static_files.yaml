@@ -32,13 +32,6 @@ testcases:
     - result.code ShouldEqual 0
     - result.systemout ShouldContainSubstring "No output to display"
 
-- name: static files json
-  steps:
-  - script: pluto detect-files -d assets/ -ojson
-    assertions:
-    - result.code ShouldEqual 3
-    - result.systemout ShouldEqual '{"items":[{"name":"utilities","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true}],"target-versions":{"cert-manager":"v0.15.1","istio":"v1.6.0","k8s":"v1.16.0"}}'
-
 - name: static files wide
   steps:
   - script: pluto detect-files -d assets/ -owide
@@ -49,11 +42,19 @@ testcases:
 
 - name: static files custom
   steps:
-  - script: pluto detect-files -d assets/ -o custom --columns "NAME,NAMESPACE,VERSION,KIND,DEPRECATED,DEPRECATED IN"
+  - script: pluto detect-files -d assets/ -o custom --columns "NAME,NAMESPACE,VERSION,KIND,DEPRECATED,DEPRECATED IN,component"
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              DEPRECATED   DEPRECATED IN"
-    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   true         v1.9.0"
+    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              DEPRECATED   DEPRECATED IN   COMPONENT"
+    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   true         v1.9.0          k8s"
+
+- name: static files show file path
+  steps:
+  - script: pluto detect-files -d assets/ -o custom --columns "filepath"
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "FILEPATH"
+    - result.systemout ShouldContainSubstring "tests/assets/deprecated116/deployment-extensions-v1beta1.yaml"
 
 - name: static files no output due to no matching components
   steps:

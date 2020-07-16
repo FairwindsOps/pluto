@@ -168,7 +168,7 @@ func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 	return w
 }
 
-// GetReturnCode checks for deprecated versions and adds a return code to the instance
+// GetReturnCode checks for deprecated versions and returns a code.
 // takes a boolean to ignore any errors.
 // exit 2 - version deprecated
 // exit 3 - version removed

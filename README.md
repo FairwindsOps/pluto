@@ -230,6 +230,10 @@ Notice that there is no output, despite the fact that we might have recognized a
 
 By default Pluto will scan for all components in the versionsList that it can find. If you wish to only see deprecations for a specific component, you can use the `--components` flag to specify a list.
 
+### Only Show Removed
+
+If you are targeting an upgrade, you may only wish to see apiVersions that have been `removed` rather than both `deprecated` and `removed`. You can pass the `--only-show-removed` or `-r` flag for this. It will remove any detections that are deprecated, but not yet removed. This will affect the exit code of the command as well as the json and yaml output.
+
 ### Adding Custom Version Checks
 
 If you want to check additional apiVersions and/or types, you can pass an additional file with the `--additional-versions` or `-f` flag.

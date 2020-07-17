@@ -57,6 +57,18 @@ var testOutputNoOutput = &Output{
 	},
 }
 
+var testOutputDeprecatedNotRemoved = &Output{
+	Name: "deprecated not removed",
+	APIVersion: &Version{
+		Name:           "apps/v1",
+		Kind:           "Deployment",
+		DeprecatedIn:   "v1.16.0",
+		RemovedIn:      "",
+		ReplacementAPI: "none",
+		Component:      "foo",
+	},
+}
+
 func init() {
 	padChar = byte('-')
 }
@@ -69,6 +81,30 @@ func ExampleInstance_DisplayOutput_normal() {
 		Outputs: []*Output{
 			testOutput1,
 			testOutput2,
+			testOutputDeprecatedNotRemoved,
+		},
+		OutputFormat: "normal",
+		Components:   []string{"foo"},
+	}
+	_ = instance.DisplayOutput()
+
+	// Output:
+	// NAME-------------------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED--
+	// some name one----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
+	// some name two----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true--------
+	// deprecated not removed-- Deployment-- apps/v1------------- none--------- false---- true--------
+}
+
+func ExampleInstance_DisplayOutput_onlyShowRemoved() {
+	instance := &Instance{
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
+		OnlyShowRemoved: true,
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+			testOutputDeprecatedNotRemoved,
 		},
 		OutputFormat: "normal",
 		Components:   []string{"foo"},

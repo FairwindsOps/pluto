@@ -37,6 +37,7 @@ type Instance struct {
 	Outputs            []*Output         `json:"items,omitempty" yaml:"items,omitempty"`
 	IgnoreDeprecations bool              `json:"-" yaml:"-"`
 	IgnoreRemovals     bool              `json:"-" yaml:"-"`
+	OnlyShowRemoved    bool              `json:"-" yaml:"-"`
 	OutputFormat       string            `json:"-" yaml:"-"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
@@ -50,6 +51,7 @@ func (instance *Instance) DisplayOutput() error {
 		fmt.Println("There were no resources found with known deprecated apiVersions.")
 		return nil
 	}
+
 	instance.filterOutput()
 	var err error
 	var outData []byte
@@ -97,22 +99,32 @@ func (instance *Instance) DisplayOutput() error {
 // first it fills out the Deprecated and Removed booleans
 // then it returns the outputs that are either deprecated or removed
 // and in the component list
+// additionally, if instance.OnlyShowDeprecated is true, it will remove the
+// apiVersions that are deprecated but not removed
 func (instance *Instance) filterOutput() {
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
-
-		if output.Deprecated || output.Removed {
-			if StringInSlice(output.APIVersion.Component, instance.Components) {
-				usableOutputs = append(usableOutputs, output)
+		switch instance.OnlyShowRemoved {
+		case false:
+			if output.Deprecated || output.Removed {
+				if StringInSlice(output.APIVersion.Component, instance.Components) {
+					usableOutputs = append(usableOutputs, output)
+				}
+			}
+		case true:
+			if output.Removed {
+				if StringInSlice(output.APIVersion.Component, instance.Components) {
+					usableOutputs = append(usableOutputs, output)
+				}
 			}
 		}
 	}
 	instance.Outputs = usableOutputs
-
 }
 
+// removeDeprecatedOnly is a list replacement operation
 func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)

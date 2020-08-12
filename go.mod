@@ -13,7 +13,6 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/mod v0.2.0
-	gopkg.in/yaml.v2 v2.2.8
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 	helm.sh/helm v2.16.6+incompatible
 	helm.sh/helm/v3 v3.1.2
@@ -23,4 +22,9 @@ require (
 	k8s.io/helm v2.16.5+incompatible // indirect
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.5.2
+)
+
+replace (
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+incompatible
+	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
 )

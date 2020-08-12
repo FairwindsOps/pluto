@@ -192,30 +192,30 @@ func ExampleInstance_DisplayOutput_yaml() {
 
 	// Output:
 	// items:
-	// - name: some name one
-	//   filePath: path-to-file
-	//   namespace: pluto-namespace
-	//   api:
-	//     version: extensions/v1beta1
-	//     kind: Deployment
-	//     deprecated-in: v1.9.0
-	//     removed-in: v1.16.0
-	//     replacement-api: apps/v1
-	//     component: foo
-	//   deprecated: true
-	//   removed: true
-	// - name: some name two
-	//   api:
-	//     version: extensions/v1beta1
-	//     kind: Deployment
-	//     deprecated-in: v1.9.0
-	//     removed-in: v1.16.0
-	//     replacement-api: apps/v1
-	//     component: foo
-	//   deprecated: true
-	//   removed: true
+	//   - name: some name one
+	//     filePath: path-to-file
+	//     namespace: pluto-namespace
+	//     api:
+	//         version: extensions/v1beta1
+	//         kind: Deployment
+	//         deprecated-in: v1.9.0
+	//         removed-in: v1.16.0
+	//         replacement-api: apps/v1
+	//         component: foo
+	//     deprecated: true
+	//     removed: true
+	//   - name: some name two
+	//     api:
+	//         version: extensions/v1beta1
+	//         kind: Deployment
+	//         deprecated-in: v1.9.0
+	//         removed-in: v1.16.0
+	//         replacement-api: apps/v1
+	//         component: foo
+	//     deprecated: true
+	//     removed: true
 	// target-versions:
-	//   foo: v1.16.0
+	//     foo: v1.16.0
 }
 
 func ExampleInstance_DisplayOutput_noOutput() {

@@ -14,8 +14,13 @@ require (
 	helm.sh/helm/v3 v3.3.0
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
-	k8s.io/client-go v0.18.6
+	k8s.io/client-go v11.0.0+incompatible
 	k8s.io/helm v2.16.9+incompatible // indirect
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.6.2
+)
+
+replace (
+	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+incompatible
+	github.com/docker/distribution => github.com/docker/distribution v0.0.0-20191216044856-a8371794149d
 )

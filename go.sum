@@ -129,8 +129,6 @@ github.com/evanphx/json-patch v4.2.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLi
 github.com/evanphx/json-patch v4.5.0+incompatible h1:ouOWdg56aJriqS0huScTkVXPC5IcNrDCXZ6OoTAWu7M=
 github.com/evanphx/json-patch v4.5.0+incompatible/go.mod h1:50XU6AFN0ol/bzJsmQLiYLvXMP4fmwYFNcr97nuDLSk=
 github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d/go.mod h1:ZZMPRZwes7CROmyNKgQzC3XPs6L/G2EJLHddWejkmf4=
-github.com/fairwindsops/pluto v1.1.0 h1:o5sfcW7hc6g09PpoKwA7M7/P+wrXi7tLIxAhwr3dENw=
-github.com/fairwindsops/pluto v1.1.0/go.mod h1:HKLQoH3JrKspDsvJfhWMXToqZJ/tY9cFEeyvk2cHjKs=
 github.com/fatih/camelcase v1.0.0/go.mod h1:yN2Sb0lFhZJUdVvtELVWefmrXpuZESvPmqwoZc+/fpc=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -672,7 +670,6 @@ gopkg.in/yaml.v2 v2.2.8/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gotest.tools v2.2.0+incompatible/go.mod h1:DsYFclhRJ6vuDpmuTbkuFWG+y2sxOXAzmJt81HFBacw=
-helm.sh/helm v2.16.5+incompatible/go.mod h1:0Xbc6ErzwWH9qC55X1+hE3ZwhM3atbhCm/NbFZw5i+4=
 helm.sh/helm v2.16.6+incompatible h1:bpHl8mnkfGRx3CL/kfolSVU99U7P71G8ynHlumMJVTE=
 helm.sh/helm v2.16.6+incompatible/go.mod h1:0Xbc6ErzwWH9qC55X1+hE3ZwhM3atbhCm/NbFZw5i+4=
 helm.sh/helm/v3 v3.1.2 h1:VpNzaNv2DX4aRnOCcV7v5Of+XT2SZrJ8iOQ25AGKOos=

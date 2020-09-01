@@ -17,7 +17,7 @@ package helm
 import (
 	"testing"
 
-	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/v3/pkg/api"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -24,7 +24,7 @@ import (
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
 	"k8s.io/klog"
 
-	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/v3/pkg/api"
 )
 
 // Helm represents all current releases that we can find in the cluster

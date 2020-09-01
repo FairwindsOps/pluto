@@ -22,7 +22,7 @@ import (
 
 	"k8s.io/klog"
 
-	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/v3/pkg/api"
 )
 
 // Dir is the finder dirlication

@@ -21,9 +21,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fairwindsops/pluto/pkg/api"
-	"github.com/fairwindsops/pluto/pkg/finder"
-	"github.com/fairwindsops/pluto/pkg/helm"
+	"github.com/fairwindsops/pluto/v3/pkg/api"
+	"github.com/fairwindsops/pluto/v3/pkg/finder"
+	"github.com/fairwindsops/pluto/v3/pkg/helm"
 	"github.com/rogpeppe/go-internal/semver"
 
 	"github.com/spf13/cobra"

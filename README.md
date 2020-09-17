@@ -217,7 +217,7 @@ You can target the version you are concerned with by using the `--target-version
 For example:
 
 ```
-$ pluto detect-helm --target-version k8s=v1.15.0
+$ pluto detect-helm --target-versions k8s=v1.15.0
 No output to display
 
 $ echo $?

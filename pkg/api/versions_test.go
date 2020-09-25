@@ -232,13 +232,13 @@ func Test_IsVersioned(t *testing.T) {
 			name:    "empty string",
 			data:    []byte(""),
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "no data",
 			data:    []byte{},
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name:    "json has version",

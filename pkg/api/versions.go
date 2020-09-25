@@ -105,7 +105,7 @@ func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 		}
 		return outputs, nil
 	}
-	return nil, fmt.Errorf("no version found in data")
+	return nil, nil
 }
 
 // containsStub checks to see if a []byte has a stub in it
@@ -113,7 +113,7 @@ func containsStub(data []byte) ([]*Stub, error) {
 	klog.V(10).Infof("\n%s", string(data))
 	stub, err := jsonToStub(data)
 	if err != nil {
-		klog.V(8).Infof("invalid json: %s", err.Error())
+		klog.V(8).Infof("invalid json: %s, trying yaml", err.Error())
 	} else {
 		return stub, nil
 	}
@@ -141,6 +141,7 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 	decoder := yaml.NewDecoder(bytes.NewReader(data))
 	var stubs []*Stub
 	var tError *yaml.TypeError
+	var errs []error
 	for {
 		stub := &Stub{}
 		err := decoder.Decode(stub)
@@ -150,11 +151,15 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 			}
 			if errors.As(err, &tError) {
 				klog.V(2).Infof("skipping for invalid yaml in manifest: %s", err)
+				errs = append(errs, err)
 				continue
 			}
 			return stubs, err
 		}
 		stubs = append(stubs, stub)
+	}
+	if stubs == nil && len(errs) > 0 {
+		return nil, fmt.Errorf("one or more errors parsing yaml resulted in no versions found: %v", errs)
 	}
 	return stubs, nil
 }

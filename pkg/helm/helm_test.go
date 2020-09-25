@@ -183,8 +183,8 @@ func Test_checkForAPIVersion(t *testing.T) {
 		{
 			name:     "empty",
 			manifest: []byte{},
-			want:     []*api.Output{{}},
-			wantErr:  true,
+			want:     nil,
+			wantErr:  false,
 		},
 		{
 			name:     "got version",

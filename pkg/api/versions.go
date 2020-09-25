@@ -105,7 +105,7 @@ func (instance *Instance) IsVersioned(data []byte) ([]*Output, error) {
 		}
 		return outputs, nil
 	}
-	return nil, fmt.Errorf("no version found in data")
+	return nil, nil
 }
 
 // containsStub checks to see if a []byte has a stub in it

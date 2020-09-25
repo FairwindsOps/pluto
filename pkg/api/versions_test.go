@@ -214,7 +214,7 @@ func Test_IsVersioned(t *testing.T) {
 			name:    "not json or yaml",
 			data:    []byte("some text\nthat is not yaml"),
 			want:    nil,
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name:    "yaml has version",

@@ -7,3 +7,18 @@ brews:
     description: Detect deprecated Kubernetes apiVersions
     test: |
       system "#{bin}/pluto version"
+builds:
+  - ldflags:
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - 386
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarm:
+      - 6
+      - 7

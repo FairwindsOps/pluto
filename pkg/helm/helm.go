@@ -18,8 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	helmstoragev2 "helm.sh/helm/pkg/storage"
-	driverv2 "helm.sh/helm/pkg/storage/driver"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/releaseutil"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
@@ -34,7 +32,6 @@ import (
 // Helm represents all current releases that we can find in the cluster
 type Helm struct {
 	Releases  []*Release
-	Version   string
 	Kube      *kube
 	Namespace string
 	Store     string
@@ -61,9 +58,8 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(version, store, namespace string, instance *api.Instance) *Helm {
+func NewHelm(store, namespace string, instance *api.Instance) *Helm {
 	return &Helm{
-		Version:   version,
 		Kube:      getConfigInstance(),
 		Namespace: namespace,
 		Store:     store,
@@ -75,7 +71,6 @@ func NewHelm(version, store, namespace string, instance *api.Instance) *Helm {
 // and uses the passed in kube client as the cluster to operate on
 func NewHelmWithKubeClient(version, store, namespace string, instance *api.Instance, kubeClient kubernetes.Interface) *Helm {
 	return &Helm{
-		Version: version,
 		Kube: &kube{
 			Client: kubeClient,
 		},
@@ -87,70 +82,11 @@ func NewHelmWithKubeClient(version, store, namespace string, instance *api.Insta
 
 // FindVersions is the primary method in the package. It ties together all the functionality
 func (h *Helm) FindVersions() error {
-	var err error
-
-	switch h.Version {
-	case "2":
-		fmt.Println("DEPRECATION WARNING: Helm 2 will be deprecated very soon. Please migrate.")
-		fmt.Println("please see https://helm.sh/blog/helm-v2-deprecation-timeline/ for more info")
-		err = h.getReleasesVersionTwo()
-	case "3":
-		err = h.getReleasesVersionThree()
-	default:
-		err = fmt.Errorf("helm version either not specified or incorrect (use 2 or 3)")
-	}
-	return err
-}
-
-// getReleasesVersionTwo retrieves helm 2 releases from ConfigMaps or Secrets
-func (h *Helm) getReleasesVersionTwo() error {
-	var helmClient *helmstoragev2.Storage
-	if h.Version != "2" {
-		return fmt.Errorf("helm 2 function called without helm 2 version set")
-	}
-	switch h.Store {
-	case "secrets":
-		hs := driverv2.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
-		helmClient = helmstoragev2.Init(hs)
-	case "configmaps":
-		hcm := driverv2.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(""))
-		helmClient = helmstoragev2.Init(hcm)
-	default:
-		return fmt.Errorf("helm-store should be configmap or secrets")
-	}
-	releases, err := helmClient.ListReleases()
-	if err != nil {
-		return err
-	}
-	for _, r := range releases {
-		if h.Namespace != "" && r.Namespace != h.Namespace {
-			continue
-		}
-		deployed, err := helmClient.Deployed(r.Name)
-		if err != nil {
-			klog.Infof("cannot determine most recent deployed for %s/%s - %s", r.Namespace, r.Name, err)
-			continue
-		}
-		if r.Version != deployed.Version {
-			continue
-		}
-		rel, err := helmToRelease(r)
-		if err != nil {
-			return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", r.Namespace, r.Name, err)
-		}
-		h.Releases = append(h.Releases, rel)
-	}
-	if err := h.findVersions(); err != nil {
-		return err
-	}
-	return nil
+	return h.getReleasesVersionThree()
 }
 
 // getReleasesVersionThree retrieves helm 3 releases from Secrets
 func (h *Helm) getReleasesVersionThree() error {
-	if h.Version != "3" {
-		return fmt.Errorf("helm 3 function called without helm 3 version set")
-	}
 	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
 	helmClient := helmstoragev3.Init(hs)
 	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(metav1.ListOptions{})

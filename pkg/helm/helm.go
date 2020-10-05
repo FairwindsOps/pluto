@@ -73,6 +73,8 @@ func (h *Helm) FindVersions() error {
 
 	switch h.Version {
 	case "2":
+		fmt.Println("DEPRECATION WARNING: Helm 2 will be deprecated very soon. Please migrate.")
+		fmt.Println("please see https://helm.sh/blog/helm-v2-deprecation-timeline/ for more info")
 		err = h.getReleasesVersionTwo()
 	case "3":
 		err = h.getReleasesVersionThree()

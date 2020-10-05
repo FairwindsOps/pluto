@@ -95,6 +95,7 @@ cert-manager/cert-manager-webhook            cert-manager            MutatingWeb
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
 
 You can also use Pluto with helm 2:
+**DEPRECATION WARNING** - Helm 2 will deprecated in November of 2020. Please see [here](https://helm.sh/blog/helm-v2-deprecation-timeline/) for more information.
 
 ```
 $ pluto detect-helm --helm-version=2 -A

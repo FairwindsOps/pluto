@@ -69,11 +69,10 @@ var (
 	}
 )
 
-func newMockHelm(version, store, namespace string) *Helm {
+func newMockHelm(namespace string) *Helm {
 	return &Helm{
 		Namespace: namespace,
 		Kube:      getMockConfigInstance(),
-		Store:     store,
 		Instance: &api.Instance{
 			TargetVersions: map[string]string{
 				"k8s":          "v1.16.0",
@@ -141,7 +140,7 @@ func Test_checkForAPIVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := newMockHelm("3", "configmap", "")
+			h := newMockHelm("")
 			got, err := h.checkForAPIVersion(tt.manifest)
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -154,29 +153,21 @@ func Test_checkForAPIVersion(t *testing.T) {
 }
 func TestHelm_getManifestsVersionThree(t *testing.T) {
 	tests := []struct {
-		name        string
-		helmVersion string
-		wantErr     bool
-		errMessage  string
-		secret      *v1.Secret
-		want        []*api.Output
+		name       string
+		wantErr    bool
+		errMessage string
+		secret     *v1.Secret
+		want       []*api.Output
 	}{
 		{
-			name:        "two - error",
-			helmVersion: "2",
-			wantErr:     true,
-			errMessage:  "helm 3 function called without helm 3 version set",
-		},
-		{
-			name:        "helm 3 valid",
-			helmVersion: "3",
-			secret:      &helmSecret,
-			want:        wantOutput,
+			name:   "helm 3 valid",
+			secret: &helmSecret,
+			want:   wantOutput,
 		},
 	}
 
 	for _, tt := range tests {
-		h := newMockHelm(tt.helmVersion, "secrets", "")
+		h := newMockHelm("")
 		if tt.secret != nil {
 			ns := v1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
@@ -207,7 +198,6 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 func TestHelm_getManifest_badClient(t *testing.T) {
 	tests := []struct {
 		name       string
-		store      string
 		wantErr    bool
 		errMessage string
 		secret     *v1.Secret
@@ -222,8 +212,7 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 
 	for _, tt := range tests {
 		h := &Helm{
-			Store: tt.store,
-			Kube:  newBadKubeClient(),
+			Kube: newBadKubeClient(),
 		}
 		t.Run(tt.name, func(t *testing.T) {
 			err := h.getReleasesVersionThree()
@@ -231,29 +220,6 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "connect: connection refused")
 				return
-			}
-		})
-	}
-}
-
-func TestHelm_FindVersions(t *testing.T) {
-	tests := []struct {
-		name        string
-		helmVersion string
-		wantErr     bool
-		errMessage  string
-	}{
-		// Only adding this one test case since the others generally cross into other functions.
-		{"one - err", "1", true, "helm version either not specified or incorrect (use 2 or 3)"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := newMockHelm(tt.helmVersion, "", "secrets")
-			err := h.FindVersions()
-			if tt.wantErr {
-				assert.EqualError(t, err, tt.errMessage)
-			} else {
-				assert.NoError(t, err)
 			}
 		})
 	}

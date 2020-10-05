@@ -34,7 +34,6 @@ type Helm struct {
 	Releases  []*Release
 	Kube      *kube
 	Namespace string
-	Store     string
 	Instance  *api.Instance
 }
 
@@ -62,7 +61,6 @@ func NewHelm(store, namespace string, instance *api.Instance) *Helm {
 	return &Helm{
 		Kube:      getConfigInstance(),
 		Namespace: namespace,
-		Store:     store,
 		Instance:  instance,
 	}
 }
@@ -75,12 +73,13 @@ func NewHelmWithKubeClient(version, store, namespace string, instance *api.Insta
 			Client: kubeClient,
 		},
 		Namespace: namespace,
-		Store:     store,
 		Instance:  instance,
 	}
 }
 
-// FindVersions is the primary method in the package. It ties together all the functionality
+// FindVersions is the primary method in the package.
+// As of helm 2 being deprecated, this is just a passthrough to getReleasesVersionThree. It has been
+// left in place to ensure api backward compatibility.
 func (h *Helm) FindVersions() error {
 	return h.getReleasesVersionThree()
 }

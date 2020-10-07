@@ -71,9 +71,9 @@ func init() {
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
 
 	rootCmd.AddCommand(detectHelmCmd)
-	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3)")
+	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3). WARNING: will be deprecated in a near release.")
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
-	detectHelmCmd.PersistentFlags().StringVar(&helmStore, "helm-store", "configmaps", "Helm storage for v2 (configmaps|secrets)")
+	detectHelmCmd.PersistentFlags().StringVar(&helmStore, "helm-store", "configmaps", "Helm storage for v2 (configmaps|secrets). WARNING: will be deprecated in a near release.")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)

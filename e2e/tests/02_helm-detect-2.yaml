@@ -23,7 +23,7 @@ testcases:
   - script: pluto detect-helm --helm-version=2 --target-versions k8s=v1.16.0 --components cert-manager
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldEqual "No output to display"
+    - result.systemout ShouldContainSubstring "No output to display"
 
 - name: helm2 detect wide namespaced secrets
   steps:

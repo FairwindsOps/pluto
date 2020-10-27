@@ -37,7 +37,6 @@ var (
 	additionalVersionsFile string
 	directory              string
 	outputFormat           string
-	helmStore              string
 	ignoreDeprecations     bool
 	ignoreRemovals         bool
 	namespace              string
@@ -237,7 +236,7 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(helmStore, namespace, apiInstance)
+		h := helm.NewHelm(namespace, apiInstance)
 		err := h.FindVersions()
 		if err != nil {
 			fmt.Println("Error running helm-detect:", err)

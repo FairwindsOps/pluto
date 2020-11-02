@@ -22,6 +22,7 @@ import (
 	driverv2 "helm.sh/helm/pkg/storage/driver"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
 
 	"github.com/fairwindsops/pluto/v3/pkg/api"
@@ -61,6 +62,20 @@ func NewHelm(version, store, namespace string, instance *api.Instance) *Helm {
 	return &Helm{
 		Version:   version,
 		Kube:      getConfigInstance(),
+		Namespace: namespace,
+		Store:     store,
+		Instance:  instance,
+	}
+}
+
+// NewHelmWithKubeClient returns a helm struct with version of helm requested
+// and uses the passed in kube client as the cluster to operate on
+func NewHelmWithKubeClient(version, store, namespace string, instance *api.Instance, kubeClient kubernetes.Interface) *Helm {
+	return &Helm{
+		Version: version,
+		Kube: &kube{
+			Client: kubeClient,
+		},
 		Namespace: namespace,
 		Store:     store,
 		Instance:  instance,

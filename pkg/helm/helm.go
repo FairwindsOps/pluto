@@ -20,8 +20,11 @@ import (
 
 	helmstoragev2 "helm.sh/helm/pkg/storage"
 	driverv2 "helm.sh/helm/pkg/storage/driver"
+	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v3/pkg/releaseutil"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
 
@@ -115,25 +118,25 @@ func (h *Helm) getReleasesVersionTwo() error {
 	default:
 		return fmt.Errorf("helm-store should be configmap or secrets")
 	}
-	list, err := helmClient.ListReleases()
+	releases, err := helmClient.ListReleases()
 	if err != nil {
 		return err
 	}
-	for _, release := range list {
-		if h.Namespace != "" && release.Namespace != h.Namespace {
+	for _, r := range releases {
+		if h.Namespace != "" && r.Namespace != h.Namespace {
 			continue
 		}
-		deployed, err := helmClient.Deployed(release.Name)
+		deployed, err := helmClient.Deployed(r.Name)
 		if err != nil {
-			klog.Infof("cannot determine most recent deployed for %s/%s - %s", release.Namespace, release.Name, err)
+			klog.Infof("cannot determine most recent deployed for %s/%s - %s", r.Namespace, r.Name, err)
 			continue
 		}
-		if release.Version != deployed.Version {
+		if r.Version != deployed.Version {
 			continue
 		}
-		rel, err := helmToRelease(release)
+		rel, err := helmToRelease(r)
 		if err != nil {
-			return fmt.Errorf("error converting helm release '%s/%s' to internal object\n   %w", release.Namespace, release.Name, err)
+			return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", r.Namespace, r.Name, err)
 		}
 		h.Releases = append(h.Releases, rel)
 	}
@@ -150,24 +153,27 @@ func (h *Helm) getReleasesVersionThree() error {
 	}
 	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
 	helmClient := helmstoragev3.Init(hs)
-	list, err := helmClient.ListDeployed()
+	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	for _, release := range list {
-		deployed, err := helmClient.Deployed(release.Name)
-		if err != nil {
-			klog.Infof("cannot determine most recent deployed for %s/%s - %s", release.Namespace, release.Name, err)
+	releases, err := helmClient.ListDeployed()
+	if err != nil {
+		return err
+	}
+	for _, namespace := range namespaces.Items {
+		ns := namespace.Name
+		if h.Namespace != "" && ns != h.Namespace {
 			continue
 		}
-		if release.Version != deployed.Version {
-			continue
+		filteredReleases := h.deployedReleasesPerNamespace(ns, releases)
+		for _, r := range filteredReleases {
+			rel, err := helmToRelease(r)
+			if err != nil {
+				return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", r.Namespace, r.Name, err)
+			}
+			h.Releases = append(h.Releases, rel)
 		}
-		rel, err := helmToRelease(release)
-		if err != nil {
-			return fmt.Errorf("error converting helm release '%s/%s' to internal object\n   %w", release.Namespace, release.Name, err)
-		}
-		h.Releases = append(h.Releases, rel)
 	}
 	if err := h.findVersions(); err != nil {
 		return err
@@ -175,16 +181,30 @@ func (h *Helm) getReleasesVersionThree() error {
 	return nil
 }
 
+func (h *Helm) deployedReleasesPerNamespace(namespace string, releases []*release.Release) []*release.Release {
+	return releaseutil.All(deployed, relNamespace(namespace)).Filter(releases)
+}
+
+func deployed(rls *release.Release) bool {
+	return rls.Info.Status == release.StatusDeployed
+}
+
+func relNamespace(ns string) releaseutil.FilterFunc {
+	return func(rls *release.Release) bool {
+		return rls.Namespace == ns
+	}
+}
+
 func (h *Helm) findVersions() error {
-	for _, release := range h.Releases {
-		klog.V(2).Infof("parsing release %s", release.Name)
-		outList, err := h.checkForAPIVersion([]byte(release.Manifest))
+	for _, r := range h.Releases {
+		klog.V(2).Infof("parsing r %s", r.Name)
+		outList, err := h.checkForAPIVersion([]byte(r.Manifest))
 		if err != nil {
-			return fmt.Errorf("error parsing release '%s/%s'\n   %w", release.Namespace, release.Name, err)
+			return fmt.Errorf("error parsing r '%s/%s'\n   %w", r.Namespace, r.Name, err)
 		}
 		for _, out := range outList {
-			out.Name = release.Name + "/" + out.Name
-			out.Namespace = release.Namespace
+			out.Name = r.Name + "/" + out.Name
+			out.Namespace = r.Namespace
 		}
 		h.Instance.Outputs = append(h.Instance.Outputs, outList...)
 

@@ -50,13 +50,14 @@ testcases:
     - result.code ShouldEqual 3
     - result.systemout ShouldContainSubstring "NAME                           NAMESPACE   KIND         VERSION              REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN"
     - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   default     Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
+    - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   demo2       Deployment   extensions/v1beta1   apps/v1       true         v1.9.0          true      v1.16.0"
 
 - name: helm detect -ojson
   steps:
   - script: pluto detect-helm --helm-version=3 -ojson --target-versions k8s=v1.16.0
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldEqual {"items":[{"name":"test/test-helm3chart-v1beta1","namespace":"default","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true}],"target-versions":{"cert-manager":"v0.15.1","istio":"v1.6.0","k8s":"v1.16.0"}}
+    - result.systemout ShouldEqual {"items":[{"name":"test/test-helm3chart-v1beta1","namespace":"default","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true},{"name":"test/test-helm3chart-v1beta1","namespace":"demo2","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true}],"target-versions":{"cert-manager":"v0.15.1","istio":"v1.6.0","k8s":"v1.16.0"}}
 
 - name: cleanup
   steps:

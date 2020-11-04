@@ -322,7 +322,16 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 	for _, tt := range tests {
 		h := newMockHelm(tt.helmVersion, "secrets", "")
 		if tt.secret != nil {
-			_, err := h.Kube.Client.CoreV1().Secrets("default").Create(tt.secret)
+			ns := v1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "default",
+				},
+			}
+			_, err := h.Kube.Client.CoreV1().Namespaces().Create(&ns)
+			if err != nil {
+				t.Errorf("failed creating default namespace. test: %s", tt.name)
+			}
+			_, err = h.Kube.Client.CoreV1().Secrets("default").Create(tt.secret)
 			if err != nil {
 				t.Errorf("failed putting secret in mocked kube. test: %s", tt.name)
 			}

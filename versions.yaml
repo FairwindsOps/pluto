@@ -104,50 +104,146 @@ deprecated-versions:
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleBinding
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRole
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleBindingList
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleList
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: Role
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: RoleBinding
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: RoleList
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: RoleBindingList
     deprecated-in: v1.17.0
-    removed-in: v1.20.0
+    removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBinding
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRole
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleBindingList
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: ClusterRoleList
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: Role
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: RoleBinding
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: RoleList
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: rbac.authorization.k8s.io/v1beta1
+    kind: RoleBindingList
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: policy/v1beta1
+    kind: PodDisruptionBudget
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: ""
+    component: k8s
+  - version: policy/v1beta1
+    kind: PodDisruptionBudgetList
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: ""
+    component: k8s
+  - version: autoscaling/v2beta1
+    kind: HorizontalPodAutoscaler
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: autoscaling/v1
+    component: k8s
+  - version: autoscaling/v2beta1
+    kind: HorizontalPodAutoscalerList
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: autoscaling/v1
+    component: k8s
+  - version: autoscaling/v2beta2
+    kind: HorizontalPodAutoscaler
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: autoscaling/v1
+    component: k8s
+  - version: autoscaling/v2beta2
+    kind: HorizontalPodAutoscalerList
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: autoscaling/v1
+    component: k8s
+  - version: batch/v1beta1
+    kind: CronJob
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: ""
+    component: k8s
+  - version: batch/v1beta1
+    kind: CronJobList
+    deprecated-in: v1.22.0
+    removed-in: ""
+    replacement-api: ""
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSINode

@@ -37,8 +37,6 @@ var (
 	additionalVersionsFile string
 	directory              string
 	outputFormat           string
-	helmVersion            string
-	helmStore              string
 	ignoreDeprecations     bool
 	ignoreRemovals         bool
 	namespace              string
@@ -71,9 +69,7 @@ func init() {
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
 
 	rootCmd.AddCommand(detectHelmCmd)
-	detectHelmCmd.PersistentFlags().StringVar(&helmVersion, "helm-version", "3", "Helm version in current cluster (2|3). WARNING: will be deprecated in a near release.")
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
-	detectHelmCmd.PersistentFlags().StringVar(&helmStore, "helm-store", "configmaps", "Helm storage for v2 (configmaps|secrets). WARNING: will be deprecated in a near release.")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -240,7 +236,7 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(helmVersion, helmStore, namespace, apiInstance)
+		h := helm.NewHelm(namespace, apiInstance)
 		err := h.FindVersions()
 		if err != nil {
 			fmt.Println("Error running helm-detect:", err)
@@ -255,12 +251,6 @@ var detectHelmCmd = &cobra.Command{
 		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
-	},
-	PreRun: func(cmd *cobra.Command, args []string) {
-		if helmStore != "secrets" && helmStore != "configmaps" && helmVersion == "2" {
-			fmt.Println("helm-store should be configmaps or secrets")
-			os.Exit(1)
-		}
 	},
 }
 

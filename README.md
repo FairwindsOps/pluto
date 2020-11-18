@@ -101,26 +101,15 @@ This indicates that we have two files in our directory that have deprecated apiV
 ### Helm Detection (in-cluster)
 
 ```
-$ pluto detect-helm --helm-version 3 -owide
+$ pluto detect-helm -owide
 NAME                                         NAMESPACE               KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
 cert-manager/cert-manager-webhook            cert-manager            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
 ```
 
 This indicates that the StatefulSet audit-dashboard-prod-rabbitmq-ha was deployed with apps/v1beta1 which is deprecated in 1.16
 
-You can also use Pluto with helm 2:
-**DEPRECATION WARNING** - Helm 2 will deprecated in November of 2020. Please see [here](https://helm.sh/blog/helm-v2-deprecation-timeline/) for more information.
 
-```
-$ pluto detect-helm --helm-version=2 -A
-NAME                             KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED
-invincible-zebu-metrics-server   Deployment   extensions/v1beta1   apps/v1       true      true
-lunging-bat-metrics-server       Deployment   apps/v1                            false     false
-```
-
-In case you have configured helm 2 with `--storage=secret`, you can add the optional `--helm-store secrets`. Default configuration for helm 2 is configmaps.
-
-If you only have access to a certain namespace (helm 3), or if you only want to see information for a single namespace, you can pass the `--namespace` or `-n` flag to restrict the output. Due to the way that helm2 stores configmaps, you will still need access to the tiller namespace if you are using helm 2.
+If you want to see information for a single namespace, you can pass the `--namespace` or `-n` flag to restrict the output.
 
 ```
 $ pluto detect-helm -n cert-manager -owide
@@ -151,7 +140,7 @@ In addition to the standard output, Pluto can output yaml, json, or wide.
 The wide output provides more information about when an apiVersion was removed or deprecated.
 
 ```
-$ pluto detect-helm --helm-version 3 -owide
+$ pluto detect-helm -owide
 └─ pluto detect-helm -owide
 NAME                                         NAMESPACE               KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
 cert-manager/cert-manager-webhook            cert-manager            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
@@ -160,7 +149,7 @@ cert-manager/cert-manager-webhook            cert-manager            MutatingWeb
 #### JSON
 
 ```
-$ pluto detect-helm --helm-version 3 -ojson | jq .
+$ pluto detect-helm -ojson | jq .
 {
   "items": [
     {

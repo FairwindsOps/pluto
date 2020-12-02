@@ -39,7 +39,13 @@ deprecated-versions:
     kind: Ingress
     deprecated-in: v1.14.0
     removed-in: v1.22.0
-    replacement-api: networking.k8s.io/v1beta1
+    replacement-api: networking.k8s.io/v1
+    component: k8s
+  - version: networking.k8s.io/v1beta1
+    kind: Ingress
+    deprecated-in: v1.19.0
+    removed-in: v1.22.0
+    replacement-api: networking.k8s.io/v1
     component: k8s
   - version: apps/v1beta2
     kind: DaemonSet

@@ -47,16 +47,6 @@ jobs:
       - run: pkger
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
       - run: bash <(curl -s https://codecov.io/bash)
-  insights:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v11-buster
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Run Insights Checks
-          command: |
-            curl -L https://insights.fairwinds.com/v0/insights-ci.sh | bash
   release_binary:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
@@ -98,7 +88,8 @@ workflows:
           username: fairwinds+circleci
           requires:
             - test
-      - insights:
+      - rok8s-scripts/insights:
+          name: insights
           requires:
             - build-and-push-container
   release:

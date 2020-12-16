@@ -1,13 +1,14 @@
 module github.com/fairwindsops/pluto/v3
 
-go 1.14
+go 1.15
 
 require (
+	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/markbates/pkger v0.17.1
 	github.com/rogpeppe/go-internal v1.4.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	golang.org/x/mod v0.2.0
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c

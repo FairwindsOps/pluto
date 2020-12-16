@@ -6,7 +6,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: circleci/golang:1.14-stretch
+      - image: circleci/golang:1.15-buster
 
 references:
   install_goreleaser: &install_goreleaser
@@ -18,7 +18,7 @@ references:
         sudo dpkg -i goreleaser.deb
         rm goreleaser.deb
   e2e_config: &e2e_config
-    command_runner_image: quay.io/reactiveops/ci-images:v11-stretch
+    command_runner_image: quay.io/reactiveops/ci-images:v11-buster
     kind_node_image: "kindest/node:v1.18.0@sha256:0e20578828edd939d25eb98496a685c76c98d54084932f76069f886ec315d694"
     executor: golang-exec
     pre_script: e2e/pre.sh
@@ -37,7 +37,7 @@ jobs:
     working_directory: /go/src/github.com/fairwindsops/pluto
 
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.15
         environment:
           GO111MODULE: "on"
     steps:
@@ -47,11 +47,20 @@ jobs:
       - run: pkger
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
       - run: bash <(curl -s https://codecov.io/bash)
-
+  insights:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v11-buster
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run Insights Checks
+          command: |
+            curl -L https://insights.fairwinds.com/v0/insights-ci.sh | bash
   release_binary:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
-      - image: circleci/golang:1.14
+      - image: circleci/golang:1.15
         environment:
           GO111MODULE: "on"
     steps:
@@ -78,19 +87,6 @@ workflows:
           name: functional tests
           <<: *e2e_config
       - rok8s-scripts/docker_build_and_push:
-          name: build-container
-          docker-push: false
-          docker-login: false
-          password-variable: "dne"
-          enable_docker_layer_caching: false
-          config_file: .circleci/build.config
-          requires:
-            - test
-            - functional tests
-          filters:
-            branches:
-              only: /pull\/[0-9]+/
-      - rok8s-scripts/docker_build_and_push:
           name: build-and-push-container
           docker-push: true
           enable_docker_layer_caching: false
@@ -102,11 +98,9 @@ workflows:
           username: fairwinds+circleci
           requires:
             - test
-            - functional tests
-          filters:
-            branches:
-              ignore: /pull\/[0-9]+/
-
+      - insights:
+          requires:
+            - build-and-push-container
   release:
     jobs:
       - release_binary:

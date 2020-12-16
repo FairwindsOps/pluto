@@ -1,4 +1,4 @@
-FROM golang:1.14.3 AS build-env
+FROM golang:1.15 AS build-env
 WORKDIR /go/src/github.com/fairwindsops/pluto/
 
 ARG version=dev

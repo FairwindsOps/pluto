@@ -118,7 +118,7 @@ workflows:
       - publish_docs:
           filters:
             branches:
-              only: sudermanjr/docs
+              ignore: /.*/
             tags:
               only: /.*/
       - release_binary:

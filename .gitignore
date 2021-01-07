@@ -1,5 +1,4 @@
 vendor
-dist
 
 # Output of the go coverage tool
 *.out
@@ -11,3 +10,4 @@ cover.html
 pkged.go
 
 node_modules
+/dist

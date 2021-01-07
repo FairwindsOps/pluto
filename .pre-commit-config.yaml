@@ -6,13 +6,20 @@ repos:
      - id: check-json
      - id: detect-private-key
      - id: trailing-whitespace
+       exclude: >
+         (?x)^(
+           docs/.+
+         )$
      - id: check-added-large-files
-       args: ['--maxkb=150']
+       args: ['--maxkb=500']
      - id: check-byte-order-marker
      - id: check-merge-conflict
      - id: check-symlinks
      - id: end-of-file-fixer
-       exclude: "pkg/server/testdata/notwriteable"
+       exclude: >
+         (?x)^(
+           docs/.+
+         )$
      - id: check-executables-have-shebangs
      - id: flake8
      - id: no-commit-to-branch
@@ -23,8 +30,15 @@ repos:
     rev: 1.11.2
     hooks:
       - id: forbid-binary
+        exclude: >
+          (?x)^(
+            .+\.png|
+            .+\.woff|
+            .+\.woff2|
+            .+\.tff|
+            .+\.ico
+          )$
       - id: shellcheck
-      - id: git-check
   - repo: https://github.com/dnephin/pre-commit-golang.git
     rev: v0.3.5
     hooks:

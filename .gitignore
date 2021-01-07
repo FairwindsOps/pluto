@@ -1,5 +1,4 @@
 vendor
-dist
 
 # Output of the go coverage tool
 *.out
@@ -9,3 +8,6 @@ cover.html
 
 /pluto
 pkged.go
+
+node_modules
+/dist

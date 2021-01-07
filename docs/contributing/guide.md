@@ -1,10 +1,10 @@
-# Contributing
+# Contributing Guide
 
 Issues, whether bugs, tasks, or feature requests are essential for keeping pluto great. We believe it should be as easy as possible to contribute changes that get things working in your environment. There are a few guidelines that we need contributors to follow so that we can keep on top of things.
 
 ## Code of Conduct
 
-This project adheres to a [code of conduct](CODE_OF_CONDUCT.md). Please review this document before contributing to this project.
+This project adheres to a [code of conduct](code-of-conduct.md). Please review this document before contributing to this project.
 
 ## Sign the CLA
 Before you can contribute, you will need to sign the [Contributor License Agreement](https://cla-assistant.io/fairwindsops/pluto).
@@ -12,7 +12,7 @@ Before you can contribute, you will need to sign the [Contributor License Agreem
 ## Project Structure
 
 ### CLI
-pluto is a relatively simple cobra cli tool that helps deal with deprecated api versions in Kubernetes. The [/cmd](/cmd) folder contains the flags and other cobra config, while the [/pkg](/pkg) folder has the various packages.
+pluto is a relatively simple cobra cli tool that helps deal with deprecated api versions in Kubernetes. The [/cmd](https://github.com/FairwindsOps/pluto/tree/master/cmd) folder contains the flags and other cobra config, while the [/pkg](https://github.com/FairwindsOps/pluto/tree/master/pkg) folder has the various packages.
 
 ### API
 

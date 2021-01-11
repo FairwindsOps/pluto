@@ -68,6 +68,8 @@ jobs:
       - run:
           name: Build Docs Site
           command: |
+            set -e
+            npm run check-links
             cd ./docs
             npm install
             npm run build

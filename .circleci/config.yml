@@ -70,8 +70,8 @@ jobs:
           command: |
             set -e
             cd ./docs
-            npm run check-links
             npm install
+            npm run check-links
             npm run build
       - run:
           name: Install AWS CLI

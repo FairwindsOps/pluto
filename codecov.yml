@@ -10,3 +10,4 @@ ignore:
   - "e2e"
   - "img"
   - "**/**/testdata"
+  - "/docs"

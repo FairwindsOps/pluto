@@ -14,12 +14,10 @@
   <a href="https://codecov.io/gh/FairwindsOps/pluto">
     <img src="https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg">
   </a>
-  <a href="https://insights.fairwinds.com/v0/gh/FairwindsOps/pluto">
+  <a href="https://insights.fairwinds.com/gh/FairwindsOps/pluto">
     <img src="https://insights.fairwinds.com/v0/gh/FairwindsOps/pluto/badge.svg">
   </a>
 </div>
-
-Pluto is a utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.
 
 **Want to learn more?** Reach out on [the Slack channel](https://fairwindscommunity.slack.com/messages/pluto) ([request invite](https://join.slack.com/t/fairwindscommunity/shared_invite/zt-e3c6vj4l-3lIH6dvKqzWII5fSSFDi1g)), send an email to `opensource@fairwinds.com`, or join us for [office hours on Zoom](https://fairwindscommunity.slack.com/messages/office-hours)
 

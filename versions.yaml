@@ -107,6 +107,12 @@ deprecated-versions:
     removed-in: v1.22.0
     replacement-api: admissionregistration.k8s.io/v1
     component: k8s
+  - version: admissionregistration.k8s.io/v1beta1
+    kind: ValidatingWebhookConfiguration
+    deprecated-in: v1.16.0
+    removed-in: v1.22.0
+    replacement-api: admissionregistration.k8s.io/v1
+    component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleBinding
     deprecated-in: v1.17.0

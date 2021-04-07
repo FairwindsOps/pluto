@@ -30,7 +30,7 @@ testcases:
   - script: pluto list-versions -f assets/additional-versions/new.yaml
     assertions:
     - result.code ShouldEqual 0
-    - result.systemout ShouldContainSubstring "AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1"
+    - result.systemout ShouldContainSubstring "AnotherCRD                       someother/v1beta1                      v1.9.0          v1.16.0      apps/v1"
 - name: Pass bad column list to custom
   steps:
   - script: pluto detect-files -d assets/deprecated116 --target-versions foo=vfoo -o custom --columns "FOO"

@@ -179,7 +179,6 @@ func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 
 func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Name", "Sign", "Rating"})
 
 	if len(instance.Outputs) == 0 {
 		_, _ = fmt.Println("No output to display")

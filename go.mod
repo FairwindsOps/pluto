@@ -5,6 +5,9 @@ go 1.15
 require (
 	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/markbates/pkger v0.17.1
+	github.com/mattn/go-runewidth v0.0.12 // indirect
+	github.com/olekukonko/tablewriter v0.0.5
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.4.0
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5

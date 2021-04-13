@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/olekukonko/tablewriter"
 	"os"
 	"sort"
 	"text/tabwriter"
@@ -91,6 +92,14 @@ func (instance *Instance) DisplayOutput() error {
 			return err
 		}
 		fmt.Println(string(outData))
+	case "markdown":
+		c := instance.wideColumns()
+		t := instance.markdownOut(c)
+		if t != nil {
+			t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+			t.SetCenterSeparator("|")
+			t.Render()
+		}
 	}
 	return nil
 }
@@ -166,6 +175,38 @@ func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 	_, _ = fmt.Fprintln(w, rows)
 
 	return w
+}
+
+func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
+	table := tablewriter.NewWriter(os.Stdout)
+
+	if len(instance.Outputs) == 0 {
+		_, _ = fmt.Println("No output to display")
+		return nil
+	}
+
+	columnIndexes := make([]int, 0, len(columns))
+	for k := range columns {
+		columnIndexes = append(columnIndexes, k)
+	}
+	sort.Ints(columnIndexes)
+
+	var headers []string
+	for _, k := range columnIndexes {
+		headers = append(headers, columns[k].header())
+	}
+
+	table.SetHeader(headers)
+
+	for _, o := range instance.Outputs {
+		var row []string
+		for _, k := range columnIndexes {
+			row = append(row, columns[k].value(o))
+		}
+		table.Append(row)
+	}
+
+	return table
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.

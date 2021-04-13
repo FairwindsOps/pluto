@@ -68,6 +68,17 @@ target-versions:
   k8s: v1.16.0
 ```
 
+### Markdown
+
+```
+pluto detect-files -o markdown
+|   NAME    |   NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | REMOVED | REMOVED IN |
+|-----------|----------------|------------|--------------------|-------------|------------|---------------|---------|------------|
+| utilities | <UNKNOWN>      | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
+| utilities | json-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
+| utilities | yaml-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
+```
+
 ## CI Pipelines
 
 Pluto has specific exit codes that is uses to indicate certain results:

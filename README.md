@@ -11,9 +11,6 @@
   <a href="https://circleci.com/gh/FairwindsOps/pluto.svg">
     <img src="https://circleci.com/gh/FairwindsOps/pluto.svg?style=svg">
   </a>
-  <a href="https://codecov.io/gh/FairwindsOps/pluto">
-    <img src="https://codecov.io/gh/FairwindsOps/pluto/branch/master/graph/badge.svg">
-  </a>
   <a href="https://insights.fairwinds.com/gh/FairwindsOps/pluto">
     <img src="https://insights.fairwinds.com/v0/gh/FairwindsOps/pluto/badge.svg">
   </a>

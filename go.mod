@@ -1,6 +1,6 @@
 module github.com/fairwindsops/pluto/v3
 
-go 1.15
+go 1.16
 
 require (
 	github.com/gobuffalo/here v0.6.2 // indirect

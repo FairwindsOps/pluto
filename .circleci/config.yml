@@ -6,7 +6,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: circleci/golang:1.15-buster
+      - image: circleci/golang:1.16-buster
 
 references:
   install_goreleaser: &install_goreleaser
@@ -35,17 +35,34 @@ references:
 jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
-
     docker:
-      - image: circleci/golang:1.15
-        environment:
-          GO111MODULE: "on"
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - run: go mod download && go mod verify
       - run: go get github.com/markbates/pkger/cmd/pkger
       - run: pkger
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+      - run:
+          name: SonarCloud
+          command: |
+            set -ex
+            mkdir -p /tmp/cache
+            VERSION=4.1.0.1829
+            SCANNER_DIRECTORY=/tmp/cache/scanner
+            SONAR_USER_HOME=$SCANNER_DIRECTORY/.sonar
+            OS="linux"
+            echo $SONAR_USER_HOME
+            if [[ ! -x "$SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner" ]]; then
+              curl -Ol https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$VERSION-$OS.zip
+              unzip -qq -o sonar-scanner-cli-$VERSION-$OS.zip -d $SCANNER_DIRECTORY
+            fi
+            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner
+            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/jre/bin/java
+            $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner -X -Dsonar.projectBaseDir="/go/src/github.com/fairwindsops/pluto/" -Dsonar.host.url="https://sonarcloud.io"
+      - save_cache:
+          key: v1-sonarcloud-scanner-4.1.0.1829
+          paths: /tmp/cache/scanner
   release_binary:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:

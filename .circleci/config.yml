@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   rok8s-scripts: fairwinds/rok8s-scripts@11
-  sonarcloud: sonarsource/sonarcloud@1.0.1
 
 executors:
   golang-exec:

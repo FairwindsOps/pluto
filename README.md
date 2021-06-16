@@ -51,6 +51,11 @@ Enjoying Pluto? Check out some of our other projects:
 * [rbac-manager](https://github.com/FairwindsOps/rbac-manager) - Simplify the management of RBAC in your Kubernetes clusters
 
 ## Fairwinds Insights
+<p align="center">
+  <a href="https://www.fairwinds.com/pluto-users-insights?utm_source=pluto&utm_medium=ad&utm_campaign=plutoad">
+    <img src="https://pluto.docs.fairwinds.com/img/insights-banner.png" alt="Fairwinds Insights" width="550"/>
+  </a>
+</p>
 
 If you're interested in running Pluto in multiple clusters,
 tracking the results over time, integrating with Slack, Datadog, and Jira,

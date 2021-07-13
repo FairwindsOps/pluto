@@ -15,6 +15,7 @@
 package helm
 
 import (
+	"context"
 	"testing"
 
 	"github.com/fairwindsops/pluto/v3/pkg/api"
@@ -174,11 +175,11 @@ func TestHelm_getManifestsVersionThree(t *testing.T) {
 					Name: "default",
 				},
 			}
-			_, err := h.Kube.Client.CoreV1().Namespaces().Create(&ns)
+			_, err := h.Kube.Client.CoreV1().Namespaces().Create(context.TODO(), &ns, metav1.CreateOptions{})
 			if err != nil {
 				t.Errorf("failed creating default namespace. test: %s", tt.name)
 			}
-			_, err = h.Kube.Client.CoreV1().Secrets("default").Create(tt.secret)
+			_, err = h.Kube.Client.CoreV1().Secrets("default").Create(context.TODO(), tt.secret, metav1.CreateOptions{})
 			if err != nil {
 				t.Errorf("failed putting secret in mocked kube. test: %s", tt.name)
 			}

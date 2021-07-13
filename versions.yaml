@@ -86,7 +86,7 @@ deprecated-versions:
   - version: scheduling.k8s.io/v1beta1
     kind: PriorityClass
     deprecated-in: v1.14.0
-    removed-in: v1.17.0
+    removed-in: v1.22.0
     replacement-api: scheduling.k8s.io/v1
     component: k8s
   - version: scheduling.k8s.io/v1alpha1

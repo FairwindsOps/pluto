@@ -1,3 +1,8 @@
+---
+meta:
+  - name: description
+    content: "Fairwinds Pluto | Documentation FAQ"
+---
 ## Frequently Asked Questions
 
 ### I updated my deployment method to use the new API version and Pluto doesn't report anything but kubectl still shows the old API. What gives?

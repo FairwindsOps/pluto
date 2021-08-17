@@ -1,3 +1,8 @@
+---
+meta:
+  - name: description
+    content: "Fairwinds Pluto | Contribution Guidelines"
+---
 # Contributing Guide
 
 Issues, whether bugs, tasks, or feature requests are essential for keeping pluto great. We believe it should be as easy as possible to contribute changes that get things working in your environment. There are a few guidelines that we need contributors to follow so that we can keep on top of things.

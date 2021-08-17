@@ -9,17 +9,16 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.4.0
-	github.com/spf13/cobra v0.0.6
+	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.5.1
-	golang.org/x/mod v0.2.0
+	github.com/stretchr/testify v1.7.0
+	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449
 	golang.org/x/text v0.3.6 // indirect
-	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
-	helm.sh/helm/v3 v3.1.2
-	k8s.io/api v0.17.4
-	k8s.io/apimachinery v0.17.4
-	k8s.io/client-go v0.17.4
+	helm.sh/helm/v3 v3.6.1
+	k8s.io/api v0.21.0
+	k8s.io/apimachinery v0.21.0
+	k8s.io/client-go v0.21.0
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.5.2
 )

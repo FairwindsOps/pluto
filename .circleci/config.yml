@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  rok8s-scripts: fairwinds/rok8s-scripts@11
+  rok8s: fairwinds/rok8s-scripts@11
 
 executors:
   golang-exec:
@@ -9,14 +9,6 @@ executors:
       - image: circleci/golang:1.16-buster
 
 references:
-  install_goreleaser: &install_goreleaser
-    run:
-      name: Install GoReleaser
-      command: |
-        curl -fsSLo goreleaser.deb https://github.com/goreleaser/goreleaser/releases/download/v0.131.1/goreleaser_amd64.deb
-        echo "640790dcbfa864f26de4c26c2d491f293a64525c8c6641c5bbdec7136b38977e goreleaser.deb" | sha256sum -c -
-        sudo dpkg -i goreleaser.deb
-        rm goreleaser.deb
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v11-buster
     kind_node_image: "kindest/node:v1.18.0@sha256:0e20578828edd939d25eb98496a685c76c98d54084932f76069f886ec315d694"
@@ -31,7 +23,24 @@ references:
         only: /.*/
       tags:
         ignore: /.*/
-
+  enable_experimental_features: &enable_experimental_docker_features
+    run:
+      name: enable experimental features
+      command: |
+        set -ex
+        apk --update add openssh
+        ssh remote-docker \<<EOF
+          sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+          sudo systemctl restart docker
+        EOF
+  install_vault: &install_vault
+    run:
+      name: install hashicorp vault
+      command: |
+        curl -LO https://releases.hashicorp.com/vault/1.8.1/vault_1.8.1_linux_amd64.zip
+        unzip vault_1.8.1_linux_amd64.zip
+        mv vault /usr/bin/vault
+        apk --update add yq
 jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
@@ -63,19 +72,46 @@ jobs:
       - save_cache:
           key: v1-sonarcloud-scanner-4.1.0.1829
           paths: /tmp/cache/scanner
-  release_binary:
+  release:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
-      - image: circleci/golang:1.15
+      - image: goreleaser/goreleaser:v0.174.2
         environment:
           GO111MODULE: "on"
     steps:
       - checkout
-      - run: go mod download && go mod verify
+      - setup_remote_docker:
+          version: 20.10.6
+      - *enable_experimental_docker_features
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - rok8s/docker_login:
+          registry: "quay.io"
+          username: $FAIRWINDS_QUAY_USER
+          password-variable: FAIRWINDS_QUAY_TOKEN
       - run: go get github.com/markbates/pkger/cmd/pkger
       - run: pkger
-      - *install_goreleaser
       - run: goreleaser
+  snapshot:
+    working_directory: /go/src/github.com/fairwindsops/pluto
+    docker:
+      - image: goreleaser/goreleaser:v0.174.2
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - *enable_experimental_docker_features
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - rok8s/docker_login:
+          registry: "quay.io"
+          username: $FAIRWINDS_QUAY_USER
+          password-variable: FAIRWINDS_QUAY_TOKEN
+      - run: go get github.com/markbates/pkger/cmd/pkger
+      - run: pkger
+      - run: goreleaser --debug --snapshot
   publish_docs:
     docker:
       - image: cimg/node:15.5.1
@@ -105,7 +141,15 @@ workflows:
   test:
     jobs:
       - test
-      - rok8s-scripts/kubernetes_e2e_tests:
+      - snapshot:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+      - rok8s/kubernetes_e2e_tests:
           requires:
             - test
           filters:
@@ -115,22 +159,11 @@ workflows:
               ignore: /.*/
           name: functional tests
           <<: *e2e_config
-      - rok8s-scripts/docker_build_and_push:
-          name: build-and-push-container
-          docker-push: true
-          enable_docker_layer_caching: false
-          config_file: .circleci/build.config
-          context: org-global
-          docker-login: true
-          password-variable: "fairwinds_quay_token"
-          registry: quay.io
-          username: fairwinds+circleci
-          requires:
-            - test
-      - rok8s-scripts/insights:
+      - rok8s/insights:
           name: insights
           requires:
-            - build-and-push-container
+            - test
+            - snapshot
   release:
     jobs:
       - publish_docs:
@@ -139,22 +172,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-      - release_binary:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-      - rok8s-scripts/docker_build_and_push:
-          name: build-and-push-container
-          docker-push: true
-          enable_docker_layer_caching: false
-          config_file: .circleci/build.config
-          context: org-global
-          docker-login: true
-          password-variable: "fairwinds_quay_token"
-          registry: quay.io
-          username: fairwinds+circleci
+      - release:
           filters:
             branches:
               ignore: /.*/

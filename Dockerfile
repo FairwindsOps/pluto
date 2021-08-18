@@ -12,7 +12,7 @@ COPY . .
 RUN go get github.com/markbates/pkger/cmd/pkger
 RUN VERSION=$version COMMIT=$commit make build-linux
 
-FROM alpine:3.13
+FROM alpine:3.14
 RUN apk --no-cache --update add ca-certificates tzdata && update-ca-certificates
 
 USER nobody

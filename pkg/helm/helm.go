@@ -15,6 +15,7 @@
 package helm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -88,7 +89,7 @@ func (h *Helm) FindVersions() error {
 func (h *Helm) getReleasesVersionThree() error {
 	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
 	helmClient := helmstoragev3.Init(hs)
-	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(metav1.ListOptions{})
+	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}

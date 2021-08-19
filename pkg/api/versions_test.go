@@ -416,12 +416,12 @@ func ExampleInstance_PrintVersionList_yaml() {
 
 	// Output:
 	// deprecated-versions:
-	//   - version: extensions/v1beta1
-	//     kind: Deployment
-	//     deprecated-in: v1.9.0
-	//     removed-in: v1.16.0
-	//     replacement-api: apps/v1
-	//     component: k8s
+	//     - version: extensions/v1beta1
+	//       kind: Deployment
+	//       deprecated-in: v1.9.0
+	//       removed-in: v1.16.0
+	//       replacement-api: apps/v1
+	//       component: k8s
 }
 
 func ExampleInstance_PrintVersionList_normal() {

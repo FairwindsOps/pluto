@@ -1,3 +1,8 @@
+---
+meta:
+  - name: description
+    content: "Fairwinds Pluto | Documentation on customizing behavior and output"
+---
 # Advanced Usage Options
 
 Pluto has a wide variety of options that can be used to customize behavior and output.

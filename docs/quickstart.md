@@ -1,3 +1,8 @@
+---
+meta:
+  - name: description
+    content: "Fairwinds Pluto | Quickstart Documentation"
+---
 # QuickStart
 
 First, follow the install instructions to install pluto.

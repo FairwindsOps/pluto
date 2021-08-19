@@ -25,6 +25,10 @@ module.exports = {
         path: "/advanced",
       },
       {
+        title: "FAQ",
+        path: "/faq",
+      },
+      {
         title: "Contributing",
         children: [
           {

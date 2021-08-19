@@ -1,3 +1,8 @@
+---
+meta:
+  - name: description
+    content: "Fairwinds Pluto | Installation documentation"
+---
 # Installation
 
 ## asdf

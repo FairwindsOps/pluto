@@ -1,22 +1,6 @@
-FROM golang:1.16 AS build-env
-WORKDIR /go/src/github.com/fairwindsops/pluto/
-
-ARG version=dev
-ARG commit=none
-
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
-
-COPY . .
-RUN go get github.com/markbates/pkger/cmd/pkger
-RUN VERSION=$version COMMIT=$commit make build-linux
-
-FROM alpine:3.13
-RUN apk --no-cache --update add ca-certificates tzdata && update-ca-certificates
+FROM alpine:3.14
 
 USER nobody
-COPY --from=build-env /go/src/github.com/fairwindsops/pluto /
+COPY pluto /
 
-WORKDIR /opt/app
 ENTRYPOINT ["/pluto"]

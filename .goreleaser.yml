@@ -8,6 +8,8 @@ brews:
     description: Detect deprecated Kubernetes apiVersions
     test: |
       system "#{bin}/pluto version"
+release:
+  prerelease: auto
 builds:
   - ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w

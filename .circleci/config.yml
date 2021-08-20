@@ -75,6 +75,7 @@ jobs:
   release:
     working_directory: /go/src/github.com/fairwindsops/pluto
     resource_class: large
+    shell: /bin/bash
     docker:
       - image: goreleaser/goreleaser:v0.174.2
         environment:

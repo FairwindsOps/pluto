@@ -318,6 +318,6 @@ deprecated-versions:
     replacement-api: cert-manager.io/v1alpha2
     component: cert-manager
 target-versions:
-    cert-manager: v0.15.1
-    istio: v1.6.0
-    k8s: v1.16.0
+    cert-manager: v1.5.3
+    istio: v1.11.0
+    k8s: v1.22.0

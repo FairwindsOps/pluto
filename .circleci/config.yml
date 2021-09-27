@@ -109,6 +109,9 @@ jobs:
       - run: go get github.com/markbates/pkger/cmd/pkger
       - run: pkger
       - run: goreleaser --snapshot
+      - store_artifacts:
+          path: dist
+          destination: snapshot
   publish_docs:
     docker:
       - image: cimg/node:15.5.1

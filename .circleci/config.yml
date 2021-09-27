@@ -6,7 +6,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: circleci/golang:1.16-buster
+      - image: circleci/golang:1.17-buster
 
 references:
   e2e_config: &e2e_config
@@ -46,7 +46,7 @@ jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
-      - image: circleci/golang:1.16
+      - image: circleci/golang:1.17
     steps:
       - checkout
       - run: go mod download && go mod verify

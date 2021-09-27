@@ -22,6 +22,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarm:
       - 6
       - 7

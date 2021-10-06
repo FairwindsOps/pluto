@@ -37,7 +37,13 @@ testcases:
     assertions:
     - result.code ShouldEqual 1
     - result.systemerr ShouldContainSubstring "invalid custom column option FOO"
-- name: Custom output with no columns falg
+- name: Pass bad column list to markdown
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions foo=vfoo -o markdown --columns "FOO"
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemerr ShouldContainSubstring "invalid custom column option FOO"
+- name: Custom output with no columns flag
   steps:
   - script: pluto detect-files -d assets/deprecated116 --target-versions foo=vfoo -o custom
     assertions:

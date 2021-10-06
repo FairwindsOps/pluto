@@ -29,7 +29,7 @@ type Output struct {
 	Deprecated bool `json:"deprecated" yaml:"deprecated"`
 	// Removed is a boolean indicating whether or not the version has been removed
 	Removed bool `json:"removed" yaml:"removed"`
-	// CustomColumns is a list of column headers to be displayed when -ocustom
+	// CustomColumns is a list of column headers to be displayed with -ocustom or -omarkdown
 	CustomColumns []string `json:"-" yaml:"-"`
 }
 
@@ -93,7 +93,12 @@ func (instance *Instance) DisplayOutput() error {
 		}
 		fmt.Println(string(outData))
 	case "markdown":
-		c := instance.wideColumns()
+		var c columnList
+		if len(instance.CustomColumns) >= 1 {
+			c = instance.customColumns()
+		} else {
+			c = instance.wideColumns()
+		}
 		t := instance.markdownOut(c)
 		if t != nil {
 			t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})

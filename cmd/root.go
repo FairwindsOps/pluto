@@ -63,7 +63,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown)")
-	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print when using --output custom")
+	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print. Mandatory when using --output custom, optional with --output markdown")
 	rootCmd.PersistentFlags().StringSliceVar(&componentsFromUser, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
 
 	rootCmd.AddCommand(detectFilesCmd)
@@ -102,6 +102,9 @@ var rootCmd = &cobra.Command{
 			if len(customColumns) < 1 {
 				return fmt.Errorf("when --output=custom you must specify --columns")
 			}
+		}
+
+		if outputFormat == "custom" || (outputFormat == "markdown" && len(customColumns) >= 1) {
 			// Uppercase all columns entered on CLI
 			var tempColumns []string
 			for _, colString := range customColumns {

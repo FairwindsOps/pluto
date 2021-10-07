@@ -9,7 +9,7 @@ Pluto has a wide variety of options that can be used to customize behavior and o
 
 ## Display Options
 
-In addition to the standard output, Pluto can output yaml, json, or wide.
+In addition to the standard output, Pluto can output yaml, json, wide, custom columns or markdown.
 
 ### Wide
 
@@ -73,6 +73,14 @@ target-versions:
   k8s: v1.16.0
 ```
 
+### Custom columns
+```
+$ pluto detect-helm -ocustom --columns NAMESPACE,NAME
+└─ pluto detect-helm -ocustom --columns NAMESPACE,NAME
+NAME                                         NAMESPACE               
+cert-manager/cert-manager-webhook            cert-manager            
+```
+
 ### Markdown
 
 ```
@@ -84,6 +92,13 @@ pluto detect-files -o markdown
 | utilities | yaml-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
 ```
 
+```
+pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH
+|     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | COMPONENT |   FILEPATH   |
+|---------------|-----------------|------------|--------------------|-------------|------------|---------------|-----------|--------------|
+| some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | path-to-file |
+| some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | <UNKNOWN>    |
+```
 ## CI Pipelines
 
 Pluto has specific exit codes that is uses to indicate certain results:

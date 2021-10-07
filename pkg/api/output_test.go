@@ -179,6 +179,28 @@ func ExampleInstance_DisplayOutput_markdown() {
 	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
 }
 
+func ExampleInstance_DisplayOutput_markdown_customcolumns() {
+	instance := &Instance{
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		OutputFormat: "markdown",
+		Components:   []string{"foo"},
+		CustomColumns: []string{"NAMESPACE", "NAME", "DEPRECATED IN", "DEPRECATED", "REPLACEMENT", "VERSION", "KIND", "COMPONENT", "FILEPATH"},
+	}
+	_ = instance.DisplayOutput()
+
+	// Output:
+	// |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | COMPONENT |   FILEPATH   |
+	// |---------------|-----------------|------------|--------------------|-------------|------------|---------------|-----------|--------------|
+	// | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | path-to-file |
+	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | <UNKNOWN>    |
+}
+
 func ExampleInstance_DisplayOutput_json() {
 	instance := &Instance{
 		TargetVersions: map[string]string{

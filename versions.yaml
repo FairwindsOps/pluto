@@ -235,7 +235,7 @@ deprecated-versions:
     component: k8s
   - version: autoscaling/v2beta2
     kind: HorizontalPodAutoscaler
-    deprecated-in: v1.22.0
+    deprecated-in: v1.23.0
     removed-in: ""
     replacement-api: autoscaling/v1
     component: k8s

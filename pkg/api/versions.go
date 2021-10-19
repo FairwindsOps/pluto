@@ -23,7 +23,6 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/markbates/pkger"
 	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog"
@@ -297,21 +296,8 @@ func UnMarshalVersions(data []byte) ([]Version, map[string]string, error) {
 }
 
 // GetDefaultVersionList gets the default versions from the versions.yaml file
-func GetDefaultVersionList() ([]Version, map[string]string, error) {
-	defaultVersionFile, err := pkger.Open("/versions.yaml")
-	if err != nil {
-		return nil, nil, err
-	}
-	defer defaultVersionFile.Close()
-
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(defaultVersionFile)
-	if err != nil {
-		return nil, nil, err
-	}
-	data := buf.Bytes()
-
-	defaultVersions, defaultTargetVersions, err := UnMarshalVersions(data)
+func GetDefaultVersionList(versionFileData []byte) ([]Version, map[string]string, error) {
+	defaultVersions, defaultTargetVersions, err := UnMarshalVersions(versionFileData)
 	if err != nil {
 		return nil, nil, err
 	}

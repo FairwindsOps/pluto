@@ -34,6 +34,7 @@ import (
 var (
 	version                string
 	versionCommit          string
+	versionFileData        []byte
 	additionalVersionsFile string
 	directory              string
 	outputFormat           string
@@ -119,7 +120,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		defaultVersions, defaultTargetVersions, err := api.GetDefaultVersionList()
+		defaultVersions, defaultTargetVersions, err := api.GetDefaultVersionList(versionFileData)
 		if err != nil {
 			return err
 		}
@@ -333,9 +334,10 @@ var listVersionsCmd = &cobra.Command{
 }
 
 // Execute the stuff
-func Execute(VERSION string, COMMIT string) {
+func Execute(VERSION string, COMMIT string, versionsFile []byte) {
 	version = VERSION
 	versionCommit = COMMIT
+	versionFileData = versionsFile
 	if err := rootCmd.Execute(); err != nil {
 		klog.Error(err)
 		os.Exit(1)

@@ -15,10 +15,14 @@
 package api
 
 import (
+	_ "embed"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+//go:embed test_data/versions.yaml
+var testVersionsFile []byte
 
 var mockInstance = Instance{
 	TargetVersions: map[string]string{
@@ -607,8 +611,9 @@ func TestMarshalVersions(t *testing.T) {
 }
 
 func TestGetDefaultVersionList(t *testing.T) {
+
 	// This test will ensure that the versions.yaml file is well-formed and doesn't break anything.
-	defaultVersions, defaultTargetVersions, err := GetDefaultVersionList()
+	defaultVersions, defaultTargetVersions, err := GetDefaultVersionList(testVersionsFile)
 	assert.NoError(t, err)
 	assert.NotNil(t, defaultVersions)
 	assert.NotNil(t, defaultTargetVersions)

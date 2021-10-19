@@ -15,8 +15,9 @@
 package main
 
 import (
+	_ "embed"
+
 	"github.com/fairwindsops/pluto/v3/cmd"
-	"github.com/markbates/pkger"
 )
 
 var (
@@ -24,9 +25,11 @@ var (
 	version = "development"
 	// commit is set during build
 	commit = "n/a"
+
+	//go:embed versions.yaml
+	versionsFile []byte
 )
 
 func main() {
-	_ = pkger.Include("/versions.yaml")
-	cmd.Execute(version, commit)
+	cmd.Execute(version, commit, versionsFile)
 }

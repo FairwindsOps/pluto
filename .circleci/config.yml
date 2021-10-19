@@ -50,8 +50,6 @@ jobs:
     steps:
       - checkout
       - run: go mod download && go mod verify
-      - run: go get github.com/markbates/pkger/cmd/pkger
-      - run: pkger
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
 #      - run:
 #          name: SonarCloud
@@ -93,8 +91,6 @@ jobs:
           registry: "quay.io"
           username: $FAIRWINDS_QUAY_USER
           password-variable: FAIRWINDS_QUAY_TOKEN
-      - run: go get github.com/markbates/pkger/cmd/pkger
-      - run: pkger
       - run: goreleaser
   snapshot:
     working_directory: /go/src/github.com/fairwindsops/pluto
@@ -106,8 +102,6 @@ jobs:
       - setup_remote_docker:
           version: 20.10.6
       - *enable_experimental_docker_features
-      - run: go get github.com/markbates/pkger/cmd/pkger
-      - run: pkger
       - run: goreleaser --snapshot
       - store_artifacts:
           path: dist

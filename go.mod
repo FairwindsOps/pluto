@@ -3,8 +3,6 @@ module github.com/fairwindsops/pluto/v3
 go 1.17
 
 require (
-	github.com/gobuffalo/here v0.6.2 // indirect
-	github.com/markbates/pkger v0.17.1
 	github.com/mattn/go-runewidth v0.0.12 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/uniseg v0.2.0 // indirect
@@ -15,13 +13,13 @@ require (
 	golang.org/x/mod v0.3.1-0.20200828183125-ce943fd02449
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
 	golang.org/x/text v0.3.6 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c
 	helm.sh/helm/v3 v3.6.1
-	k8s.io/api v0.22.2
-	k8s.io/apimachinery v0.22.2
-	k8s.io/client-go v0.22.2
+	k8s.io/api v0.22.0-alpha.0
+	k8s.io/apimachinery v0.22.0-alpha.0
+	k8s.io/client-go v0.22.0-alpha.0
 	k8s.io/klog v1.0.0
-	sigs.k8s.io/controller-runtime v0.8.3
+	sigs.k8s.io/controller-runtime v0.6.5
 )
 
 require (
@@ -43,7 +41,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/googleapis/gnostic v0.5.5 // indirect
+	github.com/googleapis/gnostic v0.4.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jmoiron/sqlx v1.3.1 // indirect
@@ -73,7 +71,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/apiextensions-apiserver v0.21.0 // indirect
 	k8s.io/klog/v2 v2.9.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e // indirect
+	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7 // indirect
 	k8s.io/utils v0.0.0-20210819203725-bdf08cb9a70a // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect

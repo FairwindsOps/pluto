@@ -25,3 +25,10 @@ Install the binary from our [releases](https://github.com/FairwindsOps/pluto/rel
 ```
 brew install FairwindsOps/tap/pluto
 ```
+
+## Scoop (Windows)
+Note: This is not maintained by Fairwinds, but should stay up to date with future releases.
+
+```
+scoop install pluto
+```

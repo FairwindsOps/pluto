@@ -37,6 +37,18 @@ You can read the full policy [here](https://kubernetes.io/docs/reference/using-a
 
 Long story short, apiVersions get deprecated, and then they eventually get removed entirely. Pluto differentiates between these two, and will tell you if a version is `DEPRECATED` or `REMOVED`
 
+## GitHub Action Usage
+Want to use pluto within your GitHub workflows?
+
+```yaml
+- name: Download Pluto
+  uses: FairwindsOps/pluto/github-action@master
+
+- name: Use pluto
+  run: |
+    pluto detect-files -d pkg/finder/testdata
+```
+
 <!-- Begin boilerplate -->
 ## Join the Fairwinds Open Source Community
 

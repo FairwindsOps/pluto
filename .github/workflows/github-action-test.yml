@@ -1,0 +1,17 @@
+name: Test github action
+
+on: [push, pull_request]
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download pluto
+        uses: ./github-action
+
+      - name: Pluto exists?
+        run: |
+          pluto version

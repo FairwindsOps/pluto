@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  orb-tools: circleci/orb-tools@9.0.0
+  orb-tools: circleci/orb-tools@10.1.0
   rok8s: fairwinds/rok8s-scripts@11
 
 executors:

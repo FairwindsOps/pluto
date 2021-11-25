@@ -1,0 +1,6 @@
+parameters:
+  version:
+    type: string
+    default: "v11.11-stretch"
+docker:
+  - image: quay.io/reactiveops/ci-images:<<parameters.version>>

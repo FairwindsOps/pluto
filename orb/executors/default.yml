@@ -1,6 +1,6 @@
 parameters:
   version:
     type: string
-    default: "v11.11-stretch"
+    default: "v5.1.0"
 docker:
-  - image: quay.io/reactiveops/ci-images:<<parameters.version>>
+  - image: quay.io/fairwinds/pluto:<<parameters.version>>

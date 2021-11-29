@@ -1,6 +1,10 @@
 description: >
   A workflow for detecting deprecated Kubernetes apiVersions within your repository.
 parameters:
+  checkout:
+    type: boolean
+    default: true
+    description: "Perform checkout as first step in job."
   directory:
     description: The directory to scan. If blank defaults to current directory.
     type: string
@@ -23,7 +27,10 @@ parameters:
     default: ""
 executor: <<parameters.executor>>
 steps:
-  - checkout
+  - when:
+      condition: << parameters.checkout >>
+      steps:
+        - checkout
   - detect_files:
       directory: <<parameters.directory>>
       ignore-deprecations: <<parameters.ignore-deprecations>>

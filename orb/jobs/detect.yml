@@ -1,14 +1,18 @@
 description: >
   A workflow for detecting deprecated Kubernetes apiVersions within your repository.
 parameters:
-  file:
-    description: The file to scan. Required.
-    type: string
-    default: ""
+  checkout:
+    type: boolean
+    default: true
+    description: "Perform checkout as first step in job."
   executor:
     description: The name of custom executor to use. Only recommended for development.
     type: executor
     default: default
+  file:
+    description: The file to scan. Required.
+    type: string
+    default: ""
   ignore-deprecations:
     type: boolean
     default: false
@@ -23,7 +27,10 @@ parameters:
     default: ""
 executor: <<parameters.executor>>
 steps:
-  - checkout
+  - when:
+      condition: << parameters.checkout >>
+      steps:
+        - checkout
   - detect:
       file: <<parameters.file>>
       ignore-deprecations: <<parameters.ignore-deprecations>>

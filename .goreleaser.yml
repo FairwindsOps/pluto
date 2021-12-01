@@ -31,7 +31,7 @@ dockers:
   - "quay.io/fairwinds/pluto:{{ .Tag }}-amd64"
   - "quay.io/fairwinds/pluto:v{{ .Major }}-amd64"
   - "quay.io/fairwinds/pluto:v{{ .Major }}.{{ .Minor }}-amd64"
-  use_buildx: true
+  use: buildx
   dockerfile: Dockerfile
   build_flag_templates:
   - "--platform=linux/amd64"
@@ -39,7 +39,7 @@ dockers:
   - "quay.io/fairwinds/pluto:{{ .Tag }}-arm64v8"
   - "quay.io/fairwinds/pluto:v{{ .Major }}-arm64v8"
   - "quay.io/fairwinds/pluto:v{{ .Major }}.{{ .Minor }}-arm64v8"
-  use_buildx: true
+  use: buildx
   goarch: arm64
   dockerfile: Dockerfile
   build_flag_templates:
@@ -48,7 +48,7 @@ dockers:
   - "quay.io/fairwinds/pluto:{{ .Tag }}-armv7"
   - "quay.io/fairwinds/pluto:v{{ .Major }}-armv7"
   - "quay.io/fairwinds/pluto:v{{ .Major }}.{{ .Minor }}-armv7"
-  use_buildx: true
+  use: buildx
   goarch: arm64
   dockerfile: Dockerfile
   build_flag_templates:

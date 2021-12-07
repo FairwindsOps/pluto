@@ -3,5 +3,5 @@ version: 2.1
 description: |
   Pluto is a utility to help users find deprecated Kubernetes apiVersions in their code repositories and their helm releases.
 display:
-  home_url: https://fairwindsops.github.io/pluto/
+  home_url: https://pluto.docs.fairwinds.com
   source_url: https://github.com/FairwindsOps/pluto

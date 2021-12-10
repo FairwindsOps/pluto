@@ -92,9 +92,9 @@ jobs:
           destination: snapshot
   publish-dev-orb:
     working_directory: /go/src/github.com/fairwindsops/pluto
-    shell: /bin/bash
     docker:
-      - image: cli/default
+      - image: quay.io/reactiveops/ci-images:v11-alpine
+    shell: /bin/bash
     steps:
       - checkout
       - *install_vault

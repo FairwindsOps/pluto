@@ -90,6 +90,21 @@ jobs:
       - store_artifacts:
           path: dist
           destination: snapshot
+  publish-dev-orb:
+    working_directory: /go/src/github.com/fairwindsops/pluto
+    shell: /bin/bash
+    docker:
+      - image: cli/default
+    steps:
+      - checkout
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - orb-tools/pack:
+          source: orb/
+      - orb-tools/publish:
+          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
+          token-variable: CIRCLECI_DEV_API_TOKEN
   publish_docs:
     docker:
       - image: cimg/node:15.5.1
@@ -178,23 +193,10 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
-      - orb-tools/pack:
-          name: "Pack Orb"
-          source-dir: orb
+      - publish-dev-orb:
+          name: Publish Dev Orb
           requires:
             - "Lint Orb Files"
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - orb-tools/publish:
-          name: "Publish Dev Orb"
-          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
-          publish-token-variable: CIRCLECI_DEV_API_TOKEN
-          attach-workspace: true
-          requires:
-            - "Pack Orb"
           filters:
             branches:
               only: /.*/
@@ -202,8 +204,6 @@ workflows:
               ignore: /.*/
       - request-orb-publish:
           name: "Request Orb Pubslishing"
-          requires:
-            - "Pack Orb"
           filters:
             branches:
               ignore: /.*/

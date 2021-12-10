@@ -32,3 +32,6 @@ build-windows:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(BINARY_NAME) -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -s -w" -v
 build-docker: build-linux
 	docker build --build-arg version=$(VERSION) --build-arg commit=$(COMMIT) -t quay.io/reactiveops/$(BINARY_NAME):dev .
+orb-validate:
+	circleci orb pack orb/ > orb.yml
+	circleci orb validate orb.yml

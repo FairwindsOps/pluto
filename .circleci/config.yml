@@ -1,6 +1,7 @@
 version: 2.1
 
 orbs:
+  orb-tools: circleci/orb-tools@10.1.0
   rok8s: fairwinds/rok8s-scripts@11
 
 executors:
@@ -131,6 +132,15 @@ jobs:
           command: |
             cd ./dist
             aws s3 sync ./ s3://pluto.docs.fairwinds.com --delete
+  request-orb-publish:
+    docker:
+      - image: alpine:latest
+    steps:
+      - run:
+          name: "Request Orb Publish"
+          command: |
+            apk --update add curl
+            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new orb by checking out the tag and running release-orb.sh\"}" $SLACK_URL
 workflows:
   version: 2
   test:
@@ -168,6 +178,56 @@ workflows:
             tags:
               only: /.*/
       - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+  "Orb Test and Publish":
+    jobs:
+      - orb-tools/lint:
+          name: "Lint Orb Files"
+          pre-steps:
+            - run:
+                command: apk add git openssh
+          lint-dir: orb
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+      - orb-tools/pack:
+          name: "Pack Orb"
+          source-dir: orb
+          requires:
+            - "Lint Orb Files"
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+      - orb-tools/publish:
+          name: "Publish Dev Orb"
+          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
+          publish-token-variable: CIRCLECI_DEV_API_TOKEN
+          attach-workspace: true
+          requires:
+            - "Pack Orb"
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+      - request-orb-publish:
+          name: "Request Orb Pubslishing"
+          requires:
+            - "Pack Orb"
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - publish_docs:
           filters:
             branches:
               ignore: /.*/

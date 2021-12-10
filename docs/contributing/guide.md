@@ -90,6 +90,10 @@ Each new pull request should:
 - Contain a clear indication of if they're ready for review or a work in progress
 - Be up to date and/or rebased on the master branch
 
+## Orb development
+
+There is a Makefile that can assist in validating and testing the orb locally.  See the commands there for more info.
+
 ## Creating a new release
 
 Push a new annotated tag.  This tag should contain a changelog of pertinent changes. Goreleaser will take care of the rest.

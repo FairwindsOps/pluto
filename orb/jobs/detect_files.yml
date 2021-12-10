@@ -1,0 +1,38 @@
+description: >
+  A workflow for detecting deprecated Kubernetes apiVersions within your repository.
+parameters:
+  checkout:
+    type: boolean
+    default: true
+    description: "Perform checkout as first step in job."
+  directory:
+    description: The directory to scan. If blank defaults to current directory.
+    type: string
+    default: ""
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+  ignore-deprecations:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if deprecated APIs are detected.
+  ignore-removals:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if removed APIs are detected.
+  target-versions:
+    description: You can target the Kubernetes version you are concerned with. If blank defaults to latest.
+    type: string
+    default: ""
+executor: <<parameters.executor>>
+steps:
+  - when:
+      condition: << parameters.checkout >>
+      steps:
+        - checkout
+  - detect_files:
+      directory: <<parameters.directory>>
+      ignore-deprecations: <<parameters.ignore-deprecations>>
+      ignore-removals: <<parameters.ignore-removals>>
+      target-versions: <<parameters.target-versions>>

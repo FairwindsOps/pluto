@@ -68,6 +68,8 @@ jobs:
       - *install_vault
       - rok8s/get_vault_env:
           vault_path: repo/global/env
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
       - rok8s/docker_login:
           registry: "quay.io"
           username: $FAIRWINDS_QUAY_USER

@@ -12,7 +12,7 @@ executors:
 references:
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v11-buster
-    kind_node_image: "kindest/node:v1.18.0@sha256:0e20578828edd939d25eb98496a685c76c98d54084932f76069f886ec315d694"
+    kind_node_image: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
     executor: golang-exec
     pre_script: e2e/pre.sh
     store-test-results: /tmp/test-results
@@ -52,26 +52,6 @@ jobs:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
-#      - run:
-#          name: SonarCloud
-#          command: |
-#            set -ex
-#            mkdir -p /tmp/cache
-#            VERSION=4.1.0.1829
-#            SCANNER_DIRECTORY=/tmp/cache/scanner
-#            SONAR_USER_HOME=$SCANNER_DIRECTORY/.sonar
-#            OS="linux"
-#            echo $SONAR_USER_HOME
-#            if [[ ! -x "$SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner" ]]; then
-#              curl -Ol https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$VERSION-$OS.zip
-#              unzip -qq -o sonar-scanner-cli-$VERSION-$OS.zip -d $SCANNER_DIRECTORY
-#            fi
-#            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner
-#            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/jre/bin/java
-#            $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner -X -Dsonar.projectBaseDir="/go/src/github.com/fairwindsops/pluto/" -Dsonar.host.url="https://sonarcloud.io"
-#      - save_cache:
-#          key: v1-sonarcloud-scanner-4.1.0.1829
-#          paths: /tmp/cache/scanner
   release:
     working_directory: /go/src/github.com/fairwindsops/pluto
     resource_class: large

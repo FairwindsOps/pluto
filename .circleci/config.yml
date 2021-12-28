@@ -63,7 +63,7 @@ jobs:
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
   insights:
     docker:
-      - image: alpine:latest
+      - image: quay.io/reactiveops/ci-images:v11-alpine
     steps:
       - checkout
       - setup_remote_docker

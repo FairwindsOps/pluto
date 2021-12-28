@@ -43,6 +43,15 @@ references:
         unzip vault_1.8.1_linux_amd64.zip
         mv vault /usr/bin/vault
         apk --update add yq
+  install_circleci: &install_circleci
+    run:
+      name: Install CircleCI CLI
+      command: |
+        cd /tmp
+        curl -LO https://github.com/CircleCI-Public/circleci-cli/releases/download/v0.1.16535/circleci-cli_0.1.16535_linux_amd64.tar.gz
+        tar -zxvf circleci-cli_0.1.16535_linux_amd64.tar.gz
+        mv circleci-cli_0.1.16535_linux_amd64/circleci /bin/circleci
+        circleci version
 jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
@@ -100,6 +109,7 @@ jobs:
       - *install_vault
       - rok8s/get_vault_env:
           vault_path: repo/global/env
+      - *install_circleci
       - orb-tools/pack:
           source: orb/
       - orb-tools/publish:

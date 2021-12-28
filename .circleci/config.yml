@@ -74,6 +74,7 @@ jobs:
       - run:
           name: Insights CI
           command: |
+            apk --update add curl
             curl -L https://insights.fairwinds.com/v0/insights-ci-0.6.0.sh > insights-ci.sh
             echo "ba3fe515b332a0fc1e3048d8b4f6dd22d84d47393c558d245949ca085b97167b *insights-ci.sh" | shasum -a 256 --check
             chmod +x insights-ci.sh

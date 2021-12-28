@@ -12,7 +12,7 @@ executors:
 references:
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v11-buster
-    kind_node_image: "kindest/node:v1.18.0@sha256:0e20578828edd939d25eb98496a685c76c98d54084932f76069f886ec315d694"
+    kind_node_image: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
     executor: golang-exec
     pre_script: e2e/pre.sh
     store-test-results: /tmp/test-results
@@ -43,6 +43,15 @@ references:
         unzip vault_1.8.1_linux_amd64.zip
         mv vault /usr/bin/vault
         apk --update add yq
+  install_circleci: &install_circleci
+    run:
+      name: Install CircleCI CLI
+      command: |
+        cd /tmp
+        curl -LO https://github.com/CircleCI-Public/circleci-cli/releases/download/v0.1.16535/circleci-cli_0.1.16535_linux_amd64.tar.gz
+        tar -zxvf circleci-cli_0.1.16535_linux_amd64.tar.gz
+        mv circleci-cli_0.1.16535_linux_amd64/circleci /bin/circleci
+        circleci version
 jobs:
   test:
     working_directory: /go/src/github.com/fairwindsops/pluto
@@ -52,26 +61,6 @@ jobs:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
-#      - run:
-#          name: SonarCloud
-#          command: |
-#            set -ex
-#            mkdir -p /tmp/cache
-#            VERSION=4.1.0.1829
-#            SCANNER_DIRECTORY=/tmp/cache/scanner
-#            SONAR_USER_HOME=$SCANNER_DIRECTORY/.sonar
-#            OS="linux"
-#            echo $SONAR_USER_HOME
-#            if [[ ! -x "$SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner" ]]; then
-#              curl -Ol https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$VERSION-$OS.zip
-#              unzip -qq -o sonar-scanner-cli-$VERSION-$OS.zip -d $SCANNER_DIRECTORY
-#            fi
-#            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner
-#            chmod +x $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/jre/bin/java
-#            $SCANNER_DIRECTORY/sonar-scanner-$VERSION-$OS/bin/sonar-scanner -X -Dsonar.projectBaseDir="/go/src/github.com/fairwindsops/pluto/" -Dsonar.host.url="https://sonarcloud.io"
-#      - save_cache:
-#          key: v1-sonarcloud-scanner-4.1.0.1829
-#          paths: /tmp/cache/scanner
   release:
     working_directory: /go/src/github.com/fairwindsops/pluto
     resource_class: large
@@ -88,6 +77,8 @@ jobs:
       - *install_vault
       - rok8s/get_vault_env:
           vault_path: repo/global/env
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
       - rok8s/docker_login:
           registry: "quay.io"
           username: $FAIRWINDS_QUAY_USER
@@ -108,6 +99,22 @@ jobs:
       - store_artifacts:
           path: dist
           destination: snapshot
+  publish-dev-orb:
+    working_directory: /go/src/github.com/fairwindsops/pluto
+    docker:
+      - image: quay.io/reactiveops/ci-images:v11-alpine
+    shell: /bin/bash
+    steps:
+      - checkout
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - *install_circleci
+      - orb-tools/pack:
+          source: orb/
+      - orb-tools/publish:
+          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
+          token-variable: CIRCLECI_DEV_API_TOKEN
   publish_docs:
     docker:
       - image: cimg/node:15.5.1
@@ -127,6 +134,8 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
       - run:
           name: Publish Docs Site to S3
           command: |
@@ -196,23 +205,10 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
-      - orb-tools/pack:
-          name: "Pack Orb"
-          source-dir: orb
+      - publish-dev-orb:
+          name: Publish Dev Orb
           requires:
             - "Lint Orb Files"
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - orb-tools/publish:
-          name: "Publish Dev Orb"
-          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
-          publish-token-variable: CIRCLECI_DEV_API_TOKEN
-          attach-workspace: true
-          requires:
-            - "Pack Orb"
           filters:
             branches:
               only: /.*/
@@ -220,8 +216,6 @@ workflows:
               ignore: /.*/
       - request-orb-publish:
           name: "Request Orb Pubslishing"
-          requires:
-            - "Pack Orb"
           filters:
             branches:
               ignore: /.*/

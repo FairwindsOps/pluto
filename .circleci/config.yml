@@ -38,11 +38,11 @@ references:
     run:
       name: install hashicorp vault
       command: |
+        apk --update add curl yq
         cd /tmp
-        curl -LO https://releases.hashicorp.com/vault/1.8.1/vault_1.8.1_linux_amd64.zip
-        unzip vault_1.8.1_linux_amd64.zip
+        curl -LO https://releases.hashicorp.com/vault/1.9.2/vault_1.9.2_linux_amd64.zip
+        unzip vault_1.9.2_linux_amd64.zip
         mv vault /usr/bin/vault
-        apk --update add yq
   install_circleci: &install_circleci
     run:
       name: Install CircleCI CLI
@@ -61,6 +61,23 @@ jobs:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+  insights:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v11-alpine
+    steps:
+      - checkout
+      - setup_remote_docker
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - run: echo 'export FAIRWINDS_TOKEN="${INSIGHTS_OSS_TOKEN}"' >> $BASH_ENV
+      - run:
+          name: Insights CI
+          command: |
+            curl -L https://insights.fairwinds.com/v0/insights-ci-0.6.0.sh > insights-ci.sh
+            echo "ba3fe515b332a0fc1e3048d8b4f6dd22d84d47393c558d245949ca085b97167b *insights-ci.sh" |  sha256sum -c
+            chmod +x insights-ci.sh
+            ./insights-ci.sh
   release:
     working_directory: /go/src/github.com/fairwindsops/pluto
     resource_class: large
@@ -145,11 +162,14 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
       - run:
           name: "Request Orb Publish"
           command: |
             apk --update add curl
-            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new orb by checking out the tag and running release-orb.sh\"}" $SLACK_URL
+            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new pluto orb by checking out $CIRCLE_TAG and running release-orb.sh\"}" $SLACK_URL
 workflows:
   version: 2
   test:
@@ -173,8 +193,7 @@ workflows:
               ignore: /.*/
           name: functional tests
           <<: *e2e_config
-      - rok8s/insights:
-          name: insights
+      - insights:
           requires:
             - test
             - snapshot

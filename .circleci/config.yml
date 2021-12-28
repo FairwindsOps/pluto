@@ -38,11 +38,11 @@ references:
     run:
       name: install hashicorp vault
       command: |
+        apk --update add curl yq
         cd /tmp
         curl -LO https://releases.hashicorp.com/vault/1.8.1/vault_1.9.2_linux_amd64.zip
         unzip vault_1.9.2_linux_amd64.zip
         mv vault /usr/bin/vault
-        apk --update add yq
   install_circleci: &install_circleci
     run:
       name: Install CircleCI CLI
@@ -74,7 +74,6 @@ jobs:
       - run:
           name: Insights CI
           command: |
-            apk --update add curl
             curl -L https://insights.fairwinds.com/v0/insights-ci-0.6.0.sh > insights-ci.sh
             echo "ba3fe515b332a0fc1e3048d8b4f6dd22d84d47393c558d245949ca085b97167b *insights-ci.sh" | shasum -a 256 --check
             chmod +x insights-ci.sh

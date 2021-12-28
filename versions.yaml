@@ -260,8 +260,32 @@ deprecated-versions:
   - version: storage.k8s.io/v1beta1
     kind: CSINode
     deprecated-in: v1.17.0
-    removed-in: ""
-    replacement-api: ""
+    removed-in: v1.22.0
+    replacement-api: storage.k8s.io/v1
+    component: k8s
+  - version: storage.k8s.io/v1beta1
+    kind: CSIDriver
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: storage.k8s.io/v1
+    component: k8s
+  - version: storage.k8s.io/v1beta1
+    kind: StorageClass
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: storage.k8s.io/v1
+    component: k8s
+  - version: storage.k8s.io/v1beta1
+    kind: VolumeAttachment
+    deprecated-in: v1.17.0
+    removed-in: v1.22.0
+    replacement-api: storage.k8s.io/v1
+    component: k8s
+  - version: apiregistration.k8s.io/v1beta1
+    kind: APIService
+    removed-in: v1.22.0
+    deprecated-in: v1.10.0
+    replacement-api: apiregistration.k8s.io/v1
     component: k8s
   - version: rbac.istio.io
     kind: AuthorizationPolicies

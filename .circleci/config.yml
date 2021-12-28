@@ -160,7 +160,7 @@ jobs:
             aws s3 sync ./ s3://pluto.docs.fairwinds.com --delete
   request-orb-publish:
     docker:
-      - image: alpine:latest
+      - image: quay.io/reactiveops/ci-images:v11-alpine
     steps:
       - *install_vault
       - rok8s/get_vault_env:

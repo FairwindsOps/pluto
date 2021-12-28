@@ -145,11 +145,14 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
+      - *install_vault
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
       - run:
           name: "Request Orb Publish"
           command: |
             apk --update add curl
-            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new orb by checking out the tag and running release-orb.sh\"}" $SLACK_URL
+            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new pluto orb by checking out $CIRCLE_TAG and running release-orb.sh\"}" $SLACK_URL
 workflows:
   version: 2
   test:

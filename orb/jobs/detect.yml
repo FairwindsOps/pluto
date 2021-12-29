@@ -28,7 +28,7 @@ parameters:
   version:
     description: Version of Pluto to use. Defaults to latest stable.
     type: string
-    default: "latest"
+    default: ""
 executor: <<parameters.executor>>
 steps:
   - when:

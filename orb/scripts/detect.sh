@@ -19,4 +19,4 @@ fi
 export PLUTO_ARGS
 export PLUTO_FILE_PATH
 
-detect $PLUTO_FILE $PLUTO_ARGS
+pluto detect $PLUTO_FILE $PLUTO_ARGS

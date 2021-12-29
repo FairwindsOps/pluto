@@ -17,4 +17,4 @@ fi
 
 export PLUTO_ARGS
 
-detect-files $PLUTO_ARGS
+pluto detect-files $PLUTO_ARGS

@@ -1,0 +1,14 @@
+description: Installs the pluto command.
+parameters:
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+  version:
+    description: The version of pluto to install. Defaults to latest stable.
+    type: string
+    default: ""
+steps:
+  - run:
+      name: Install Pluto
+      command: <<include(scripts/install.sh)>>

@@ -1,6 +1,6 @@
 parameters:
   version:
     type: string
-    default: "v5.1.0"
+    default: "latest"
 docker:
-  - image: quay.io/fairwinds/pluto:<<parameters.version>>
+  - image: cimg/base:<<parameters.version>>

@@ -31,6 +31,7 @@ steps:
       condition: << parameters.checkout >>
       steps:
         - checkout
+  - install
   - detect:
       file: <<parameters.file>>
       ignore-deprecations: <<parameters.ignore-deprecations>>

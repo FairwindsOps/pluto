@@ -22,6 +22,9 @@ parameters:
     default: ""
 steps:
   - run:
+      name: Install Pluto
+      command: <<include(scripts/install.sh)>>
+  - run:
       name: Pluto detect-files
       environment:
         PLUTO_DIRECTORY: <<parameters.directory>>

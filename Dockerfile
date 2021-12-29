@@ -1,6 +1,6 @@
 FROM alpine:3.14
 
-USER nobody
+RUN apk add --no-cache git bash openssh
 COPY pluto /
 
 ENTRYPOINT ["/pluto"]

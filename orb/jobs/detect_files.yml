@@ -25,12 +25,18 @@ parameters:
     description: You can target the Kubernetes version you are concerned with. If blank defaults to latest.
     type: string
     default: ""
+  version:
+    description: Version of Pluto to use. Defaults to latest stable.
+    type: string
+    default: ""
 executor: <<parameters.executor>>
 steps:
   - when:
       condition: << parameters.checkout >>
       steps:
         - checkout
+  - install:
+      version: <<parameters.verion>>
   - detect_files:
       directory: <<parameters.directory>>
       ignore-deprecations: <<parameters.ignore-deprecations>>

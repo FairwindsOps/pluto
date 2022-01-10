@@ -341,6 +341,114 @@ deprecated-versions:
     removed-in: v0.11.0
     replacement-api: cert-manager.io/v1alpha2
     component: cert-manager
+  - version: cert-manager.io/v1alpha2
+    kind: Certificate
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha3
+    kind: Certificate
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1beta1
+    kind: Certificate
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha2
+    kind: Issuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha3
+    kind: Issuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1beta1
+    kind: Issuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha2
+    kind: ClusterIssuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha3
+    kind: ClusterIssuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1beta1
+    kind: ClusterIssuer
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha2
+    kind: CertificateRequest
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1alpha3
+    kind: CertificateRequest
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: cert-manager.io/v1beta1
+    kind: CertificateRequest
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1alpha2
+    kind: Order
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1alpha3
+    kind: Order
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1beta1
+    kind: Order
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1alpha2
+    kind: Challenge
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1alpha3
+    kind: Challenge
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
+  - version: acme.cert-manager.io/v1beta1
+    kind: Challenge
+    deprecated-in: v1.4.0
+    removed-in: v1.6.0
+    replacement-api: cert-manager.io/v1
+    component: cert-manager
 target-versions:
     cert-manager: v1.5.3
     istio: v1.11.0

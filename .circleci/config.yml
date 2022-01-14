@@ -83,7 +83,7 @@ jobs:
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v1.1.0
+      - image: goreleaser/goreleaser:v1.3.0
         environment:
           GO111MODULE: "on"
     steps:
@@ -97,22 +97,22 @@ jobs:
       - rok8s/get_vault_env:
           vault_path: repo/pluto/env
       - rok8s/docker_login:
-          registry: "quay.io"
-          username: $FAIRWINDS_QUAY_USER
-          password-variable: FAIRWINDS_QUAY_TOKEN
+          registry: "us-docker.pkg.dev"
+          username: _json_key
+          password-variable: GCP_ARTIFACTREADWRITE_JSON_KEY
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
   snapshot:
     working_directory: /go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v1.1.0
+      - image: goreleaser/goreleaser:v1.3.0
     steps:
       - checkout
       - setup_remote_docker:
           version: 20.10.6
       - *enable_experimental_docker_features
-      - run: goreleaser --snapshot
+      - run: goreleaser --snapshot --skip-sign
       - store_artifacts:
           path: dist
           destination: snapshot

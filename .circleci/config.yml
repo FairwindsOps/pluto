@@ -96,10 +96,10 @@ jobs:
           vault_path: repo/global/env
       - rok8s/get_vault_env:
           vault_path: repo/pluto/env
-      - rok8s/docker_login:
-          registry: "us-docker.pkg.dev"
-          username: _json_key
-          password-variable: GCP_ARTIFACTREADWRITE_JSON_KEY
+      - run:
+          name: docker login
+          command: |
+            echo GCP_ARTIFACTREADWRITE_JSON_KEY_B64 | base64 -d | docker login --password-stdin -u _json_key us-docker.pkg.dev
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
   snapshot:

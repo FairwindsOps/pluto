@@ -99,7 +99,7 @@ jobs:
       - run:
           name: docker login
           command: |
-            echo GCP_ARTIFACTREADWRITE_JSON_KEY_B64 | base64 -d | docker login --password-stdin -u _json_key us-docker.pkg.dev
+            echo $GCP_ARTIFACTREADWRITE_JSON_KEY_B64 | base64 -d | docker login --password-stdin -u _json_key us-docker.pkg.dev
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
   snapshot:

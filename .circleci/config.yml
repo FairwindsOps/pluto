@@ -112,7 +112,7 @@ jobs:
       - setup_remote_docker:
           version: 20.10.6
       - *enable_experimental_docker_features
-      - run: goreleaser --snapshot
+      - run: goreleaser --snapshot --skip-sign
       - store_artifacts:
           path: dist
           destination: snapshot

@@ -213,25 +213,25 @@ deprecated-versions:
     kind: PodDisruptionBudget
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: ""
+    replacement-api: policy/v1
     component: k8s
   - version: policy/v1beta1
     kind: PodDisruptionBudgetList
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: ""
+    replacement-api: policy/v1
     component: k8s
   - version: autoscaling/v2beta1
     kind: HorizontalPodAutoscaler
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: autoscaling/v1
+    replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta1
     kind: HorizontalPodAutoscalerList
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: autoscaling/v1
+    replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta2
     kind: HorizontalPodAutoscaler
@@ -249,13 +249,13 @@ deprecated-versions:
     kind: CronJob
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: ""
+    replacement-api: batch/v1
     component: k8s
   - version: batch/v1beta1
     kind: CronJobList
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: ""
+    replacement-api: batch/v1
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSINode

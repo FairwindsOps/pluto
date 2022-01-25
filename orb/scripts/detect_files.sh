@@ -5,11 +5,11 @@ if [[ -n "${PLUTO_DIRECTORY}" ]]; then
     PLUTO_ARGS="$PLUTO_ARGS --directory ${PLUTO_DIRECTORY}"
 fi
 
-if [[ "${PLUTO_IGNORE_DEPRECATIONS}" ]]; then
+if [[ "${PLUTO_IGNORE_DEPRECATIONS}" = true ]]; then
     PLUTO_ARGS="$PLUTO_ARGS --ignore-deprecations"
 fi
 
-if [[ "${PLUTO_IGNORE_REMOVALS}" ]]; then
+if [[ "${PLUTO_IGNORE_REMOVALS}" = true ]]; then
     PLUTO_ARGS="$PLUTO_ARGS --ignore-removals"
 fi
 

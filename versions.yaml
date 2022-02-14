@@ -299,12 +299,6 @@ deprecated-versions:
     removed-in: v1.6.0
     replacement-api: security.istio.io/v1beta1
     component: istio
-  - version: networking.istio.io/v1alpha3
-    kind: ""
-    deprecated-in: v1.5.0
-    removed-in: ""
-    replacement-api: networking.istio.io/v1beta1
-    component: istio
   - version: certmanager.k8s.io/v1alpha1
     kind: Certificate
     deprecated-in: v0.11.0

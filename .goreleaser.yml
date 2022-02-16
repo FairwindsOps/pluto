@@ -10,6 +10,16 @@ brews:
       system "#{bin}/pluto version"
 release:
   prerelease: auto
+  footer: |
+    You can verify the signatures of both the checksums.txt file and the published docker images using [cosign](https://github.com/sigstore/cosign).
+
+    ```
+    cosign verify-blob checksums.txt --signature=checksums.txt.sig  --key https://artifacts.fairwinds.com/cosign.pub
+    ```
+
+    ```
+    cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 --key https://artifacts.fairwinds.com/cosign.pub
+    ```
 builds:
   - ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w

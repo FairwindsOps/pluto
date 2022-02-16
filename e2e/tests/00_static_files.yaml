@@ -69,3 +69,12 @@ testcases:
     assertions:
     - result.code ShouldEqual 0
     - result.systemout ShouldEqual "No output to display"
+
+- name: static files in a List
+  steps:
+  - script: pluto detect-files -d assets/list --target-versions k8s=v1.15.0
+    assertions:
+    - result.code ShouldEqual 2
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
+    - result.systemout ShouldNotContainSubstring "utilities   Deployment   apps/v1                            false     false"

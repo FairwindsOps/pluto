@@ -82,6 +82,12 @@ func Test_jsonToStub(t *testing.T) {
 			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
 			wantErr: false,
 		},
+		{
+			name:    "json list is multiple stubs",
+			data:    []byte(`{"kind": "List", "apiVersion": "v1", "items": [{"kind": "foo", "apiVersion": "bar"},{"kind": "bar", "apiVersion": "foo"}]}`),
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"},{Kind: "bar", APIVersion: "foo"}},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -120,6 +126,12 @@ func Test_yamlToStub(t *testing.T) {
 			name:    "yaml is stub",
 			data:    []byte("kind: foo\napiVersion: bar"),
 			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}},
+			wantErr: false,
+		},
+		{
+			name:    "yaml list is multiple stubs",
+			data:    []byte("kind: List\napiVersion: v1\nitems:\n- kind: foo\n  apiVersion: bar\n- kind: bar\n  apiVersion: foo"),
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"},{Kind: "bar", APIVersion: "foo"}},
 			wantErr: false,
 		},
 	}
@@ -227,6 +239,12 @@ func Test_IsVersioned(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "yaml list has version",
+			data:    []byte("kind: List\napiVersion: v1\nitems:\n- kind: Deployment\n  apiVersion: extensions/v1beta1"),
+			want:    []*Output{{APIVersion: &testVersionDeployment}},
+			wantErr: false,
+		},
+		{
 			name:    "json no version",
 			data:    []byte("{}"),
 			want:    nil,
@@ -247,6 +265,12 @@ func Test_IsVersioned(t *testing.T) {
 		{
 			name:    "json has version",
 			data:    []byte(`{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}`),
+			want:    []*Output{{APIVersion: &testVersionDeployment}},
+			wantErr: false,
+		},
+		{
+			name:    "json list has version",
+			data:    []byte(`{"kind": "List", "apiVersion": "v1", "items": [{"kind": "Deployment", "apiVersion": "extensions/v1beta1"}]}`),
 			want:    []*Output{{APIVersion: &testVersionDeployment}},
 			wantErr: false,
 		},

@@ -25,7 +25,7 @@ import (
 	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 
 	"github.com/fairwindsops/pluto/v3/pkg/api"
 )

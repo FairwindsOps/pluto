@@ -25,7 +25,7 @@ import (
 
 	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // Stub is a stub of a Kubernetes manifest that has just the name and apiVersion

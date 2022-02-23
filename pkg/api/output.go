@@ -114,12 +114,17 @@ func (instance *Instance) DisplayOutput() error {
 		} else {
 			c = instance.wideColumns()
 		}
-		err := instance.csvOut(c)
+		csvWriter, err := instance.csvOut(c)
 		if err != nil {
-			// TODO: wrap error with more context? E.g. fmt.Errorf("csv output: %w", err)
 			return err
 		}
 
+		csvWriter.Flush()
+
+		err = csvWriter.Error()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -229,9 +234,8 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	return table
 }
 
-func (instance *Instance) csvOut(columns columnList) error {
-	// TODO: hardcoded writer (os.Stdout), could be another arg to write to e.g. a file
-	w := csv.NewWriter(os.Stdout)
+func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
+	csvWriter := csv.NewWriter(os.Stdout)
 
 	if len(instance.Outputs) == 0 {
 		_, _ = fmt.Println("No output to display")
@@ -243,15 +247,14 @@ func (instance *Instance) csvOut(columns columnList) error {
 	}
 	sort.Ints(columnIndexes)
 
-	// TODO: change name of this var
-	var csv [][]string
+	var csvData [][]string
 
 	var headers []string
 	for _, k := range columnIndexes {
 		headers = append(headers, columns[k].header())
 	}
 
-	csv = append(csv, headers)
+	csvData = append(csvData, headers)
 
 	for _, o := range instance.Outputs {
 		var row []string
@@ -262,20 +265,16 @@ func (instance *Instance) csvOut(columns columnList) error {
 			}
 			row = append(row, columns[k].value(o))
 		}
-		csv = append(csv, row)
+		csvData = append(csvData, row)
 	}
 
-	for i := range csv {
-		err := w.Write(csv[i])
-		if err != nil {
-			return err
+	for i := range csvData {
+		if err := csvWriter.Write(csvData[i]); err != nil {
+			return nil, err
 		}
 	}
 
-	// TODO: printing happens here could be moved up to calling func DisplayOutput
-	w.Flush()
-
-	return nil
+	return csvWriter, nil
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.

@@ -259,10 +259,6 @@ func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
 	for _, o := range instance.Outputs {
 		var row []string
 		for _, k := range columnIndexes {
-			if columns[k].value(o) == "" {
-				row = append(row, "n/a")
-				continue
-			}
 			row = append(row, columns[k].value(o))
 		}
 		csvData = append(csvData, row)

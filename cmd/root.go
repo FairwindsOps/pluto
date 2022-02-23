@@ -55,6 +55,7 @@ var outputOptions = []string{
 	"wide",
 	"custom",
 	"markdown",
+	"csv",
 }
 
 func init() {

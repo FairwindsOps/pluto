@@ -1,12 +1,14 @@
 package api
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/olekukonko/tablewriter"
 	"os"
 	"sort"
 	"text/tabwriter"
+
+	"github.com/olekukonko/tablewriter"
 
 	"gopkg.in/yaml.v3"
 )
@@ -105,6 +107,18 @@ func (instance *Instance) DisplayOutput() error {
 			t.SetCenterSeparator("|")
 			t.Render()
 		}
+	case "csv":
+		var c columnList
+		if len(instance.CustomColumns) >= 1 {
+			c = instance.customColumns()
+		} else {
+			c = instance.wideColumns()
+		}
+		err := instance.csvOut(c)
+		if err != nil {
+			return err
+		}
+
 	}
 	return nil
 }
@@ -212,6 +226,52 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	}
 
 	return table
+}
+
+func (instance *Instance) csvOut(columns columnList) error {
+	w := csv.NewWriter(os.Stdout)
+
+	if len(instance.Outputs) == 0 {
+		_, _ = fmt.Println("No output to display")
+	}
+
+	columnIndexes := make([]int, 0, len(columns))
+	for k := range columns {
+		columnIndexes = append(columnIndexes, k)
+	}
+	sort.Ints(columnIndexes)
+
+	var csv [][]string
+
+	var headers []string
+	for _, k := range columnIndexes {
+		headers = append(headers, columns[k].header())
+	}
+
+	csv = append(csv, headers)
+
+	for _, o := range instance.Outputs {
+		var row []string
+		for _, k := range columnIndexes {
+			if columns[k].value(o) == "" {
+				row = append(row, "n/a")
+				continue
+			}
+			row = append(row, columns[k].value(o))
+		}
+		csv = append(csv, row)
+	}
+
+	for i := range csv {
+		err := w.Write(csv[i])
+		if err != nil {
+			return err
+		}
+	}
+
+	w.Flush()
+
+	return nil
 }
 
 // GetReturnCode checks for deprecated versions and returns a code.

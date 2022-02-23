@@ -116,6 +116,7 @@ func (instance *Instance) DisplayOutput() error {
 		}
 		err := instance.csvOut(c)
 		if err != nil {
+			// TODO: wrap error with more context? E.g. fmt.Errorf("csv output: %w", err)
 			return err
 		}
 
@@ -229,6 +230,7 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 }
 
 func (instance *Instance) csvOut(columns columnList) error {
+	// TODO: hardcoded writer (os.Stdout), could be another arg to write to e.g. a file
 	w := csv.NewWriter(os.Stdout)
 
 	if len(instance.Outputs) == 0 {
@@ -241,6 +243,7 @@ func (instance *Instance) csvOut(columns columnList) error {
 	}
 	sort.Ints(columnIndexes)
 
+	// TODO: change name of this var
 	var csv [][]string
 
 	var headers []string
@@ -269,6 +272,7 @@ func (instance *Instance) csvOut(columns columnList) error {
 		}
 	}
 
+	// TODO: printing happens here could be moved up to calling func DisplayOutput
 	w.Flush()
 
 	return nil
@@ -284,7 +288,6 @@ func (instance *Instance) GetReturnCode() int {
 	var removals int
 	for _, output := range instance.Outputs {
 		if output.APIVersion.isRemovedIn(instance.TargetVersions) {
-
 			removals = removals + 1
 		}
 		if output.APIVersion.isDeprecatedIn(instance.TargetVersions) {

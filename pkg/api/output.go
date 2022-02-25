@@ -1,12 +1,14 @@
 package api
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"github.com/olekukonko/tablewriter"
 	"os"
 	"sort"
 	"text/tabwriter"
+
+	"github.com/olekukonko/tablewriter"
 
 	"gopkg.in/yaml.v3"
 )
@@ -104,6 +106,24 @@ func (instance *Instance) DisplayOutput() error {
 			t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
 			t.SetCenterSeparator("|")
 			t.Render()
+		}
+	case "csv":
+		var c columnList
+		if len(instance.CustomColumns) >= 1 {
+			c = instance.customColumns()
+		} else {
+			c = instance.wideColumns()
+		}
+		csvWriter, err := instance.csvOut(c)
+		if err != nil {
+			return err
+		}
+
+		csvWriter.Flush()
+
+		err = csvWriter.Error()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -214,6 +234,45 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	return table
 }
 
+func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
+	csvWriter := csv.NewWriter(os.Stdout)
+
+	if len(instance.Outputs) == 0 {
+		_, _ = fmt.Println("No output to display")
+	}
+
+	columnIndexes := make([]int, 0, len(columns))
+	for k := range columns {
+		columnIndexes = append(columnIndexes, k)
+	}
+	sort.Ints(columnIndexes)
+
+	var csvData [][]string
+
+	var headers []string
+	for _, k := range columnIndexes {
+		headers = append(headers, columns[k].header())
+	}
+
+	csvData = append(csvData, headers)
+
+	for _, o := range instance.Outputs {
+		var row []string
+		for _, k := range columnIndexes {
+			row = append(row, columns[k].value(o))
+		}
+		csvData = append(csvData, row)
+	}
+
+	for i := range csvData {
+		if err := csvWriter.Write(csvData[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return csvWriter, nil
+}
+
 // GetReturnCode checks for deprecated versions and returns a code.
 // takes a boolean to ignore any errors.
 // exit 2 - version deprecated
@@ -224,7 +283,6 @@ func (instance *Instance) GetReturnCode() int {
 	var removals int
 	for _, output := range instance.Outputs {
 		if output.APIVersion.isRemovedIn(instance.TargetVersions) {
-
 			removals = removals + 1
 		}
 		if output.APIVersion.isDeprecatedIn(instance.TargetVersions) {

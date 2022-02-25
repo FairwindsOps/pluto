@@ -237,13 +237,13 @@ deprecated-versions:
     kind: HorizontalPodAutoscaler
     deprecated-in: v1.23.0
     removed-in: ""
-    replacement-api: autoscaling/v1
+    replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta2
     kind: HorizontalPodAutoscalerList
     deprecated-in: v1.22.0
     removed-in: ""
-    replacement-api: autoscaling/v1
+    replacement-api: autoscaling/v2
     component: k8s
   - version: batch/v1beta1
     kind: CronJob

@@ -25,7 +25,7 @@ import (
 
 	"golang.org/x/mod/semver"
 	"gopkg.in/yaml.v3"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // Stub is a stub of a Kubernetes manifest that has just the name and apiVersion
@@ -33,6 +33,7 @@ type Stub struct {
 	Kind       string   `json:"kind" yaml:"kind"`
 	APIVersion string   `json:"apiVersion" yaml:"apiVersion"`
 	Metadata   StubMeta `json:"metadata" yaml:"metadata"`
+	Items      []Stub   `json:"items" yaml:"items"`
 }
 
 // StubMeta will catch kube resource metadata
@@ -132,7 +133,7 @@ func jsonToStub(data []byte) ([]*Stub, error) {
 	if err != nil {
 		return nil, err
 	}
-	stubs = append(stubs, stub)
+	expandList(&stubs, stub)
 	return stubs, nil
 }
 
@@ -155,12 +156,26 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 			}
 			return stubs, err
 		}
-		stubs = append(stubs, stub)
+		expandList(&stubs, stub)
 	}
 	if stubs == nil && len(errs) > 0 {
 		return nil, fmt.Errorf("one or more errors parsing yaml resulted in no versions found: %v", errs)
 	}
 	return stubs, nil
+}
+
+// expandList checks if we have a List manifest.
+// If it is the case, the manifests inside are expanded, otherwise we just return the single manifest
+func expandList(stubs *[]*Stub, currentStub *Stub) {
+	if currentStub.Items != nil {
+		klog.V(5).Infof("found a list with %d items, attempting to expand", len(currentStub.Items))
+		for _, stub := range currentStub.Items {
+			currentItem := stub
+			*stubs = append(*stubs, &currentItem)
+		}
+	} else {
+		*stubs = append(*stubs, currentStub)
+	}
 }
 
 // IsDeprecatedIn returns true if the version is deprecated in the applicable targetVersion

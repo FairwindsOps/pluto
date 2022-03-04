@@ -47,6 +47,12 @@ deprecated-versions:
     removed-in: v1.22.0
     replacement-api: networking.k8s.io/v1
     component: k8s
+  - version: networking.k8s.io/v1beta1
+    kind: IngressClass
+    deprecated-in: v1.19.0
+    removed-in: v1.22.0
+    replacement-api: networking.k8s.io/v1
+    component: k8s
   - version: apps/v1beta2
     kind: DaemonSet
     deprecated-in: v1.9.0
@@ -211,51 +217,51 @@ deprecated-versions:
     component: k8s
   - version: policy/v1beta1
     kind: PodDisruptionBudget
-    deprecated-in: v1.22.0
-    removed-in: ""
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
     replacement-api: policy/v1
     component: k8s
   - version: policy/v1beta1
     kind: PodDisruptionBudgetList
-    deprecated-in: v1.22.0
-    removed-in: ""
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
     replacement-api: policy/v1
     component: k8s
   - version: autoscaling/v2beta1
     kind: HorizontalPodAutoscaler
     deprecated-in: v1.22.0
-    removed-in: ""
+    removed-in: v1.25.0
     replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta1
     kind: HorizontalPodAutoscalerList
     deprecated-in: v1.22.0
-    removed-in: ""
+    removed-in: v1.25.0
     replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta2
     kind: HorizontalPodAutoscaler
     deprecated-in: v1.23.0
-    removed-in: ""
-    replacement-api: autoscaling/v1
+    removed-in: v1.26.0
+    replacement-api: autoscaling/v2
     component: k8s
   - version: autoscaling/v2beta2
     kind: HorizontalPodAutoscalerList
-    deprecated-in: v1.22.0
-    removed-in: ""
-    replacement-api: autoscaling/v1
+    deprecated-in: v1.23.0
+    removed-in: v1.26.0
+    replacement-api: autoscaling/v2
     component: k8s
   - version: batch/v1beta1
     kind: CronJob
-    deprecated-in: v1.22.0
-    removed-in: ""
     replacement-api: batch/v1
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
     component: k8s
   - version: batch/v1beta1
     kind: CronJobList
-    deprecated-in: v1.22.0
-    removed-in: ""
     replacement-api: batch/v1
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSINode
@@ -265,19 +271,19 @@ deprecated-versions:
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSIDriver
-    deprecated-in: v1.17.0
+    deprecated-in: v1.19.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: StorageClass
-    deprecated-in: v1.17.0
+    deprecated-in: v1.6.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: VolumeAttachment
-    deprecated-in: v1.17.0
+    deprecated-in: v1.13.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
     component: k8s
@@ -286,6 +292,42 @@ deprecated-versions:
     removed-in: v1.22.0
     deprecated-in: v1.10.0
     replacement-api: apiregistration.k8s.io/v1
+    component: k8s
+  - version: authentication.k8s.io/v1beta1
+    kind: TokenReview
+    replacement-api: authentication.k8s.io/v1
+    deprecated-in: v1.6.0
+    removed-in: v1.22.0
+    component: k8s
+  - version: certificates.k8s.io/v1beta1
+    kind: CertificateSigningRequest
+    deprecated-in: v1.19.0
+    removed-in: v1.22.0
+    replacement-api: certificates.k8s.io/v1
+    component: k8s
+  - version: coordination.k8s.io/v1beta1
+    kind: Lease
+    replacement-api: coordination.k8s.io/v1
+    deprecated-in: v1.14.0
+    removed-in: v1.22.0
+    component: k8s
+  - version: events.k8s.io/v1beta1
+    kind: Event
+    replacement-api: events.k8s.io/v1
+    deprecated-in: v1.19.0
+    removed-in: v1.25.0
+    component: k8s
+  - version: discovery.k8s.io/v1beta1
+    kind: EndpointSlice
+    replacement-api: discovery.k8s.io/v1
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
+    component: k8s
+  - version: flowcontrol.apiserver.k8s.io/v1beta1
+    kind: FlowControl
+    replacement-api: flowcontrol.apiserver.k8s.io/v1beta2
+    deprecated-in: v1.23.0
+    removed-in: v1.26.0
     component: k8s
   - version: rbac.istio.io
     kind: AuthorizationPolicies
@@ -298,12 +340,6 @@ deprecated-versions:
     deprecated-in: v1.5.0
     removed-in: v1.6.0
     replacement-api: security.istio.io/v1beta1
-    component: istio
-  - version: networking.istio.io/v1alpha3
-    kind: ""
-    deprecated-in: v1.5.0
-    removed-in: ""
-    replacement-api: networking.istio.io/v1beta1
     component: istio
   - version: certmanager.k8s.io/v1alpha1
     kind: Certificate

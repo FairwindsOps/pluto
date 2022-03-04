@@ -99,6 +99,20 @@ pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECATED
 | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | path-to-file |
 | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | <UNKNOWN>    |
 ```
+
+### CSV
+
+```
+pluto detect-helm -o csv
+NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,REMOVED,REMOVED IN
+some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
+some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
+
+pluto detect-helm -o csv --columns "NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH"
+NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,COMPONENT,FILEPATH
+some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,path-to-file
+some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,<UNKNOWN>
+```
 ## CI Pipelines
 
 Pluto has specific exit codes that is uses to indicate certain results:

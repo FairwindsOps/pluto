@@ -71,6 +71,12 @@ deprecated-versions:
     removed-in: v1.16.0
     replacement-api: policy/v1beta1
     component: k8s
+  - version: policy/v1beta1
+    kind: PodSecurityPolicy
+    deprecated-in: v1.21.0
+    removed-in: v1.25.0
+    replacement-api: ""
+    component: k8s
   - version: extensions/v1beta1
     kind: ReplicaSet
     deprecated-in: ""

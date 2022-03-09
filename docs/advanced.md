@@ -77,8 +77,8 @@ target-versions:
 ```
 $ pluto detect-helm -ocustom --columns NAMESPACE,NAME
 └─ pluto detect-helm -ocustom --columns NAMESPACE,NAME
-NAME                                         NAMESPACE               
-cert-manager/cert-manager-webhook            cert-manager            
+NAME                                         NAMESPACE
+cert-manager/cert-manager-webhook            cert-manager
 ```
 
 ### Markdown
@@ -184,3 +184,26 @@ _NOTE: This output is truncated to show only the additional version. Normally th
 The `target-versions` field in this custom file will set the default target version for that component. You can still override this with `--target-versions custom=vX.X.X` when you run Pluto.
 
 Please note that we do not allow overriding anything contained in the default `versions.yaml` that Pluto uses.
+
+## Environment Variables
+
+For easier use, you can specify flags by using environment variables.
+
+### Precedence
+
+When you run a command with a flag, the command line option takes precedence over the environment variable.
+
+### Supported Environment Variables
+
+All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
+
+|         Flag          |        ENV variable       |
+|-----------------------|---------------------------|
+| --ignore-deprecations | PLUTO_IGNORE_DEPRECATIONS |
+| --ignore-removals     | PLUTO_IGNORE_REMOVALS     |
+| --target-versions     | PLUTO_TARGET_VERSIONS     |
+| --only-show-removed   | PLUTO_ONLY_SHOW_REMOVED   |
+| --additional-versions | PLUTO_ADDITIONAL_VERSIONS |
+| --output              | PLUTO_OUTPUT              |
+| --columns             | PLUTO_COLUMNS             |
+| --components          | PLUTO_COMPONENTS          |

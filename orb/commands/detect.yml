@@ -10,16 +10,16 @@ parameters:
     default: default
   ignore-deprecations:
     type: boolean
-    default: false
+    default: "${PLUTO_IGNORE_DEPRECATIONS:=false}"
     description: Exit Code 3 is ignored, useful if you do not want the job to fail if deprecated APIs are detected.
   ignore-removals:
     type: boolean
-    default: false
+    default: "${PLUTO_IGNORE_REMOVALS:=false}"
     description: Exit Code 3 is ignored, useful if you do not want the job to fail if removed APIs are detected.
   target-versions:
     description: You can target the Kubernetes version you are concerned with. If blank defaults to latest.
     type: string
-    default: ""
+    default: "$PLUTO_TARGET_VERSIONS"
 steps:
   - run:
       name: Pluto detect

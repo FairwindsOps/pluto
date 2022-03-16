@@ -41,11 +41,13 @@ steps:
         - checkout
   - install:
       version: <<parameters.version>>
-  - configure_env:
-      when:
+  - when:
+      condition:
         not: << parameters.use-external-context >>
-      ignore-deprecations: <<parameters.ignore-deprecations>>
-      ignore-removals: <<parameters.ignore-removals>>
-      target-versions: <<parameters.target-versions>>
+      steps:
+        - configure_env:
+            ignore-deprecations: << parameters.ignore-deprecations >>
+            ignore-removals: << parameters.ignore-removals >>
+            target-versions: << parameters.target-versions >>
   - detect:
       file: <<parameters.file>>

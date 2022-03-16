@@ -13,6 +13,10 @@ parameters:
     description: The file to scan. Required.
     type: string
     default: ""
+  use-external-context:
+    type: boolean
+    default: false
+    description: If this is true, then the configure_env step will be skipped.
   ignore-deprecations:
     type: boolean
     default: false
@@ -37,8 +41,11 @@ steps:
         - checkout
   - install:
       version: <<parameters.version>>
-  - detect:
-      file: <<parameters.file>>
+  - configure_env:
+      when:
+        not: << parameters.use-external-context >>
       ignore-deprecations: <<parameters.ignore-deprecations>>
       ignore-removals: <<parameters.ignore-removals>>
       target-versions: <<parameters.target-versions>>
+  - detect:
+      file: <<parameters.file>>

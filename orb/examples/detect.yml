@@ -11,4 +11,4 @@ usage:
             file: ./K8s/Descriptors/ingress.yml
             ignore-deprecations: true
             ignore-removals: false
-            target-versions: v1.21
+            target-versions: "k8s=v1.21"

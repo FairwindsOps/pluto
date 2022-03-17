@@ -13,6 +13,10 @@ parameters:
     description: The name of custom executor to use. Only recommended for development.
     type: executor
     default: default
+  use-external-context:
+    type: boolean
+    default: false
+    description: If this is true, then the configure_env step will be skipped.
   ignore-deprecations:
     type: boolean
     default: false
@@ -37,8 +41,13 @@ steps:
         - checkout
   - install:
       version: <<parameters.version>>
+  - when:
+      condition:
+        not: << parameters.use-external-context >>
+      steps:
+        - configure_env:
+            ignore-deprecations: << parameters.ignore-deprecations >>
+            ignore-removals: << parameters.ignore-removals >>
+            target-versions: << parameters.target-versions >>
   - detect_files:
       directory: <<parameters.directory>>
-      ignore-deprecations: <<parameters.ignore-deprecations>>
-      ignore-removals: <<parameters.ignore-removals>>
-      target-versions: <<parameters.target-versions>>

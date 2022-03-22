@@ -7,7 +7,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: circleci/golang:1.17-buster
+      - image: cimg/go:1.17-buster
 
 references:
   e2e_config: &e2e_config
@@ -54,9 +54,9 @@ references:
         circleci version
 jobs:
   test:
-    working_directory: /go/src/github.com/fairwindsops/pluto
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.17
     steps:
       - checkout
       - run: go mod download && go mod verify
@@ -79,7 +79,7 @@ jobs:
             chmod +x insights-ci.sh
             ./insights-ci.sh
   release:
-    working_directory: /go/src/github.com/fairwindsops/pluto
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     shell: /bin/bash
     docker:
@@ -103,7 +103,7 @@ jobs:
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
   snapshot:
-    working_directory: /go/src/github.com/fairwindsops/pluto
+    working_directory: /home/circleci//go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
       - image: goreleaser/goreleaser:v1.5.0

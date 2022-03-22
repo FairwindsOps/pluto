@@ -47,6 +47,7 @@ var (
 	customColumns          []string
 	componentsFromUser     []string
 	onlyShowRemoved        bool
+	kubeContext            string
 )
 
 const (
@@ -78,6 +79,7 @@ func init() {
 
 	rootCmd.AddCommand(detectHelmCmd)
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
+	detectHelmCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -100,12 +102,20 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
 		if strings.Contains(f.Name, "-") {
 			envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
-			v.BindEnv(f.Name, fmt.Sprintf("%s_%s", envPrefix, envVarSuffix))
+			err := v.BindEnv(f.Name, fmt.Sprintf("%s_%s", envPrefix, envVarSuffix))
+			if err != nil {
+				klog.Errorf("error binding flag %s to env var %s_%s: %w", f.Name, envPrefix, envVarSuffix, err)
+				return
+			}
 		}
 
 		if !f.Changed && v.IsSet(f.Name) {
 			val := v.Get(f.Name)
-			cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
+			if err != nil {
+				klog.Errorf("error setting flag %s to %v: %w", f.Name, val, err)
+				return
+			}
 		}
 	})
 }
@@ -123,7 +133,10 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		initializeConfig(cmd)
+		err := initializeConfig(cmd)
+		if err != nil {
+			return err
+		}
 
 		//verify output option
 		if !api.StringInSlice(outputFormat, outputOptions) {
@@ -272,8 +285,12 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h := helm.NewHelm(namespace, apiInstance)
-		err := h.FindVersions()
+		h, err := helm.NewHelm(namespace, kubeContext, apiInstance)
+		if err != nil {
+			fmt.Printf("error getting helm configuration: %s\n", err.Error())
+			os.Exit(1)
+		}
+		err = h.FindVersions()
 		if err != nil {
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)

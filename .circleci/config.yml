@@ -7,7 +7,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.17-buster
+      - image: cimg/go:1.17
 
 references:
   e2e_config: &e2e_config

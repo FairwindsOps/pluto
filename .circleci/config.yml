@@ -103,7 +103,7 @@ jobs:
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
   snapshot:
-    working_directory: /home/circleci//go/src/github.com/fairwindsops/pluto
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
       - image: goreleaser/goreleaser:v1.5.0

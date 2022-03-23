@@ -15,11 +15,11 @@
 package helm
 
 import (
-	"fmt"
-	"os"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
+
 	// This is required to auth to cloud providers (i.e. GKE)
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -33,27 +33,38 @@ var kubeClient *kube
 var once sync.Once
 
 // GetConfigInstance returns a Kubernetes interface based on the current configuration
-func getConfigInstance() *kube {
+func getConfigInstance(kubeContext string) (*kube, error) {
+	var err error
+	var client kubernetes.Interface
+
 	once.Do(func() {
 		if kubeClient == nil {
+			client, err = getKubeClient(kubeContext)
+
 			kubeClient = &kube{
-				Client: getKubeClient(),
+				Client: client,
 			}
 		}
 	})
-	return kubeClient
+	if err != nil {
+		return nil, err
+	}
+	return kubeClient, nil
 }
 
-func getKubeClient() kubernetes.Interface {
-	kubeConf, err := config.GetConfig()
-	if err != nil {
-		fmt.Println("Error getting kubeconfig:", err)
-		os.Exit(1)
+func getKubeClient(kubeContext string) (kubernetes.Interface, error) {
+	if kubeContext != "" {
+		klog.V(3).Infof("using kube context: %s", kubeContext)
 	}
-	clientset, err := kubernetes.NewForConfig(kubeConf)
+
+	kubeConfig, err := config.GetConfigWithContext(kubeContext)
+
 	if err != nil {
-		fmt.Println("Error creating kubernetes client:", err)
-		os.Exit(1)
+		return nil, err
 	}
-	return clientset
+	clientset, err := kubernetes.NewForConfig(kubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	return clientset, nil
 }

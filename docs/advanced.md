@@ -185,6 +185,10 @@ The `target-versions` field in this custom file will set the default target vers
 
 Please note that we do not allow overriding anything contained in the default `versions.yaml` that Pluto uses.
 
+## Kube Context
+
+When doing helm detection, you may want to use the `--kube-context` to specify a particular context you wish to use in your kubeconfig.
+
 ## Environment Variables
 
 For easier use, you can specify flags by using environment variables.

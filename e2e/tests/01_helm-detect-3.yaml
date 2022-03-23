@@ -59,6 +59,13 @@ testcases:
     - result.code ShouldEqual 3
     - result.systemout ShouldEqual {"items":[{"name":"test/test-helm3chart-v1beta1","namespace":"default","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true},{"name":"test/test-helm3chart-v1beta1","namespace":"demo2","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"},"deprecated":true,"removed":true}],"target-versions":{"cert-manager":"v1.5.3","istio":"v1.11.0","k8s":"v1.16.0"}}
 
+- name: helm detect --kube-context=doesnotexist
+  steps:
+  - script: pluto detect-helm --kube-context doesnotexist
+    assertions:
+    - result.code ShouldEqual 1
+    - result.systemout ShouldContainSubstring 'context "doesnotexist" does not exist'
+
 - name: cleanup
   steps:
   - script: |

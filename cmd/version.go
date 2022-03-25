@@ -20,15 +20,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Prints the current version of the tool.",
-	Long:  `Prints the current version.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Version:" + version + " Commit:" + versionCommit)
-	},
+func newVersionsCommand(version, versionCommit string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Prints the current version of the tool.",
+		Long:  `Prints the current version.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Version:" + version + " Commit:" + versionCommit)
+		},
+	}
 }

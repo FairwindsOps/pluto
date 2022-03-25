@@ -10,36 +10,26 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License
 
-package main
+package cmd
 
 import (
-	_ "embed"
 	"os"
 
-	"github.com/fairwindsops/pluto/v3/cmd"
-	"k8s.io/klog/v2"
+	"github.com/spf13/cobra"
 )
 
-var (
-	// version is set during build
-	version = "development"
-	// commit is set during build
-	commit = "n/a"
-
-	//go:embed versions.yaml
-	versionsFile []byte
-)
-
-func main() {
-	command, err := cmd.NewRootCommand(version, commit, versionsFile)
-	if err != nil {
-		klog.Error(err)
-		os.Exit(1)
-	}
-	if err := command.Execute(); err != nil {
-		klog.Error(err)
-		os.Exit(1)
+func newListVersionsCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list-versions",
+		Short: "Outputs a JSON object of the versions that Pluto knows about.",
+		Long:  `Outputs a JSON object of the versions that Pluto knows about.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := apiInstance.PrintVersionList(outputFormat)
+			if err != nil {
+				os.Exit(1)
+			}
+		},
 	}
 }

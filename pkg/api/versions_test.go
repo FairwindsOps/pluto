@@ -1,3 +1,17 @@
+// Copyright 2022 FairwindsOps Inc
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Copyright 2020 Fairwinds
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,7 +99,7 @@ func Test_jsonToStub(t *testing.T) {
 		{
 			name:    "json list is multiple stubs",
 			data:    []byte(`{"kind": "List", "apiVersion": "v1", "items": [{"kind": "foo", "apiVersion": "bar"},{"kind": "bar", "apiVersion": "foo"}]}`),
-			want:    []*Stub{{Kind: "foo", APIVersion: "bar"},{Kind: "bar", APIVersion: "foo"}},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}, {Kind: "bar", APIVersion: "foo"}},
 			wantErr: false,
 		},
 	}
@@ -131,7 +145,7 @@ func Test_yamlToStub(t *testing.T) {
 		{
 			name:    "yaml list is multiple stubs",
 			data:    []byte("kind: List\napiVersion: v1\nitems:\n- kind: foo\n  apiVersion: bar\n- kind: bar\n  apiVersion: foo"),
-			want:    []*Stub{{Kind: "foo", APIVersion: "bar"},{Kind: "bar", APIVersion: "foo"}},
+			want:    []*Stub{{Kind: "foo", APIVersion: "bar"}, {Kind: "bar", APIVersion: "foo"}},
 			wantErr: false,
 		},
 	}

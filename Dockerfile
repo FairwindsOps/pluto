@@ -1,4 +1,4 @@
-FROM alpine:3.15
+FROM alpine:3.16.0
 
 USER nobody
 COPY pluto /

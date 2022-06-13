@@ -16,7 +16,7 @@ package main
 import (
 	_ "embed"
 
-	"github.com/fairwindsops/pluto/v3/cmd"
+	"github.com/fairwindsops/pluto/v5/cmd"
 )
 
 var (

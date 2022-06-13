@@ -41,7 +41,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
 
-	"github.com/fairwindsops/pluto/v3/pkg/api"
+	"github.com/fairwindsops/pluto/v5/pkg/api"
 )
 
 // Helm represents all current releases that we can find in the cluster

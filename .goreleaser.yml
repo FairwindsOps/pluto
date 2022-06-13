@@ -23,6 +23,7 @@ release:
 builds:
   - ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
+    main: cmd/pluto/main.go
     goarch:
       - amd64
       - arm

@@ -1,4 +1,4 @@
-module github.com/fairwindsops/pluto/v3
+module github.com/fairwindsops/pluto/v5
 
 go 1.17
 

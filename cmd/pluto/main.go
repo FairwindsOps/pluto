@@ -14,9 +14,8 @@
 package main
 
 import (
-	_ "embed"
-
-	"github.com/fairwindsops/pluto/v3/cmd"
+	plutoversionsfile "github.com/fairwindsops/pluto/v5"
+	"github.com/fairwindsops/pluto/v5/cmd"
 )
 
 var (
@@ -25,8 +24,7 @@ var (
 	// commit is set during build
 	commit = "n/a"
 
-	//go:embed versions.yaml
-	versionsFile []byte
+	versionsFile []byte = plutoversionsfile.Content()
 )
 
 func main() {

@@ -9,7 +9,7 @@ VERSION := "local-dev"
 
 all: lint test
 build:
-	$(GOBUILD) -o $(BINARY_NAME) -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -s -w" -v
+	$(GOBUILD) -o $(BINARY_NAME) -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT) -s -w" -v cmd/pluto/main.go
 lint:
 	golangci-lint run
 reportcard:

@@ -69,7 +69,7 @@ func (instance *Instance) DisplayOutput() error {
 		return nil
 	}
 
-	instance.filterOutput()
+	instance.FilterOutput()
 	var err error
 	var outData []byte
 	switch instance.OutputFormat {
@@ -143,13 +143,13 @@ func (instance *Instance) DisplayOutput() error {
 	return nil
 }
 
-// filterOutput filters the outputs that get printed
+// FilterOutput filters the outputs that get printed
 // first it fills out the Deprecated and Removed booleans
 // then it returns the outputs that are either deprecated or removed
 // and in the component list
 // additionally, if instance.OnlyShowDeprecated is true, it will remove the
 // apiVersions that are deprecated but not removed
-func (instance *Instance) filterOutput() {
+func (instance *Instance) FilterOutput() {
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)

@@ -22,8 +22,8 @@ testcases:
   - script: helm template assets/chart | pluto detect -
     assertions:
     - result.systemout ShouldContainSubstring "NAME                              KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
-    - result.systemout ShouldContainSubstring "RELEASE-NAME-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
-    - result.systemout ShouldNotContainSubstring "RELEASE-NAME-helm3chart           Deployment   apps/v1                            false     false"
+    - result.systemout ShouldContainSubstring "release-name-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+    - result.systemout ShouldNotContainSubstring "release-name-helm3chart           Deployment   apps/v1                            false     false"
 
 - name: static files no deprecated
   steps:

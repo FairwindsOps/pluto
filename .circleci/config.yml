@@ -179,7 +179,7 @@ workflows:
           repository: pluto
           filters:
             branches:
-              only: sudermanjr/docs-aws-creds
+              ignore: /.*/
             tags:
               only: /^.*/
       - release:

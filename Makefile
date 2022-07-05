@@ -35,3 +35,5 @@ build-docker: build-linux
 orb-validate:
 	circleci orb pack orb/ > orb.yml
 	circleci orb validate orb.yml
+circleci-validate:
+	circleci config validate --org-slug github/FairwindsOps

@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   orb-tools: circleci/orb-tools@10.1.0
   rok8s: fairwinds/rok8s-scripts@11
+  oss-docs: fairwinds/oss-docs@0
 
 executors:
   golang-exec:
@@ -40,8 +41,9 @@ references:
       command: |
         apk --update add curl yq
         cd /tmp
-        curl -LO https://releases.hashicorp.com/vault/1.9.2/vault_1.9.2_linux_amd64.zip
-        unzip vault_1.9.2_linux_amd64.zip
+        curl -LO https://releases.hashicorp.com/vault/1.9.7/vault_1.9.7_linux_amd64.zip
+        sha256sum vault_1.9.7_linux_amd64.zip | grep d312f6852cdec8d29e50b72af5d36c6890e1e8bfcbedfdb71785dfc11e907c3d
+        unzip vault_1.9.7_linux_amd64.zip
         mv vault /usr/bin/vault
   install_circleci: &install_circleci
     run:
@@ -132,48 +134,6 @@ jobs:
       - orb-tools/publish:
           orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
           token-variable: CIRCLECI_DEV_API_TOKEN
-  publish_docs:
-    docker:
-      - image: cimg/node:15.5.1
-    steps:
-      - checkout
-      - run:
-          name: Build Docs Site
-          command: |
-            set -e
-            cd ./docs
-            npm install
-            npm run check-links
-            npm run build
-      - run:
-          name: Install Tools
-          command: |
-            cd /tmp
-            echo "Installing AWS CLI"
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-
-            echo "Installing Hashicorp Vault"
-            curl -LO https://releases.hashicorp.com/vault/1.9.2/vault_1.9.2_linux_amd64.zip
-            unzip vault_1.9.2_linux_amd64.zip
-            sudo mv vault /usr/bin/vault
-            sudo chmod +x /usr/bin/vault
-            vault --version
-
-            echo "Installing yq"
-            curl -LO https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64.tar.gz
-            tar -zxvf yq_linux_amd64.tar.gz
-            sudo mv yq_linux_amd64 /usr/bin/yq
-            sudo chmod +x /usr/bin/yq
-            yq --version
-      - rok8s/get_vault_env:
-          vault_path: repo/pluto/env
-      - run:
-          name: Publish Docs Site to S3
-          command: |
-            cd ./dist
-            aws s3 sync ./ s3://pluto.docs.fairwinds.com --delete
   request-orb-publish:
     docker:
       - image: quay.io/reactiveops/ci-images:v11-alpine
@@ -215,12 +175,13 @@ workflows:
             - snapshot
   release:
     jobs:
-      - publish_docs:
+      - oss-docs/publish-docs:
+          repository: pluto
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              only: /^.*/
       - release:
           filters:
             branches:
@@ -250,15 +211,9 @@ workflows:
             tags:
               ignore: /.*/
       - request-orb-publish:
-          name: "Request Orb Pubslishing"
+          name: "Request Orb Publishing"
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /^v.*/
-      - publish_docs:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/

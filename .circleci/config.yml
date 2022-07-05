@@ -257,7 +257,7 @@ workflows:
             tags:
               ignore: /.*/
       - request-orb-publish:
-          name: "Request Orb Pubslishing"
+          name: "Request Orb Publishing"
           filters:
             branches:
               ignore: /.*/

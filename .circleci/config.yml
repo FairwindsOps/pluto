@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@10.1.0
-  rok8s: fairwinds/rok8s-scripts@11
+  rok8s: fairwinds/rok8s-scripts@dev:sudermanjr/add-vault-aws-creds-retrieval
 
 executors:
   golang-exec:
@@ -167,6 +167,8 @@ jobs:
             sudo mv yq_linux_amd64 /usr/bin/yq
             sudo chmod +x /usr/bin/yq
             yq --version
+      - rok8s/get_vault_aws_credentials:
+          vault_path: "fairwindsops/sts/pluto-docs"
       - rok8s/get_vault_env:
           vault_path: repo/pluto/env
       - run:
@@ -259,6 +261,6 @@ workflows:
       - publish_docs:
           filters:
             branches:
-              ignore: /.*/
+              only: /sudermanjr\/docs-aws-creds/
             tags:
               only: /.*/

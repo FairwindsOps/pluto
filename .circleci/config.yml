@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   orb-tools: circleci/orb-tools@10.1.0
   rok8s: fairwinds/rok8s-scripts@11
+  oss-docs: fairwinds/oss-docs@0.0.1
 
 executors:
   golang-exec:
@@ -263,9 +264,9 @@ workflows:
               ignore: /.*/
             tags:
               only: /^v.*/
-      - publish_docs:
+      - oss-docs/publish-docs:
           filters:
             branches:
-              ignore: /.*/
+              only: sudermanjr/docs-aws-creds
             tags:
               only: /^.*/

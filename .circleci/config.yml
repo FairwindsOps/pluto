@@ -152,13 +152,12 @@ jobs:
             set -e
             cd /tmp
             echo "Installing AWS CLI"
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            curl -LO "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
             sha256sum awscli-exe-linux-x86_64.zip | grep b03e475a0889465bda250f620bec7854e19681a6443bad4f2257a11cc9638564
-            unzip awscliv2.zip
+            unzip awscli-exe-linux-x86_64.zip
             sudo ./aws/install
 
             echo "Installing Hashicorp Vault"
-
             curl -LO https://releases.hashicorp.com/vault/1.9.7/vault_1.9.7_linux_amd64.zip
             sha256sum vault_1.9.7_linux_amd64.zip | grep d312f6852cdec8d29e50b72af5d36c6890e1e8bfcbedfdb71785dfc11e907c3d
             unzip vault_1.9.7_linux_amd64.zip

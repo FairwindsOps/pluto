@@ -148,6 +148,7 @@ jobs:
       - run:
           name: Install Tools
           command: |
+            set -e
             cd /tmp
             echo "Installing AWS CLI"
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -163,6 +164,7 @@ jobs:
 
             echo "Installing yq"
             curl -LO https://github.com/mikefarah/yq/releases/download/v4.16.2/yq_linux_amd64.tar.gz
+            sha256sum yq_linux_amd64.tar.gz | grep 4279dda8d58cc21dec1a3a2befae03a6737d922b910b051b30c0814b2e540c1
             tar -zxvf yq_linux_amd64.tar.gz
             sudo mv yq_linux_amd64 /usr/bin/yq
             sudo chmod +x /usr/bin/yq

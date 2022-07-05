@@ -266,6 +266,6 @@ workflows:
       - publish_docs:
           filters:
             branches:
-              only: /sudermanjr\/docs-aws-creds/
+              ignore: /.*/
             tags:
-              only: /.*/
+              only: /^.*/

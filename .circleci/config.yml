@@ -72,12 +72,11 @@ jobs:
       - *install_vault_alpine
       - rok8s/get_vault_env:
           vault_path: repo/global/env
-      - run: echo 'export FAIRWINDS_TOKEN="${INSIGHTS_OSS_TOKEN}"' >> $BASH_ENV
       - run:
           name: Insights CI
           command: |
-            curl -L https://insights.fairwinds.com/v0/insights-ci-0.6.0.sh > insights-ci.sh
-            echo "ba3fe515b332a0fc1e3048d8b4f6dd22d84d47393c558d245949ca085b97167b *insights-ci.sh" |  sha256sum -c
+            curl -L https://insights.fairwinds.com/v0/insights-ci-2.0.0.sh > insights-ci.sh
+            echo "0ee9fd3c580cd008e493568f05607ff32d8866fec53ecd08a0320f86de481317 *insights-ci.sh" | shasum -a 256 --check
             chmod +x insights-ci.sh
             ./insights-ci.sh
   release:

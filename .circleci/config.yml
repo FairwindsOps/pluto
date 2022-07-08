@@ -76,7 +76,7 @@ jobs:
           name: Insights CI
           command: |
             curl -L https://insights.fairwinds.com/v0/insights-ci-2.0.0.sh > insights-ci.sh
-            echo "0ee9fd3c580cd008e493568f05607ff32d8866fec53ecd08a0320f86de481317 *insights-ci.sh" | shasum -a 256 --check
+            echo "0ee9fd3c580cd008e493568f05607ff32d8866fec53ecd08a0320f86de481317 *insights-ci.sh" | sha256sum -c
             chmod +x insights-ci.sh
             ./insights-ci.sh
   release:

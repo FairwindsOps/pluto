@@ -1,5 +1,6 @@
 options:
   organization: fairwinds-production
+  repositoryName: FairwindsOps/pluto
   baseBranch: master
 
 # These images will be scanned for vulnerabilities.

@@ -130,7 +130,7 @@ If you wish to bypass the generation of exit codes 2 and 3, you may do so with t
 
 ## Target Versions
 
-By default, Pluto was designed with deprecations related to Kubernetes v1.16.0. However, as more deprecations are introduced, we will try to keep it updated.
+By default, Pluto was designed with deprecations related to Kubernetes v1.22.0. However, as more deprecations are introduced, we will try to keep it updated.
 
 You can target the version you are concerned with by using the `--target-versions` or `-t` flag. You must pass the `component=version`, and the version must begin with a `v` (this is a limitation of the semver library we are using to verify).
 

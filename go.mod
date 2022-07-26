@@ -23,6 +23,8 @@ require (
 	sigs.k8s.io/controller-runtime v0.12.3
 )
 
+require github.com/thoas/go-funk v0.9.2
+
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect

@@ -97,6 +97,57 @@ var (
 			},
 		},
 	}
+
+	wantOutputDuplicateDeployedRelease = []*api.Output{
+		{
+			Name:      "helmtest/helmtest-helmchartest-v1beta1",
+			Namespace: "default",
+			APIVersion: &api.Version{
+				Name:           "extensions/v1beta1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "v1.9.0",
+				RemovedIn:      "v1.16.0",
+				ReplacementAPI: "apps/v1",
+				Component:      "k8s",
+			},
+		},
+		{
+			Name:      "helmtest/helmtest-helmchartest",
+			Namespace: "default",
+			APIVersion: &api.Version{
+				Name:           "apps/v1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "",
+				RemovedIn:      "",
+				ReplacementAPI: "",
+				Component:      "k8s",
+			},
+		},
+		{
+			Name:      "helmtest/helmtest-helmchartest-v1beta1",
+			Namespace: "default",
+			APIVersion: &api.Version{
+				Name:           "extensions/v1beta1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "v1.9.0",
+				RemovedIn:      "v1.16.0",
+				ReplacementAPI: "apps/v1",
+				Component:      "k8s",
+			},
+		},
+		{
+			Name:      "helmtest/helmtest-helmchartest",
+			Namespace: "default",
+			APIVersion: &api.Version{
+				Name:           "apps/v1",
+				Kind:           "Deployment",
+				DeprecatedIn:   "",
+				RemovedIn:      "",
+				ReplacementAPI: "",
+				Component:      "k8s",
+			},
+		},
+	}
 )
 
 func newMockHelm(namespace string) *Helm {
@@ -236,7 +287,7 @@ func TestHelm_getManifestsVersionThreeMultipleDeployed(t *testing.T) {
 		{
 			name:    "helm 3 duplicate deployed",
 			secrets: []*v1.Secret{&helmSecret, &helmSecretDuplicateDeployedRelease},
-			want:    wantOutput,
+			want:    wantOutputDuplicateDeployedRelease,
 		},
 	}
 

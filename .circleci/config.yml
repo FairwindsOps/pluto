@@ -8,7 +8,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
 
 references:
   e2e_config: &e2e_config
@@ -58,33 +58,17 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
     steps:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
-  insights:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v11-alpine
-    steps:
-      - checkout
-      - setup_remote_docker
-      - *install_vault_alpine
-      - rok8s/get_vault_env:
-          vault_path: repo/global/env
-      - run:
-          name: Insights CI
-          command: |
-            curl -L https://insights.fairwinds.com/v0/insights-ci-2.0.0.sh > insights-ci.sh
-            echo "0ee9fd3c580cd008e493568f05607ff32d8866fec53ecd08a0320f86de481317 *insights-ci.sh" | sha256sum -c
-            chmod +x insights-ci.sh
-            ./insights-ci.sh
   release:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v1.5.0
+      - image: goreleaser/goreleaser:v1.10.3
         environment:
           GO111MODULE: "on"
     steps:
@@ -107,7 +91,7 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v1.5.0
+      - image: goreleaser/goreleaser:v1.10.3
     steps:
       - checkout
       - setup_remote_docker:
@@ -168,10 +152,6 @@ workflows:
               ignore: /.*/
           name: functional tests
           <<: *e2e_config
-      - insights:
-          requires:
-            - test
-            - snapshot
   release:
     jobs:
       - oss-docs/publish-docs:

@@ -63,22 +63,6 @@ jobs:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
-  insights:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v11-alpine
-    steps:
-      - checkout
-      - setup_remote_docker
-      - *install_vault_alpine
-      - rok8s/get_vault_env:
-          vault_path: repo/global/env
-      - run:
-          name: Insights CI
-          command: |
-            curl -L https://insights.fairwinds.com/v0/insights-ci-2.0.0.sh > insights-ci.sh
-            echo "0ee9fd3c580cd008e493568f05607ff32d8866fec53ecd08a0320f86de481.18 *insights-ci.sh" | sha256sum -c
-            chmod +x insights-ci.sh
-            ./insights-ci.sh
   release:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
@@ -168,10 +152,6 @@ workflows:
               ignore: /.*/
           name: functional tests
           <<: *e2e_config
-      - insights:
-          requires:
-            - test
-            - snapshot
   release:
     jobs:
       - oss-docs/publish-docs:

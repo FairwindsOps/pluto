@@ -181,7 +181,7 @@ func yamlToStub(data []byte) ([]*Stub, error) {
 // expandList checks if we have a List manifest.
 // If it is the case, the manifests inside are expanded, otherwise we just return the single manifest
 func expandList(stubs *[]*Stub, currentStub *Stub) {
-	if currentStub.Items != nil {
+	if len(currentStub.Items) > 0 {
 		klog.V(5).Infof("found a list with %d items, attempting to expand", len(currentStub.Items))
 		for _, stub := range currentStub.Items {
 			currentItem := stub

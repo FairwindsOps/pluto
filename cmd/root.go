@@ -36,6 +36,7 @@ import (
 	"strings"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
+	discoveryapi "github.com/fairwindsops/pluto/v5/pkg/discovery-api"
 	"github.com/fairwindsops/pluto/v5/pkg/finder"
 	"github.com/fairwindsops/pluto/v5/pkg/helm"
 	"github.com/rogpeppe/go-internal/semver"
@@ -97,6 +98,8 @@ func init() {
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
+
+	rootCmd.AddCommand(detectApiResourceCmd)
 
 	klog.InitFlags(nil)
 	pflag.CommandLine.AddGoFlag(flag.CommandLine.Lookup("v"))
@@ -392,6 +395,34 @@ var listVersionsCmd = &cobra.Command{
 		if err != nil {
 			os.Exit(1)
 		}
+	},
+}
+
+var detectApiResourceCmd = &cobra.Command{
+	Use:   "detect-api-resources",
+	Short: "detect-api-resources",
+	Long:  `Detect Kubernetes apiVersions from an active cluster.`,
+	Run: func(cmd *cobra.Command, args []string) {
+
+		disCl, err := discoveryapi.NewDiscoveryClient(apiInstance)
+		if err != nil {
+			fmt.Println("Error creating Discovery REST Client: ", err)
+			os.Exit(1)
+		}
+		err = disCl.GetApiResources()
+		if err != nil {
+			fmt.Println("Error getting API resources using discovery client:", err)
+			os.Exit(1)
+		}
+
+		err = apiInstance.DisplayOutput()
+		if err != nil {
+			fmt.Println("Error Parsing Output:", err)
+			os.Exit(1)
+		}
+		retCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", retCode)
+		os.Exit(retCode)
 	},
 }
 

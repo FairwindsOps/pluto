@@ -52,3 +52,12 @@ $ helm template e2e/tests/assets/helm3chart | pluto detect -
 KIND         VERSION              DEPRECATED   DEPRECATED IN   RESOURCE NAME
 Deployment   extensions/v1beta1   true         v1.16.0         RELEASE-NAME-helm3chart-v1beta1
 ```
+
+### API resources (in-cluster)
+```
+$ pluto detect-api-resources -owide
+NAME                  NAMESPACE     KIND                VERSION          REPLACEMENT   DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN     
+psp                   <UNKNOWN>     PodSecurityPolicy   policy/v1beta1                 true         v1.21.0         false     v1.25.0 
+```
+
+This indicates that the PodSecurityPolicy  was deployed with apps/v1beta1 which is deprecated in 1.21

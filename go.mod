@@ -15,7 +15,7 @@ require (
 	golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.9.3
+	helm.sh/helm/v3 v3.9.4
 	k8s.io/api v0.24.4
 	k8s.io/apimachinery v0.24.4
 	k8s.io/client-go v0.24.4

@@ -33,6 +33,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/thoas/go-funk"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/releaseutil"
 	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
@@ -126,6 +127,9 @@ func (h *Helm) getReleasesVersionThree() error {
 			rel, err := helmToRelease(r)
 			if err != nil {
 				return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", r.Namespace, r.Name, err)
+			}
+			if funk.Contains(h.Releases, rel) {
+				klog.Warningf("found duplicate release %s/%s in a deployed state - this may produce inconsistent results", rel.Namespace, rel.Name)
 			}
 			h.Releases = append(h.Releases, rel)
 		}

@@ -1,0 +1,198 @@
+version: 2.1
+
+orbs:
+  orb-tools: circleci/orb-tools@10.1.0
+  rok8s: fairwinds/rok8s-scripts@11
+  oss-docs: fairwinds/oss-docs@0
+
+executors:
+  golang-exec:
+    docker:
+      - image: cimg/go:1.18
+
+references:
+  e2e_config: &e2e_config
+    command_runner_image: quay.io/reactiveops/ci-images:v11-buster
+    kind_node_image: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
+    executor: golang-exec
+    pre_script: e2e/pre.sh
+    store-test-results: /tmp/test-results
+    script: e2e/test.sh
+    requires:
+      - test
+    filters:
+      branches:
+        only: /.*/
+      tags:
+        ignore: /.*/
+  enable_experimental_features: &enable_experimental_docker_features
+    run:
+      name: enable experimental features
+      command: |
+        set -ex
+        apk --update add openssh
+        ssh remote-docker \<<EOF
+          sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
+          sudo systemctl restart docker
+        EOF
+  install_vault_alpine: &install_vault_alpine
+    run:
+      name: install hashicorp vault
+      command: |
+        apk --update add curl yq
+        cd /tmp
+        curl -LO https://releases.hashicorp.com/vault/1.9.7/vault_1.9.7_linux_amd64.zip
+        sha256sum vault_1.9.7_linux_amd64.zip | grep d312f6852cdec8d29e50b72af5d36c6890e1e8bfcbedfdb71785dfc11e907c3d
+        unzip vault_1.9.7_linux_amd64.zip
+        mv vault /usr/bin/vault
+  install_circleci: &install_circleci
+    run:
+      name: Install CircleCI CLI
+      command: |
+        cd /tmp
+        curl -LO https://github.com/CircleCI-Public/circleci-cli/releases/download/v0.1.16535/circleci-cli_0.1.16535_linux_amd64.tar.gz
+        tar -zxvf circleci-cli_0.1.16535_linux_amd64.tar.gz
+        mv circleci-cli_0.1.16535_linux_amd64/circleci /bin/circleci
+        circleci version
+jobs:
+  test:
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
+    docker:
+      - image: cimg/go:1.18
+    steps:
+      - checkout
+      - run: go mod download && go mod verify
+      - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+  release:
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
+    resource_class: large
+    shell: /bin/bash
+    docker:
+      - image: goreleaser/goreleaser:v1.10.3
+        environment:
+          GO111MODULE: "on"
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - *enable_experimental_docker_features
+      - *install_vault_alpine
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
+      - run:
+          name: docker login
+          command: |
+            docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
+      - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
+      - run: goreleaser
+  snapshot:
+    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
+    resource_class: large
+    docker:
+      - image: goreleaser/goreleaser:v1.10.3
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.6
+      - *enable_experimental_docker_features
+      - run: goreleaser --snapshot --skip-sign
+      - store_artifacts:
+          path: dist
+          destination: snapshot
+  publish-dev-orb:
+    working_directory: /go/src/github.com/fairwindsops/pluto
+    docker:
+      - image: quay.io/reactiveops/ci-images:v11-alpine
+    shell: /bin/bash
+    steps:
+      - checkout
+      - *install_vault_alpine
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - *install_circleci
+      - orb-tools/pack:
+          source: orb/
+      - orb-tools/publish:
+          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
+          token-variable: CIRCLECI_DEV_API_TOKEN
+  request-orb-publish:
+    docker:
+      - image: quay.io/reactiveops/ci-images:v11-alpine
+    steps:
+      - *install_vault_alpine
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
+      - run:
+          name: "Request Orb Publish"
+          command: |
+            apk --update add curl
+            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new pluto orb by checking out $CIRCLE_TAG and running release-orb.sh\"}" $SLACK_URL
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+      - snapshot:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+      - rok8s/kubernetes_e2e_tests:
+          requires:
+            - test
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+          name: functional tests
+          <<: *e2e_config
+  release:
+    jobs:
+      - oss-docs/publish-docs:
+          repository: pluto
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.*/
+      - release:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+  "Orb Test and Publish":
+    jobs:
+      - orb-tools/lint:
+          name: "Lint Orb Files"
+          pre-steps:
+            - run:
+                command: apk add git openssh
+          lint-dir: orb
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
+      - publish-dev-orb:
+          name: Publish Dev Orb
+          requires:
+            - "Lint Orb Files"
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              ignore: /.*/
+      - request-orb-publish:
+          name: "Request Orb Publishing"
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/

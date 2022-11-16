@@ -1,0 +1,9 @@
+target-versions:
+  other: v1.0.0
+deprecated-versions:
+- version: someother/v1beta1
+  kind: AnotherCRD
+  deprecated-in: v1.9.0
+  removed-in: v1.16.0
+  replacement-api: apps/v1
+  component: other

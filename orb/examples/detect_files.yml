@@ -1,0 +1,14 @@
+description: |
+  A workflow for detecting deprecated Kubernetes apiVersions within your repository.
+usage:
+  version: 2.1
+  orbs:
+    pluto: fairwinds/pluto@5
+  workflows:
+    detect_files:
+      jobs:
+        - pluto/detect_files:
+            directory: ./K8s/Descriptors
+            ignore-deprecations: true
+            ignore-removals: false
+            target-versions: "k8s=v1.21"

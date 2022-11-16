@@ -1,0 +1,9 @@
+options:
+  organization: fairwinds-production
+  baseBranch: master
+  repositoryName: FairwindsOps/pluto
+
+# These images will be scanned for vulnerabilities.
+images:
+  docker:
+  - quay.io/fairwinds/pluto:$CIRCLE_SHA1

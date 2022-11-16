@@ -1,0 +1,29 @@
+deprecated-versions:
+  - version: extensions/v1beta1
+    kind: Deployment
+    deprecated-in: v1.9.0
+    removed-in: v1.16.0
+    replacement-api: apps/v1
+    component: k8s
+  - version: apps/v1beta2
+    kind: Deployment
+    deprecated-in: v1.9.0
+    removed-in: v1.16.0
+    replacement-api: apps/v1
+    component: k8s
+  - version: networking.istio.io/v1alpha3
+    kind: ""
+    deprecated-in: v1.5.0
+    removed-in: ""
+    replacement-api: networking.istio.io/v1beta1
+    component: istio
+  - version: certmanager.k8s.io/v1alpha1
+    kind: Challenge
+    deprecated-in: v0.11.0
+    removed-in: v0.11.0
+    replacement-api: cert-manager.io/v1alpha2
+    component: cert-manager
+target-versions:
+  cert-manager: v1.5.3
+  istio: v1.11.0
+  k8s: v1.22.0

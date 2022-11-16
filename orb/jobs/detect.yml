@@ -1,0 +1,53 @@
+description: >
+  A workflow for detecting deprecated Kubernetes apiVersions within your repository.
+parameters:
+  checkout:
+    type: boolean
+    default: true
+    description: "Perform checkout as first step in job."
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+  file:
+    description: The file to scan. Required.
+    type: string
+    default: ""
+  use-external-context:
+    type: boolean
+    default: false
+    description: If this is true, then the configure_env step will be skipped.
+  ignore-deprecations:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if deprecated APIs are detected.
+  ignore-removals:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if removed APIs are detected.
+  target-versions:
+    description: You can target the Kubernetes version you are concerned with. If blank defaults to latest.
+    type: string
+    default: ""
+  version:
+    description: Version of Pluto to use. Defaults to latest stable.
+    type: string
+    default: ""
+executor: <<parameters.executor>>
+steps:
+  - when:
+      condition: << parameters.checkout >>
+      steps:
+        - checkout
+  - install:
+      version: <<parameters.version>>
+  - when:
+      condition:
+        not: << parameters.use-external-context >>
+      steps:
+        - configure_env:
+            ignore-deprecations: << parameters.ignore-deprecations >>
+            ignore-removals: << parameters.ignore-removals >>
+            target-versions: << parameters.target-versions >>
+  - detect:
+      file: <<parameters.file>>

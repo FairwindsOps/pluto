@@ -1,0 +1,16 @@
+description: Detecting deprecated Kubernetes apiVersions within your repository.
+parameters:
+  file:
+    description: The file to scan.
+    type: string
+    default: ""
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+steps:
+  - run:
+      name: Pluto detect
+      environment:
+        PLUTO_FILE: <<parameters.file>>
+      command: <<include(scripts/detect.sh)>>

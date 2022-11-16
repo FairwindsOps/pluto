@@ -1,0 +1,29 @@
+description: Configures pluto environment variables.
+parameters:
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+  ignore-deprecations:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if deprecated APIs are detected.
+  ignore-removals:
+    type: boolean
+    default: false
+    description: Exit Code 3 is ignored, useful if you do not want the job to fail if removed APIs are detected.
+  target-versions:
+    description: You can target the Kubernetes version you are concerned with. If blank defaults to latest.
+    type: string
+    default: ""
+steps:
+  - run:
+      name: configure Pluto env vars
+      command: |
+        #!/bin/bash
+
+        set -e
+
+        echo PLUTO_IGNORE_DEPRECATIONS=<<parameters.ignore-deprecations>> >> $BASH_ENV
+        echo PLUTO_IGNORE_REMOVALS=<<parameters.ignore-removals>> >> $BASH_ENV
+        echo PLUTO_TARGET_VERSIONS=<<parameters.target-versions>> >> $BASH_ENV

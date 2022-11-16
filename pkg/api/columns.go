@@ -161,8 +161,8 @@ func (instance *Instance) wideColumns() columnList {
 // customColumns returns a custom list of columns based on names
 func (instance *Instance) customColumns() columnList {
 	var outputColumns = make(map[int]column)
-	for _, d := range instance.CustomColumns {
-		for i, c := range possibleColumns {
+	for i, d := range instance.CustomColumns {
+		for _, c := range possibleColumns {
 			if d == c.header() {
 				outputColumns[i] = c
 			}

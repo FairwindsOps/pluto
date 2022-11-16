@@ -33,15 +33,16 @@ import (
 	"encoding/json"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
+	kube "github.com/fairwindsops/pluto/v5/pkg/kube"
 )
 
 // DiscoveryClient is the declaration to hold objects needed for client-go/discovery.
@@ -50,16 +51,17 @@ type DiscoveryClient struct {
 	restConfig      *rest.Config
 	DiscoveryClient discovery.DiscoveryInterface
 	Instance        *api.Instance
+	namespace       string
 }
 
 // NewDiscoveryClient returns a new struct with config portions complete.
-func NewDiscoveryClient(instance *api.Instance) (*DiscoveryClient, error) {
+func NewDiscoveryClient(namespace string, kubeContext string, instance *api.Instance) (*DiscoveryClient, error) {
 	cl := &DiscoveryClient{
 		Instance: instance,
 	}
 
 	var err error
-	cl.restConfig, err = NewRestClientConfig(rest.InClusterConfig)
+	cl.ClientSet, cl.restConfig, err = kube.GetKubeDynamicClient(kubeContext)
 	if err != nil {
 		return nil, err
 	}
@@ -68,41 +70,13 @@ func NewDiscoveryClient(instance *api.Instance) (*DiscoveryClient, error) {
 		return nil, err
 	}
 
-	cl.ClientSet, err = dynamic.NewForConfig(cl.restConfig)
-	if err != nil {
-		return nil, err
-	}
+	cl.namespace = namespace
+
 	return cl, nil
-}
-
-// NewRestClientConfig returns a new Rest Client config portions complete.
-func NewRestClientConfig(inClusterFn func() (*rest.Config, error)) (*rest.Config, error) {
-
-	if restConfig, err := inClusterFn(); err == nil {
-		return restConfig, nil
-	}
-
-	pathOptions := clientcmd.NewDefaultPathOptions()
-
-	config, err := pathOptions.GetStartingConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	configOverrides := clientcmd.ConfigOverrides{}
-
-	clientConfig := clientcmd.NewDefaultClientConfig(*config, &configOverrides)
-	restConfig, err := clientConfig.ClientConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	return restConfig, nil
 }
 
 // GetApiResources discovers the api-resources for a cluster
 func (cl *DiscoveryClient) GetApiResources() error {
-
 	resourcelist, err := cl.DiscoveryClient.ServerPreferredResources()
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -117,6 +91,9 @@ func (cl *DiscoveryClient) GetApiResources() error {
 	gvrs := []schema.GroupVersionResource{}
 	for _, rl := range resourcelist {
 		for i := range rl.APIResources {
+			if cl.namespace != "" && !rl.APIResources[i].Namespaced {
+				continue
+			}
 			gv, _ := schema.ParseGroupVersion(rl.GroupVersion)
 			ResourceName := rl.APIResources[i].Name
 			g := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: ResourceName}
@@ -126,7 +103,11 @@ func (cl *DiscoveryClient) GetApiResources() error {
 
 	var results []map[string]interface{}
 	for _, g := range gvrs {
-		ri := cl.ClientSet.Resource(g)
+		nri := cl.ClientSet.Resource(g)
+		var ri dynamic.ResourceInterface = nri
+		if cl.namespace != "" {
+			ri = nri.Namespace(cl.namespace)
+		}
 		klog.V(2).Infof("Retrieving : %s.%s.%s", g.Resource, g.Version, g.Group)
 		rs, err := ri.List(context.TODO(), metav1.ListOptions{})
 		if err != nil {

@@ -105,18 +105,25 @@ func (h *Helm) FindVersions() error {
 	return h.getReleasesVersionThree()
 }
 
-// getReleasesVersionThree retrieves helm 3 releases from Secrets
+// getReleasesVersionThree retrieves helm 3 releases from Secrets or ConfigMaps
 func (h *Helm) getReleasesVersionThree() error {
-	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
-	helmClient := helmstoragev3.Init(hs)
+	secretDriver := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
+	secretClient := helmstoragev3.Init(secretDriver)
+	configMapDriver := driverv3.NewConfigMaps(h.Kube.Client.CoreV1().ConfigMaps(h.Namespace))
+	configMapClient := helmstoragev3.Init(configMapDriver)
 	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	releases, err := helmClient.ListDeployed()
+	releases, err := secretClient.ListDeployed()
 	if err != nil {
 		return err
 	}
+	releasesConfigMap, err := configMapClient.ListDeployed()
+	if err != nil {
+		return err
+	}
+	releases = append(releases, releasesConfigMap...)
 	for _, namespace := range namespaces.Items {
 		ns := namespace.Name
 		if h.Namespace != "" && ns != h.Namespace {

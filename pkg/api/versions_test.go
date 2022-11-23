@@ -440,6 +440,21 @@ func ExampleInstance_printVersionsTabular() {
 	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- custom-----
 }
 
+func ExampleInstance_printVersionsTabular_noHeaders() {
+	instance := Instance{
+		DeprecatedVersions: []Version{
+			testVersionDeployment,
+			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", Component: "custom"},
+		},
+		NoHeaders: true,
+	}
+	_ = instance.printVersionsTabular()
+
+	// Output:
+	// Deployment-- extensions/v1beta1-- v1.9.0-- v1.16.0-- apps/v1-- k8s-----
+	// testkind---- testname------------ n/a----- n/a------ n/a------ custom--
+}
+
 func ExampleInstance_PrintVersionList_json() {
 	instance := Instance{
 		DeprecatedVersions: []Version{testVersionDeployment},
@@ -495,7 +510,7 @@ func ExampleInstance_PrintVersionList_badformat() {
 	_ = instance.PrintVersionList("foo")
 
 	// Output:
-	// The output format must one of (normal|json|yaml)
+	// The output format must one of (normal|wide|json|yaml)
 }
 
 func Test_isDuplicate(t *testing.T) {

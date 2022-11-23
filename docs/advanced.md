@@ -9,22 +9,23 @@ Pluto has a wide variety of options that can be used to customize behavior and o
 
 ## Display Options
 
-In addition to the standard output, Pluto can output yaml, json, wide, custom columns or markdown.
+In addition to the standard output, Pluto can output in the following modes: Wide, YAML, JSON, CSV or Markdown.
+
+`--no-headers` option hides headers in the outputs for Text, CSV and Markdown output.
 
 ### Wide
 
 The wide output provides more information about when an apiVersion was removed or deprecated.
 
-```
+```shell
 $ pluto detect-helm -owide
-└─ pluto detect-helm -owide
 NAME                                         NAMESPACE               KIND                           VERSION                                REPLACEMENT                       DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN
 cert-manager/cert-manager-webhook            cert-manager            MutatingWebhookConfiguration   admissionregistration.k8s.io/v1beta1   admissionregistration.k8s.io/v1   true         v1.16.0         false     v1.19.0
 ```
 
 ### JSON
 
-```
+```shell
 $ pluto detect-helm -ojson | jq .
 {
   "items": [
@@ -74,17 +75,17 @@ target-versions:
 ```
 
 ### Custom columns
-```
+
+```shell
 $ pluto detect-helm -ocustom --columns NAMESPACE,NAME
-└─ pluto detect-helm -ocustom --columns NAMESPACE,NAME
 NAME                                         NAMESPACE
 cert-manager/cert-manager-webhook            cert-manager
 ```
 
 ### Markdown
 
-```
-pluto detect-files -o markdown
+```shell
+$ pluto detect-files -o markdown
 |   NAME    |   NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | REMOVED | REMOVED IN |
 |-----------|----------------|------------|--------------------|-------------|------------|---------------|---------|------------|
 | utilities | <UNKNOWN>      | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
@@ -92,8 +93,8 @@ pluto detect-files -o markdown
 | utilities | yaml-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    |
 ```
 
-```
-pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH
+```shell
+$ pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH
 |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | COMPONENT |   FILEPATH   |
 |---------------|-----------------|------------|--------------------|-------------|------------|---------------|-----------|--------------|
 | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | path-to-file |
@@ -102,17 +103,20 @@ pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECATED
 
 ### CSV
 
-```
+```shell
 pluto detect-helm -o csv
 NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,REMOVED,REMOVED IN
-some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
-some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
-
-pluto detect-helm -o csv --columns "NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH"
-NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,COMPONENT,FILEPATH
-some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,path-to-file
-some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,<UNKNOWN>
+deploy1,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
+deploy1,other-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
 ```
+
+```shell
+pluto detect-helm -o csv --columns "KIND,NAMESPACE,NAME,VERSION,REPLACEMENT"
+KIND,NAMESPACE,NAME,VERSION,REPLACEMENT
+Deployment,pluto-namespace,deploy1,extensions/v1beta1,apps/v1
+Deployment,other-namespace,deploy1,extensions/v1beta1,apps/v1
+```
+
 ## CI Pipelines
 
 Pluto has specific exit codes that is uses to indicate certain results:
@@ -123,7 +127,7 @@ Pluto has specific exit codes that is uses to indicate certain results:
 
 If you wish to bypass the generation of exit codes 2 and 3, you may do so with two different flags:
 
-```
+```shell
 --ignore-deprecations              Ignore the default behavior to exit 2 if deprecated apiVersions are found.
 --ignore-removals                  Ignore the default behavior to exit 3 if removed apiVersions are found.
 ```
@@ -138,7 +142,7 @@ You can target the version you are concerned with by using the `--target-version
 
 For example:
 
-```
+```shell
 $ pluto detect-helm --target-versions k8s=v1.15.0
 No output to display
 
@@ -162,7 +166,7 @@ If you want to check additional apiVersions and/or types, you can pass an additi
 
 The file should look something like this:
 
-```
+```yaml
 target-versions:
   custom: v1.0.0
 deprecated-versions:
@@ -176,11 +180,12 @@ deprecated-versions:
 
 You can test that it's working by using `list-versions`:
 
-```
+```shell
 $ pluto list-versions -f new.yaml
 KIND                           NAME                                   DEPRECATED IN   REMOVED IN   REPLACEMENT   COMPONENT
 AnotherCRD                     someother/v1beta1                      v1.9.0          v1.16.0      apps/v1       custom
 ```
+
 _NOTE: This output is truncated to show only the additional version. Normally this will include the defaults as well_
 
 The `target-versions` field in this custom file will set the default target version for that component. You can still override this with `--target-versions custom=vX.X.X` when you run Pluto.
@@ -213,3 +218,4 @@ All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
 | --output              | PLUTO_OUTPUT              |
 | --columns             | PLUTO_COLUMNS             |
 | --components          | PLUTO_COMPONENTS          |
+| --no-headers          | PLUTO_NO_HEADERS          |

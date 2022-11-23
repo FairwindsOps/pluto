@@ -244,12 +244,7 @@ func (v *Version) isRemovedIn(targetVersions map[string]string) bool {
 // in a specific format
 func (instance *Instance) PrintVersionList(outputFormat string) error {
 	switch outputFormat {
-	case "normal":
-		err := instance.printVersionsTabular()
-		if err != nil {
-			return err
-		}
-	case "wide":
+	case "normal", "wide":
 		err := instance.printVersionsTabular()
 		if err != nil {
 			return err
@@ -275,7 +270,7 @@ func (instance *Instance) PrintVersionList(outputFormat string) error {
 		}
 		fmt.Println(string(data))
 	default:
-		errText := "The output format must one of (normal|json|yaml)"
+		errText := "The output format must one of (normal|wide|json|yaml)"
 		fmt.Println(errText)
 		return fmt.Errorf(errText)
 	}
@@ -286,7 +281,9 @@ func (instance *Instance) printVersionsTabular() error {
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
-	_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t COMPONENT\t")
+	if !instance.NoHeaders {
+		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t COMPONENT\t")
+	}
 
 	for _, version := range instance.DeprecatedVersions {
 		deprecatedIn := version.DeprecatedIn

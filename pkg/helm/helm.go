@@ -43,7 +43,7 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
-	kube "github.com/fairwindsops/pluto/v5/pkg/kube"
+	"github.com/fairwindsops/pluto/v5/pkg/kube"
 )
 
 // Helm represents all current releases that we can find in the cluster

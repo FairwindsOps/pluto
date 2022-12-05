@@ -104,14 +104,14 @@ $ pluto detect-files -o markdown --columns NAMESPACE,NAME,DEPRECATED IN,DEPRECAT
 ### CSV
 
 ```shell
-pluto detect-helm -o csv
+$ pluto detect-helm -o csv
 NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,REMOVED,REMOVED IN
 deploy1,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
 deploy1,other-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
 ```
 
 ```shell
-pluto detect-helm -o csv --columns "KIND,NAMESPACE,NAME,VERSION,REPLACEMENT"
+$ pluto detect-helm -o csv --columns "KIND,NAMESPACE,NAME,VERSION,REPLACEMENT"
 KIND,NAMESPACE,NAME,VERSION,REPLACEMENT
 Deployment,pluto-namespace,deploy1,extensions/v1beta1,apps/v1
 Deployment,other-namespace,deploy1,extensions/v1beta1,apps/v1

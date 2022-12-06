@@ -167,9 +167,9 @@ func ExampleInstance_DisplayOutput_custom() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- COMPONENT-- FILEPATH------
-	// some name one-- pluto-namespace-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- foo-------- path-to-file--
-	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- foo-------- <UNKNOWN>-----
+	// NAMESPACE-------- NAME----------- DEPRECATED IN-- DEPRECATED-- REPLACEMENT-- VERSION------------- KIND-------- COMPONENT-- FILEPATH------
+	// pluto-namespace-- some name one-- v1.9.0--------- true-------- apps/v1------ extensions/v1beta1-- Deployment-- foo-------- path-to-file--
+	// <UNKNOWN>-------- some name two-- v1.9.0--------- true-------- apps/v1------ extensions/v1beta1-- Deployment-- foo-------- <UNKNOWN>-----
 }
 
 func ExampleInstance_DisplayOutput_markdown() {
@@ -209,10 +209,10 @@ func ExampleInstance_DisplayOutput_markdown_customcolumns() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | COMPONENT |   FILEPATH   |
-	// |---------------|-----------------|------------|--------------------|-------------|------------|---------------|-----------|--------------|
-	// | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | path-to-file |
-	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | foo       | <UNKNOWN>    |
+	// |    NAMESPACE    |     NAME      | DEPRECATED IN | DEPRECATED | REPLACEMENT |      VERSION       |    KIND    | COMPONENT |   FILEPATH   |
+	// |-----------------|---------------|---------------|------------|-------------|--------------------|------------|-----------|--------------|
+	// | pluto-namespace | some name one | v1.9.0        | true       | apps/v1     | extensions/v1beta1 | Deployment | foo       | path-to-file |
+	// | <UNKNOWN>       | some name two | v1.9.0        | true       | apps/v1     | extensions/v1beta1 | Deployment | foo       | <UNKNOWN>    |
 }
 
 func ExampleInstance_DisplayOutput_json() {
@@ -311,9 +311,9 @@ func ExampleInstance_DisplayOutput_csv_customcolumns() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,COMPONENT,FILEPATH
-	// some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,path-to-file
-	// some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,foo,<UNKNOWN>
+	// NAMESPACE,NAME,DEPRECATED IN,DEPRECATED,REPLACEMENT,VERSION,KIND,COMPONENT,FILEPATH
+	// pluto-namespace,some name one,v1.9.0,true,apps/v1,extensions/v1beta1,Deployment,foo,path-to-file
+	// <UNKNOWN>,some name two,v1.9.0,true,apps/v1,extensions/v1beta1,Deployment,foo,<UNKNOWN>
 }
 
 func ExampleInstance_DisplayOutput_noOutput() {

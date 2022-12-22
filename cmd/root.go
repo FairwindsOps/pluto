@@ -79,10 +79,9 @@ var outputOptions = []string{
 	"csv",
 }
 
+var exitCode int
+
 func init() {
-	rootCmd.PersistentPostRun = func(cmd *cobra.Command, args []string) {
-		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/nova 🚀 \n")
-	}
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
@@ -150,7 +149,10 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			klog.Error(err)
 		}
-		os.Exit(1)
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/pluto 🚀 \n")
+		os.Exit(exitCode)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		err := initializeConfig(cmd)
@@ -294,9 +296,8 @@ var detectFilesCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 
@@ -321,9 +322,8 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 
@@ -385,7 +385,6 @@ var detectCmd = &cobra.Command{
 		}
 		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
 	},
 }
 
@@ -423,9 +422,8 @@ var detectApiResourceCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 

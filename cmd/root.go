@@ -80,6 +80,9 @@ var outputOptions = []string{
 }
 
 func init() {
+	rootCmd.PersistentPostRun = func(cmd *cobra.Command, args []string) {
+		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/nova 🚀 \n")
+	}
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
@@ -270,9 +273,6 @@ var rootCmd = &cobra.Command{
 		}
 
 		return nil
-	},
-	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/nova 🚀 \n")
 	},
 }
 

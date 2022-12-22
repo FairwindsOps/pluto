@@ -271,6 +271,9 @@ var rootCmd = &cobra.Command{
 
 		return nil
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/nova 🚀 \n")
+	},
 }
 
 var detectFilesCmd = &cobra.Command{

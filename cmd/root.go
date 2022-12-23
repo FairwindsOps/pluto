@@ -151,7 +151,7 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/pluto 🚀 \n")
+		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
 		os.Exit(exitCode)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {

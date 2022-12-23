@@ -296,7 +296,7 @@ var detectFilesCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
+		exitCode = apiInstance.GetReturnCode()
 		klog.V(5).Infof("Setting exit code: %d", exitCode)
 	},
 }
@@ -322,7 +322,7 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
+		exitCode = apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
@@ -422,7 +422,7 @@ var detectApiResourceCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
+		exitCode = apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }

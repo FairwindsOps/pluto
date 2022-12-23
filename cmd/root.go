@@ -63,6 +63,7 @@ var (
 	componentsFromUser     []string
 	onlyShowRemoved        bool
 	kubeContext            string
+	exitCode               int
 )
 
 const (
@@ -78,8 +79,6 @@ var outputOptions = []string{
 	"markdown",
 	"csv",
 }
-
-var exitCode int
 
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
@@ -149,6 +148,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			klog.Error(err)
 		}
+		os.Exit(1)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 		os.Stderr.WriteString("\n\nWant more? Upgrade to the free tier of Fairwinds Insights! https://fairwinds.com/insights-signup/pluto 🚀 \n")
@@ -297,7 +297,7 @@ var detectFilesCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		exitCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", exitCode)
+		klog.V(5).Infof("Setting exit code: %d", exitCode)
 	},
 }
 

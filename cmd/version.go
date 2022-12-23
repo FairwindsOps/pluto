@@ -45,4 +45,8 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Version:" + version + " Commit:" + versionCommit)
 	},
+	PersistentPostRunE: func(cmd *cobra.Command, args []string) error {
+		// code to run before the childCmd is executed
+		return nil
+	},
 }

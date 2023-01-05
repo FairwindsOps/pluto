@@ -64,6 +64,7 @@ var (
 	onlyShowRemoved        bool
 	kubeContext            string
 	noHeaders              bool
+	exitCode               int
 )
 
 const (
@@ -150,6 +151,10 @@ var rootCmd = &cobra.Command{
 			klog.Error(err)
 		}
 		os.Exit(1)
+	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
+		os.Exit(exitCode)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		err := initializeConfig(cmd)
@@ -294,9 +299,8 @@ var detectFilesCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("Setting exit code: %d", exitCode)
 	},
 }
 
@@ -321,9 +325,8 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 
@@ -385,7 +388,6 @@ var detectCmd = &cobra.Command{
 		}
 		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
 	},
 }
 
@@ -423,9 +425,8 @@ var detectApiResourceCmd = &cobra.Command{
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 

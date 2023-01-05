@@ -75,9 +75,9 @@ Or [check out the full list](https://www.fairwinds.com/open-source-software?utm_
 If you're interested in running Pluto in multiple clusters,
 tracking the results over time, integrating with Slack, Datadog, and Jira,
 or unlocking other functionality, check out
-[Fairwinds Insights](https://www.fairwinds.com/pluto-user-insights-demo?utm_source=pluto&utm_medium=pluto&utm_campaign=pluto),
+[Fairwinds Insights](https://fairwinds.com/pricing),
 a platform for auditing and enforcing policy in Kubernetes clusters.
 
-<a href="https://www.fairwinds.com/pluto-user-insights-demo?utm_source=pluto&utm_medium=ad&utm_campaign=plutoad">
+<a href="https://fairwinds.com/pricing">
   <img src="https://www.fairwinds.com/hubfs/Doc_Banners/Fairwinds_Pluto_Ad.png" alt="Fairwinds Insights" />
 </a>

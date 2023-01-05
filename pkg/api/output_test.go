@@ -316,6 +316,26 @@ func ExampleInstance_DisplayOutput_csv_customcolumns() {
 	// <UNKNOWN>,some name two,v1.9.0,true,apps/v1,extensions/v1beta1,Deployment,foo,<UNKNOWN>
 }
 
+func ExampleInstance_DisplayOutput_csv_noHeaders() {
+	instance := &Instance{
+		TargetVersions: map[string]string{
+			"foo": "v1.16.0",
+		},
+		Outputs: []*Output{
+			testOutput1,
+			testOutput2,
+		},
+		Components:   []string{"foo"},
+		OutputFormat: "csv",
+		NoHeaders:    true,
+	}
+	_ = instance.DisplayOutput()
+
+	// Output:
+	// some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
+	// some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0
+}
+
 func ExampleInstance_DisplayOutput_noOutput() {
 	instance := &Instance{
 		TargetVersions: map[string]string{

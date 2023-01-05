@@ -63,6 +63,7 @@ var (
 	componentsFromUser     []string
 	onlyShowRemoved        bool
 	kubeContext            string
+	noHeaders              bool
 	exitCode               int
 )
 
@@ -84,6 +85,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
+	rootCmd.PersistentFlags().BoolVarP(&noHeaders, "no-headers", "H", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown|csv)")
@@ -270,6 +272,7 @@ var rootCmd = &cobra.Command{
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
 			OnlyShowRemoved:    onlyShowRemoved,
+			NoHeaders:          noHeaders,
 			DeprecatedVersions: deprecatedVersionList,
 			Components:         componentList,
 		}

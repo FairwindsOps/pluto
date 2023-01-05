@@ -55,6 +55,7 @@ type Instance struct {
 	IgnoreDeprecations bool              `json:"-" yaml:"-"`
 	IgnoreRemovals     bool              `json:"-" yaml:"-"`
 	OnlyShowRemoved    bool              `json:"-" yaml:"-"`
+	NoHeaders          bool              `json:"-" yaml:"-"`
 	OutputFormat       string            `json:"-" yaml:"-"`
 	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
 	DeprecatedVersions []Version         `json:"-" yaml:"-"`
@@ -188,15 +189,17 @@ func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 	}
 	sort.Ints(columnIndexes)
 
-	var headers string
-	for _, k := range columnIndexes {
-		if k == 0 {
-			headers = fmt.Sprintf("%s\t", columns[k].header())
-		} else {
-			headers = fmt.Sprintf("%s %s\t", headers, columns[k].header())
+	if !instance.NoHeaders {
+		var headers string
+		for _, k := range columnIndexes {
+			if k == 0 {
+				headers = fmt.Sprintf("%s\t", columns[k].header())
+			} else {
+				headers = fmt.Sprintf("%s %s\t", headers, columns[k].header())
+			}
 		}
+		_, _ = fmt.Fprintln(w, headers)
 	}
-	_, _ = fmt.Fprintln(w, headers)
 
 	var rows string
 	for _, o := range instance.Outputs {
@@ -230,12 +233,14 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	}
 	sort.Ints(columnIndexes)
 
-	var headers []string
-	for _, k := range columnIndexes {
-		headers = append(headers, columns[k].header())
-	}
+	if !instance.NoHeaders {
+		var headers []string
+		for _, k := range columnIndexes {
+			headers = append(headers, columns[k].header())
+		}
 
-	table.SetHeader(headers)
+		table.SetHeader(headers)
+	}
 
 	for _, o := range instance.Outputs {
 		var row []string
@@ -263,12 +268,14 @@ func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
 
 	var csvData [][]string
 
-	var headers []string
-	for _, k := range columnIndexes {
-		headers = append(headers, columns[k].header())
-	}
+	if !instance.NoHeaders {
+		var headers []string
+		for _, k := range columnIndexes {
+			headers = append(headers, columns[k].header())
+		}
 
-	csvData = append(csvData, headers)
+		csvData = append(csvData, headers)
+	}
 
 	for _, o := range instance.Outputs {
 		var row []string

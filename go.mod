@@ -1,6 +1,6 @@
 module github.com/fairwindsops/pluto/v5
 
-go 1.18
+go 1.19
 
 require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect

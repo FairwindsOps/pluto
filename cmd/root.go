@@ -31,7 +31,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -195,7 +195,7 @@ var rootCmd = &cobra.Command{
 		var deprecatedVersionList []api.Version
 		if additionalVersionsFile != "" {
 			klog.V(2).Infof("looking for versions file: %s", additionalVersionsFile)
-			data, err := ioutil.ReadFile(additionalVersionsFile)
+			data, err := os.ReadFile(additionalVersionsFile)
 			if err != nil {
 				return err
 			}
@@ -349,7 +349,7 @@ var detectCmd = &cobra.Command{
 
 		if args[0] == "-" {
 			//stdin
-			fileData, err := ioutil.ReadAll(os.Stdin)
+			fileData, err := io.ReadAll(os.Stdin)
 			if err != nil {
 				fmt.Println("Error reading stdin:", err)
 				os.Exit(1)

@@ -33,10 +33,13 @@ import (
 	"testing"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
+	kube "github.com/fairwindsops/pluto/v5/pkg/kube"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	testclient "k8s.io/client-go/kubernetes/fake"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 )
 
@@ -150,6 +153,13 @@ var (
 	}
 )
 
+func getMockConfigInstance() *kube.Kube {
+	kubeClient := &kube.Kube{
+		Client: testclient.NewSimpleClientset(),
+	}
+	return kubeClient
+}
+
 func newMockHelm(namespace string) *Helm {
 	return &Helm{
 		Namespace: namespace,
@@ -185,10 +195,10 @@ func newMockHelm(namespace string) *Helm {
 	}
 }
 
-func newBadKubeClient() (k *kube) {
+func newBadKubeClient() (k *kube.Kube) {
 	conf := new(rest.Config)
 	conf.Host = "127.0.0.1:9999"
-	k = new(kube)
+	k = new(kube.Kube)
 	k.Client, _ = kubernetes.NewForConfig(conf)
 	return
 }

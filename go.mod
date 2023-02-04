@@ -23,7 +23,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.13.1
 )
 
-require github.com/thoas/go-funk v0.9.2
+require github.com/thoas/go-funk v0.9.3
 
 require (
 	cloud.google.com/go/compute v1.12.1 // indirect

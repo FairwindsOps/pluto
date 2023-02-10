@@ -41,7 +41,7 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
-	kube "github.com/fairwindsops/pluto/v5/pkg/kube"
+	"github.com/fairwindsops/pluto/v5/pkg/kube"
 )
 
 // DiscoveryClient is the declaration to hold objects needed for client-go/discovery.
@@ -60,7 +60,7 @@ func NewDiscoveryClient(namespace string, kubeContext string, instance *api.Inst
 	}
 
 	var err error
-	cl.ClientSet, cl.restConfig, err = kube.GetKubeDynamicClient(kubeContext)
+	cl.restConfig, err = kube.GetConfig(kubeContext)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +71,10 @@ func NewDiscoveryClient(namespace string, kubeContext string, instance *api.Inst
 
 	cl.namespace = namespace
 
+	cl.ClientSet, err = dynamic.NewForConfig(cl.restConfig)
+	if err != nil {
+		return nil, err
+	}
 	return cl, nil
 }
 

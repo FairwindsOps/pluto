@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helm
+package kube
 
 import (
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 func Test_getKubeClient(t *testing.T) {
@@ -50,7 +51,7 @@ func Test_getKubeClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			os.Setenv("KUBECONFIG", tt.kubeConfig)
-			_, err := GetKubeClient(tt.kubeContext)
+                        _, err := GetConfig(tt.kubeContext)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

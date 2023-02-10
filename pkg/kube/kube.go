@@ -26,12 +26,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-package helm
+package kube
 
 import (
 	"sync"
 
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
@@ -52,10 +51,16 @@ var once sync.Once
 func GetConfigInstance(kubeContext string) (*Kube, error) {
 	var err error
 	var client kubernetes.Interface
+	var kubeConfig *rest.Config
+
+	kubeConfig, err = GetConfig(kubeContext)
+        if err != nil {
+                return nil, err
+        }
 
 	once.Do(func() {
 		if kubeClient == nil {
-			client, err = GetKubeClient(kubeContext)
+			client, err = GetKubeClient(kubeConfig)
 
 			kubeClient = &Kube{
 				Client: client,
@@ -68,38 +73,24 @@ func GetConfigInstance(kubeContext string) (*Kube, error) {
 	return kubeClient, nil
 }
 
-// GetKubeClient returns a Kubernetes.Interface based on the current configuration
-func GetKubeClient(kubeContext string) (kubernetes.Interface, error) {
+// GetConfig returns the current kube config with a specific context
+func GetConfig(kubeContext string) (*rest.Config, error) {
 	if kubeContext != "" {
 		klog.V(3).Infof("using kube context: %s", kubeContext)
 	}
 
-	config, err := config.GetConfigWithContext(kubeContext)
+	kubeConfig, err := config.GetConfigWithContext(kubeContext)
 	if err != nil {
 		return nil, err
 	}
+	return kubeConfig, nil
+}
 
-	clientset, err := kubernetes.NewForConfig(config)
+// GetKubeClient returns a Kubernetes.Interface based on the current configuration
+func GetKubeClient(kubeConfig *rest.Config) (kubernetes.Interface, error) {
+	clientset, err := kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		return nil, err
 	}
 	return clientset, nil
-}
-
-// GetKubeDynamicClient returns a dynamic.Interface, rest.Config based on the current configuration
-func GetKubeDynamicClient(kubeContext string) (dynamic.Interface, *rest.Config, error) {
-	if kubeContext != "" {
-		klog.V(3).Infof("using kube context: %s", kubeContext)
-	}
-
-	config, err := config.GetConfigWithContext(kubeContext)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	clientset, err := dynamic.NewForConfig(config)
-	if err != nil {
-		return nil, nil, err
-	}
-	return clientset, config, nil
 }

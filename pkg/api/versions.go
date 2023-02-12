@@ -70,6 +70,8 @@ type Version struct {
 	RemovedIn string `json:"removed-in" yaml:"removed-in"`
 	// ReplacementAPI is the apiVersion that replaces the deprecated one
 	ReplacementAPI string `json:"replacement-api" yaml:"replacement-api"`
+	// ReplacementAvailableIn is the version in which the replacement api is available
+	ReplacementAvailableIn string `json:"replacement-available-in" yaml:"replacement-available-in"`
 	// Component is the component associated with this version
 	Component string `json:"component" yaml:"component"`
 }
@@ -240,6 +242,30 @@ func (v *Version) isRemovedIn(targetVersions map[string]string) bool {
 	return comparison >= 0
 }
 
+// isReplacementAvailableIn returns true if the replacement api is available in the applicable targetVersion
+// Will return false if the targetVersion passed is not a valid semver string
+func (v *Version) isReplacementAvailableIn(targetVersions map[string]string) bool {
+	for component, targetVersion := range targetVersions {
+		if !semver.IsValid(targetVersion) {
+			klog.V(3).Infof("targetVersion %s for %s is not valid semVer", targetVersion, component)
+			return false
+		}
+	}
+
+	if v.ReplacementAvailableIn == "" {
+		return true
+	}
+
+	targetVersion, ok := targetVersions[v.Component]
+	if !ok {
+		klog.V(3).Infof("targetVersion missing for component %s", v.Component)
+		return false
+	}
+
+	comparison := semver.Compare(targetVersion, v.ReplacementAvailableIn)
+	return comparison >= 0
+}
+
 // PrintVersionList prints out the list of versions
 // in a specific format
 func (instance *Instance) PrintVersionList(outputFormat string) error {
@@ -282,7 +308,7 @@ func (instance *Instance) printVersionsTabular() error {
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if !instance.NoHeaders {
-		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t COMPONENT\t")
+		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t AVAILABLE IN\t COMPONENT\t")
 	}
 
 	for _, version := range instance.DeprecatedVersions {
@@ -300,7 +326,12 @@ func (instance *Instance) printVersionsTabular() error {
 			replacementAPI = "n/a"
 		}
 
-		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI, version.Component)
+		replacementAvailableIn := version.ReplacementAvailableIn
+		if replacementAvailableIn == "" {
+			replacementAvailableIn = "n/a"
+		}
+
+		_, _ = fmt.Fprintf(w, "%s\t %s\t %s\t %s\t %s\t %s\t %s\t\n", version.Kind, version.Name, deprecatedIn, removedIn, replacementAPI, replacementAvailableIn, version.Component)
 	}
 	err := w.Flush()
 	if err != nil {

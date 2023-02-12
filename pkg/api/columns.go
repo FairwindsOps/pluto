@@ -24,7 +24,7 @@ type column interface {
 
 type columnList map[int]column
 
-//PossibleColumnNames is the list of implmented columns
+// PossibleColumnNames is the list of implmented columns
 var PossibleColumnNames = []string{
 	"NAME",
 	"FILEPATH",
@@ -37,6 +37,8 @@ var PossibleColumnNames = []string{
 	"REMOVED",
 	"REMOVED IN",
 	"COMPONENT",
+	"AVAILABLE",
+	"AVAILABLE IN",
 }
 
 var possibleColumns = []column{
@@ -129,6 +131,20 @@ type component struct{}
 func (c component) header() string              { return "COMPONENT" }
 func (c component) value(output *Output) string { return output.APIVersion.Component }
 
+// available is the output for the boolean ReplacementAvailable
+type available struct{}
+
+func (a available) header() string { return "AVAILABLE" }
+func (a available) value(output *Output) string {
+	return fmt.Sprintf("%t", output.ReplacementAvailable)
+}
+
+// availableIn is the string value of when an output was ReplacementAvailableIn
+type availableIn struct{}
+
+func (ai availableIn) header() string              { return "AVAILABLE IN" }
+func (ai availableIn) value(output *Output) string { return output.APIVersion.ReplacementAvailableIn }
+
 // normalColumns returns the list of columns for -onormal
 func (instance *Instance) normalColumns() columnList {
 	columnList := columnList{
@@ -138,6 +154,7 @@ func (instance *Instance) normalColumns() columnList {
 		3: new(replacement),
 		4: new(removed),
 		5: new(deprecated),
+		6: new(available),
 	}
 	return columnList
 }
@@ -145,15 +162,17 @@ func (instance *Instance) normalColumns() columnList {
 // wideColumns returns the list of columns for -owide
 func (instance *Instance) wideColumns() columnList {
 	columnList := columnList{
-		0: new(name),
-		1: new(namespace),
-		2: new(kind),
-		3: new(version),
-		4: new(replacement),
-		5: new(deprecated),
-		6: new(deprecatedIn),
-		7: new(removed),
-		8: new(removedIn),
+		0:  new(name),
+		1:  new(namespace),
+		2:  new(kind),
+		3:  new(version),
+		4:  new(replacement),
+		5:  new(deprecated),
+		6:  new(deprecatedIn),
+		7:  new(removed),
+		8:  new(removedIn),
+		9:  new(available),
+		10: new(availableIn),
 	}
 	return columnList
 }

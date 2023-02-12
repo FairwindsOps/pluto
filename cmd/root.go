@@ -48,23 +48,24 @@ import (
 )
 
 var (
-	version                string
-	versionCommit          string
-	versionFileData        []byte
-	additionalVersionsFile string
-	directory              string
-	outputFormat           string
-	ignoreDeprecations     bool
-	ignoreRemovals         bool
-	namespace              string
-	apiInstance            *api.Instance
-	targetVersions         map[string]string
-	customColumns          []string
-	componentsFromUser     []string
-	onlyShowRemoved        bool
-	kubeContext            string
-	noHeaders              bool
-	exitCode               int
+	version                       string
+	versionCommit                 string
+	versionFileData               []byte
+	additionalVersionsFile        string
+	directory                     string
+	outputFormat                  string
+	ignoreDeprecations            bool
+	ignoreRemovals                bool
+	ignoreUnavailableReplacements bool
+	namespace                     string
+	apiInstance                   *api.Instance
+	targetVersions                map[string]string
+	customColumns                 []string
+	componentsFromUser            []string
+	onlyShowRemoved               bool
+	kubeContext                   string
+	noHeaders                     bool
+	exitCode                      int
 )
 
 const (
@@ -84,6 +85,7 @@ var outputOptions = []string{
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreUnavailableReplacements, "ignore-unavailable-replacements", false, "Ignore the default behavior to exit 2 if deprecated but unavailable apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
 	rootCmd.PersistentFlags().BoolVarP(&noHeaders, "no-headers", "H", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
@@ -268,15 +270,16 @@ var rootCmd = &cobra.Command{
 
 		// this apiInstance will be used by all detection methods
 		apiInstance = &api.Instance{
-			TargetVersions:     targetVersions,
-			OutputFormat:       outputFormat,
-			CustomColumns:      customColumns,
-			IgnoreDeprecations: ignoreDeprecations,
-			IgnoreRemovals:     ignoreRemovals,
-			OnlyShowRemoved:    onlyShowRemoved,
-			NoHeaders:          noHeaders,
-			DeprecatedVersions: deprecatedVersionList,
-			Components:         componentList,
+			TargetVersions:                targetVersions,
+			OutputFormat:                  outputFormat,
+			CustomColumns:                 customColumns,
+			IgnoreDeprecations:            ignoreDeprecations,
+			IgnoreRemovals:                ignoreRemovals,
+			IgnoreUnavailableReplacements: ignoreUnavailableReplacements,
+			OnlyShowRemoved:               onlyShowRemoved,
+			NoHeaders:                     noHeaders,
+			DeprecatedVersions:            deprecatedVersionList,
+			Components:                    componentList,
 		}
 
 		return nil

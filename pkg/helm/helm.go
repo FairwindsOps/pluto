@@ -43,12 +43,13 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
+	"github.com/fairwindsops/pluto/v5/pkg/kube"
 )
 
 // Helm represents all current releases that we can find in the cluster
 type Helm struct {
 	Releases  []*Release
-	Kube      *kube
+	Kube      *kube.Kube
 	Namespace string
 	Instance  *api.Instance
 }
@@ -73,8 +74,8 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(namespace, kubeContext string, instance *api.Instance) (*Helm, error) {
-	config, err := getConfigInstance(kubeContext)
+func NewHelm(namespace string, kubeContext string, instance *api.Instance) (*Helm, error) {
+	config, err := kube.GetConfigInstance(kubeContext)
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +89,9 @@ func NewHelm(namespace, kubeContext string, instance *api.Instance) (*Helm, erro
 
 // NewHelmWithKubeClient returns a helm struct with version of helm requested
 // and uses the passed in kube client as the cluster to operate on
-func NewHelmWithKubeClient(version, store, namespace string, instance *api.Instance, kubeClient kubernetes.Interface) *Helm {
+func NewHelmWithKubeClient(version string, store string, namespace string, instance *api.Instance, kubeClient kubernetes.Interface) *Helm {
 	return &Helm{
-		Kube: &kube{
+		Kube: &kube.Kube{
 			Client: kubeClient,
 		},
 		Namespace: namespace,

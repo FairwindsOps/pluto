@@ -30,7 +30,6 @@ package finder
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -122,7 +121,7 @@ func (dir *Dir) scanFiles() error {
 // it is an api-versioned Kubernetes object.
 // Returns the File object if it is.
 func (dir *Dir) CheckForAPIVersion(file string) ([]*api.Output, error) {
-	data, err := ioutil.ReadFile(file)
+	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

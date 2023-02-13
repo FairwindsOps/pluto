@@ -31,7 +31,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -63,6 +63,8 @@ var (
 	componentsFromUser     []string
 	onlyShowRemoved        bool
 	kubeContext            string
+	noHeaders              bool
+	exitCode               int
 )
 
 const (
@@ -83,6 +85,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
+	rootCmd.PersistentFlags().BoolVarP(&noHeaders, "no-headers", "H", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
 	rootCmd.PersistentFlags().StringToStringVarP(&targetVersions, "target-versions", "t", targetVersions, "A map of targetVersions to use. This flag supersedes all defaults in version files.")
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown|csv)")
@@ -96,10 +99,12 @@ func init() {
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
 	detectHelmCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
+	rootCmd.AddCommand(detectApiResourceCmd)
+	detectApiResourceCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
+	detectApiResourceCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
+
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
-
-	rootCmd.AddCommand(detectApiResourceCmd)
 
 	klog.InitFlags(nil)
 	pflag.CommandLine.AddGoFlag(flag.CommandLine.Lookup("v"))
@@ -149,6 +154,10 @@ var rootCmd = &cobra.Command{
 		}
 		os.Exit(1)
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
+		os.Exit(exitCode)
+	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		err := initializeConfig(cmd)
 		if err != nil {
@@ -188,7 +197,7 @@ var rootCmd = &cobra.Command{
 		var deprecatedVersionList []api.Version
 		if additionalVersionsFile != "" {
 			klog.V(2).Infof("looking for versions file: %s", additionalVersionsFile)
-			data, err := ioutil.ReadFile(additionalVersionsFile)
+			data, err := os.ReadFile(additionalVersionsFile)
 			if err != nil {
 				return err
 			}
@@ -265,6 +274,7 @@ var rootCmd = &cobra.Command{
 			IgnoreDeprecations: ignoreDeprecations,
 			IgnoreRemovals:     ignoreRemovals,
 			OnlyShowRemoved:    onlyShowRemoved,
+			NoHeaders:          noHeaders,
 			DeprecatedVersions: deprecatedVersionList,
 			Components:         componentList,
 		}
@@ -278,22 +288,19 @@ var detectFilesCmd = &cobra.Command{
 	Short: "detect-files",
 	Long:  `Detect Kubernetes apiVersions in a directory.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		dir := finder.NewFinder(directory, apiInstance)
 		err := dir.FindVersions()
 		if err != nil {
 			fmt.Println("Error running finder:", err)
 			os.Exit(1)
 		}
-
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("Setting exit code: %d", exitCode)
 	},
 }
 
@@ -312,7 +319,6 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Println("Error running helm-detect:", err)
 			os.Exit(1)
 		}
-
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Println("Error Parsing Output:", err)
@@ -321,6 +327,31 @@ var detectHelmCmd = &cobra.Command{
 		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
 		os.Exit(retCode)
+	},
+}
+
+var detectApiResourceCmd = &cobra.Command{
+	Use:   "detect-api-resources",
+	Short: "detect-api-resources",
+	Long:  `Detect Kubernetes apiVersions from an active cluster (using last-applied-configuration annotation)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance)
+		if err != nil {
+			fmt.Println("Error creating Discovery REST Client: ", err)
+			os.Exit(1)
+		}
+		err = disCl.GetApiResources()
+		if err != nil {
+			fmt.Println("Error getting API resources using discovery client:", err)
+			os.Exit(1)
+		}
+		err = apiInstance.DisplayOutput()
+		if err != nil {
+			fmt.Println("Error Parsing Output:", err)
+			os.Exit(1)
+		}
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
 	},
 }
 
@@ -343,7 +374,7 @@ var detectCmd = &cobra.Command{
 
 		if args[0] == "-" {
 			//stdin
-			fileData, err := ioutil.ReadAll(os.Stdin)
+			fileData, err := io.ReadAll(os.Stdin)
 			if err != nil {
 				fmt.Println("Error reading stdin:", err)
 				os.Exit(1)
@@ -382,7 +413,6 @@ var detectCmd = &cobra.Command{
 		}
 		retCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
 	},
 }
 
@@ -395,34 +425,6 @@ var listVersionsCmd = &cobra.Command{
 		if err != nil {
 			os.Exit(1)
 		}
-	},
-}
-
-var detectApiResourceCmd = &cobra.Command{
-	Use:   "detect-api-resources",
-	Short: "detect-api-resources",
-	Long:  `Detect Kubernetes apiVersions from an active cluster.`,
-	Run: func(cmd *cobra.Command, args []string) {
-
-		disCl, err := discoveryapi.NewDiscoveryClient(apiInstance)
-		if err != nil {
-			fmt.Println("Error creating Discovery REST Client: ", err)
-			os.Exit(1)
-		}
-		err = disCl.GetApiResources()
-		if err != nil {
-			fmt.Println("Error getting API resources using discovery client:", err)
-			os.Exit(1)
-		}
-
-		err = apiInstance.DisplayOutput()
-		if err != nil {
-			fmt.Println("Error Parsing Output:", err)
-			os.Exit(1)
-		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
 	},
 }
 

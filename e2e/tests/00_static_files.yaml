@@ -52,8 +52,8 @@ testcases:
   - script: pluto detect-files -d assets/ -o custom --columns "NAME,NAMESPACE,VERSION,KIND,DEPRECATED,DEPRECATED IN,component"
     assertions:
     - result.code ShouldEqual 3
-    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   KIND         VERSION              DEPRECATED   DEPRECATED IN   COMPONENT"
-    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   Deployment   extensions/v1beta1   true         v1.9.0          k8s"
+    - result.systemout ShouldContainSubstring "NAME        NAMESPACE   VERSION              KIND         DEPRECATED   DEPRECATED IN   COMPONENT"
+    - result.systemout ShouldContainSubstring "utilities   <UNKNOWN>   extensions/v1beta1   Deployment   true         v1.9.0          k8s"
 
 - name: static files show file path
   steps:

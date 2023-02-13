@@ -8,7 +8,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.19
 
 references:
   e2e_config: &e2e_config
@@ -25,25 +25,15 @@ references:
         only: /.*/
       tags:
         ignore: /.*/
-  enable_experimental_features: &enable_experimental_docker_features
-    run:
-      name: enable experimental features
-      command: |
-        set -ex
-        apk --update add openssh
-        ssh remote-docker \<<EOF
-          sudo bash -c 'echo "{\"experimental\": true}" > /etc/docker/daemon.json'
-          sudo systemctl restart docker
-        EOF
   install_vault_alpine: &install_vault_alpine
     run:
       name: install hashicorp vault
       command: |
         apk --update add curl yq
         cd /tmp
-        curl -LO https://releases.hashicorp.com/vault/1.9.7/vault_1.9.7_linux_amd64.zip
-        sha256sum vault_1.9.7_linux_amd64.zip | grep d312f6852cdec8d29e50b72af5d36c6890e1e8bfcbedfdb71785dfc11e907c3d
-        unzip vault_1.9.7_linux_amd64.zip
+        curl -LO https://releases.hashicorp.com/vault/1.12.2/vault_1.12.2_linux_amd64.zip
+        sha256sum vault_1.12.2_linux_amd64.zip | grep 116c143de377a77a7ea455a367d5e9fe5290458e8a941a6e2dd85d92aaedba67
+        unzip vault_1.12.2_linux_amd64.zip
         mv vault /usr/bin/vault
   install_circleci: &install_circleci
     run:
@@ -58,7 +48,7 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.19
     steps:
       - checkout
       - run: go mod download && go mod verify
@@ -68,14 +58,12 @@ jobs:
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v1.10.3
+      - image: goreleaser/goreleaser:v1.14.1
         environment:
           GO111MODULE: "on"
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.6
-      - *enable_experimental_docker_features
+      - setup_remote_docker
       - *install_vault_alpine
       - rok8s/get_vault_env:
           vault_path: repo/global/env
@@ -91,12 +79,10 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v1.10.3
+      - image: goreleaser/goreleaser:v1.14.1
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.6
-      - *enable_experimental_docker_features
+      - setup_remote_docker
       - run: goreleaser --snapshot --skip-sign
       - store_artifacts:
           path: dist

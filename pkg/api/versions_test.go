@@ -494,9 +494,9 @@ func ExampleInstance_printVersionsTabular() {
 	_ = instance.printVersionsTabular()
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- AVAILABLE IN-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0------- k8s--------
-	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- n/a----------- custom-----
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
+	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- n/a------------ custom-----
 }
 
 func ExampleInstance_printVersionsTabular_noHeaders() {
@@ -548,8 +548,8 @@ func ExampleInstance_PrintVersionList_normal() {
 	_ = instance.PrintVersionList("normal")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- AVAILABLE IN-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0------- k8s--------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
 }
 
 func ExampleInstance_PrintVersionList_wide() {
@@ -559,8 +559,8 @@ func ExampleInstance_PrintVersionList_wide() {
 	_ = instance.PrintVersionList("wide")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- AVAILABLE IN-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0------- k8s--------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
 }
 
 func ExampleInstance_PrintVersionList_badformat() {

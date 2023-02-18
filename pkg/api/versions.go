@@ -308,7 +308,7 @@ func (instance *Instance) printVersionsTabular() error {
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if !instance.NoHeaders {
-		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t AVAILABLE IN\t COMPONENT\t")
+		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t REPL AVAIL IN\t COMPONENT\t")
 	}
 
 	for _, version := range instance.DeprecatedVersions {

@@ -302,10 +302,12 @@ func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
 // takes a boolean to ignore any errors.
 // exit 2 - version deprecated
 // exit 3 - version removed
+// exit 4 - replacement is unavailable in target version
 func (instance *Instance) GetReturnCode() int {
 	returnCode := 0
 	var deprecations int
 	var removals int
+	var unavailableReplacements int
 	for _, output := range instance.Outputs {
 		if output.APIVersion.isRemovedIn(instance.TargetVersions) {
 			removals = removals + 1
@@ -315,12 +317,19 @@ func (instance *Instance) GetReturnCode() int {
 				deprecations = deprecations + 1
 			}
 		}
+		if !output.APIVersion.isReplacementAvailableIn(instance.TargetVersions) {
+			unavailableReplacements = unavailableReplacements + 1
+		}
 	}
+
 	if deprecations > 0 && !instance.IgnoreDeprecations {
 		returnCode = 2
 	}
 	if removals > 0 && !instance.IgnoreRemovals {
 		returnCode = 3
+	}
+	if unavailableReplacements > 0 && !instance.IgnoreUnavailableReplacements {
+		returnCode = 4
 	}
 	return returnCode
 }

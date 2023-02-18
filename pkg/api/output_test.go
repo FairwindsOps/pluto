@@ -388,13 +388,15 @@ func TestGetReturnCode(t *testing.T) {
 		{
 			name: "empty return zero",
 			args: args{
-				outputs:            []*Output{},
-				ignoreDeprecations: false,
+				outputs:                      []*Output{},
+				ignoreDeprecations:           false,
+				ignoreRemovals:               false,
+				ignoreReplacementUnavailable: false,
 			},
 			want: 0,
 		},
 		{
-			name: "version is deprecated return one",
+			name: "version is deprecated return two",
 			args: args{
 				outputs: []*Output{
 					{
@@ -405,8 +407,9 @@ func TestGetReturnCode(t *testing.T) {
 						},
 					},
 				},
-				ignoreDeprecations: false,
-				ignoreRemovals:     false,
+				ignoreDeprecations:           false,
+				ignoreRemovals:               false,
+				ignoreReplacementUnavailable: false,
 			},
 			want: 2,
 		},
@@ -422,10 +425,48 @@ func TestGetReturnCode(t *testing.T) {
 						},
 					},
 				},
-				ignoreDeprecations: true,
-				ignoreRemovals:     false,
+				ignoreDeprecations:           true,
+				ignoreRemovals:               false,
+				ignoreReplacementUnavailable: false,
 			},
 			want: 0,
+		},
+		{
+			name: "version is removed",
+			args: args{
+				outputs: []*Output{
+					{
+						APIVersion: &Version{
+							RemovedIn:    "v1.16.0",
+							DeprecatedIn: "v1.12.0",
+							Component:    "foo",
+						},
+					},
+				},
+				ignoreDeprecations:           false,
+				ignoreRemovals:               false,
+				ignoreReplacementUnavailable: false,
+			},
+			want: 3,
+		},
+		{
+			name: "version is removed and replacement is unavailable",
+			args: args{
+				outputs: []*Output{
+					{
+						APIVersion: &Version{
+							DeprecatedIn:           "v1.16.0",
+							RemovedIn:              "v1.16.0",
+							ReplacementAvailableIn: "v1.17.0",
+							Component:              "foo",
+						},
+					},
+				},
+				ignoreDeprecations:           false,
+				ignoreRemovals:               false,
+				ignoreReplacementUnavailable: true,
+			},
+			want: 3,
 		},
 		{
 			name: "version is deprecated and replacement is unavailable",
@@ -443,7 +484,7 @@ func TestGetReturnCode(t *testing.T) {
 				ignoreDeprecations: false,
 				ignoreRemovals:     false,
 			},
-			want: 2,
+			want: 4,
 		},
 		{
 			name: "version is deprecated and replacement is unavailable but ignored",
@@ -463,23 +504,6 @@ func TestGetReturnCode(t *testing.T) {
 				ignoreReplacementUnavailable: true,
 			},
 			want: 0,
-		},
-		{
-			name: "version is removed",
-			args: args{
-				outputs: []*Output{
-					{
-						APIVersion: &Version{
-							RemovedIn:    "v1.16.0",
-							DeprecatedIn: "v1.12.0",
-							Component:    "foo",
-						},
-					},
-				},
-				ignoreDeprecations: false,
-				ignoreRemovals:     false,
-			},
-			want: 3,
 		},
 	}
 	for _, tt := range tests {

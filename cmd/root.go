@@ -85,7 +85,7 @@ var outputOptions = []string{
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
-	rootCmd.PersistentFlags().BoolVar(&ignoreUnavailableReplacements, "ignore-unavailable-replacements", false, "Ignore the default behavior to exit 2 if deprecated but unavailable apiVersions are found.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreUnavailableReplacements, "ignore-unavailable-replacements", false, "Ignore the default behavior to exit 4 if deprecated but unavailable apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
 	rootCmd.PersistentFlags().BoolVarP(&noHeaders, "no-headers", "H", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")

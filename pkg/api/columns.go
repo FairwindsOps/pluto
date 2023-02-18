@@ -37,8 +37,8 @@ var PossibleColumnNames = []string{
 	"REMOVED",
 	"REMOVED IN",
 	"COMPONENT",
-	"AVAILABLE",
-	"AVAILABLE IN",
+	"REPL AVAIL",
+	"REPL AVAIL IN",
 }
 
 var possibleColumns = []column{
@@ -131,19 +131,21 @@ type component struct{}
 func (c component) header() string              { return "COMPONENT" }
 func (c component) value(output *Output) string { return output.APIVersion.Component }
 
-// available is the output for the boolean ReplacementAvailable
-type available struct{}
+// replacementAvailable is the output for the boolean ReplacementAvailable
+type replacementAvailable struct{}
 
-func (a available) header() string { return "AVAILABLE" }
-func (a available) value(output *Output) string {
+func (ra replacementAvailable) header() string { return "REPL AVAIL" }
+func (ra replacementAvailable) value(output *Output) string {
 	return fmt.Sprintf("%t", output.ReplacementAvailable)
 }
 
-// availableIn is the string value of when an output was ReplacementAvailableIn
-type availableIn struct{}
+// replacementAvailableIn is the string value of when an output was ReplacementAvailableIn
+type replacementAvailableIn struct{}
 
-func (ai availableIn) header() string              { return "AVAILABLE IN" }
-func (ai availableIn) value(output *Output) string { return output.APIVersion.ReplacementAvailableIn }
+func (rai replacementAvailableIn) header() string { return "REPL AVAIL IN" }
+func (rai replacementAvailableIn) value(output *Output) string {
+	return output.APIVersion.ReplacementAvailableIn
+}
 
 // normalColumns returns the list of columns for -onormal
 func (instance *Instance) normalColumns() columnList {
@@ -154,7 +156,7 @@ func (instance *Instance) normalColumns() columnList {
 		3: new(replacement),
 		4: new(removed),
 		5: new(deprecated),
-		6: new(available),
+		6: new(replacementAvailable),
 	}
 	return columnList
 }
@@ -171,8 +173,8 @@ func (instance *Instance) wideColumns() columnList {
 		6:  new(deprecatedIn),
 		7:  new(removed),
 		8:  new(removedIn),
-		9:  new(available),
-		10: new(availableIn),
+		9:  new(replacementAvailable),
+		10: new(replacementAvailableIn),
 	}
 	return columnList
 }

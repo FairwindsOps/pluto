@@ -106,10 +106,10 @@ func ExampleInstance_DisplayOutput_normal() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME-------------------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED-- AVAILABLE--
-	// some name one----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true-------
-	// some name two----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true-------
-	// deprecated not removed-- Deployment-- apps/v1------------- none--------- false---- true-------- true-------
+	// NAME-------------------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED-- REPL AVAIL--
+	// some name one----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
+	// some name two----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
+	// deprecated not removed-- Deployment-- apps/v1------------- none--------- false---- true-------- true--------
 }
 
 func ExampleInstance_DisplayOutput_onlyShowRemoved() {
@@ -129,9 +129,9 @@ func ExampleInstance_DisplayOutput_onlyShowRemoved() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED-- AVAILABLE--
-	// some name one-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true-------
-	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true-------
+	// NAME----------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED-- REPL AVAIL--
+	// some name one-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
+	// some name two-- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
 }
 
 func ExampleInstance_DisplayOutput_wide() {
@@ -149,9 +149,9 @@ func ExampleInstance_DisplayOutput_wide() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN-- AVAILABLE-- AVAILABLE IN--
-	// some name one-- pluto-namespace-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0----- true------- v1.10.0-------
-	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0----- true------- v1.10.0-------
+	// NAME----------- NAMESPACE-------- KIND-------- VERSION------------- REPLACEMENT-- DEPRECATED-- DEPRECATED IN-- REMOVED-- REMOVED IN-- REPL AVAIL-- REPL AVAIL IN--
+	// some name one-- pluto-namespace-- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0----- true-------- v1.10.0--------
+	// some name two-- <UNKNOWN>-------- Deployment-- extensions/v1beta1-- apps/v1------ true-------- v1.9.0--------- true----- v1.16.0----- true-------- v1.10.0--------
 }
 
 func ExampleInstance_DisplayOutput_custom() {
@@ -190,10 +190,10 @@ func ExampleInstance_DisplayOutput_markdown() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | REMOVED | REMOVED IN | AVAILABLE | AVAILABLE IN |
-	// |---------------|-----------------|------------|--------------------|-------------|------------|---------------|---------|------------|-----------|--------------|
-	// | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true      | v1.10.0      |
-	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true      | v1.10.0      |
+	// |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | REMOVED | REMOVED IN | REPL AVAIL | REPL AVAIL IN |
+	// |---------------|-----------------|------------|--------------------|-------------|------------|---------------|---------|------------|------------|---------------|
+	// | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true       | v1.10.0       |
+	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true       | v1.10.0       |
 }
 
 func ExampleInstance_DisplayOutput_markdown_customcolumns() {
@@ -297,7 +297,7 @@ func ExampleInstance_DisplayOutput_csv() {
 	_ = instance.DisplayOutput()
 
 	// Output:
-	// NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,REMOVED,REMOVED IN,AVAILABLE,AVAILABLE IN
+	// NAME,NAMESPACE,KIND,VERSION,REPLACEMENT,DEPRECATED,DEPRECATED IN,REMOVED,REMOVED IN,REPL AVAIL,REPL AVAIL IN
 	// some name one,pluto-namespace,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0,true,v1.10.0
 	// some name two,<UNKNOWN>,Deployment,extensions/v1beta1,apps/v1,true,v1.9.0,true,v1.16.0,true,v1.10.0
 }

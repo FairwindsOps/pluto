@@ -320,7 +320,7 @@ var detectHelmCmd = &cobra.Command{
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
-			fmt.Printf("Error Parsing Output: %v", err)
+			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
 		klog.V(5).Infof("retCode: %d", exitCode)
@@ -340,7 +340,7 @@ var detectApiResourceCmd = &cobra.Command{
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
-			fmt.Printf("Error Parsing Output: %v", err)
+			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
 		klog.V(5).Infof("retCode: %d", exitCode)
@@ -373,7 +373,7 @@ var detectAllInClusterCmd = &cobra.Command{
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
-			fmt.Printf("Error Parsing Output: %v", err)
+			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
 		klog.V(5).Infof("retCode: %d", exitCode)

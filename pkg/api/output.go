@@ -45,22 +45,25 @@ type Output struct {
 	Deprecated bool `json:"deprecated" yaml:"deprecated"`
 	// Removed is a boolean indicating whether or not the version has been removed
 	Removed bool `json:"removed" yaml:"removed"`
+	// ReplacementAvailable is a boolean indicating whether or not the replacement is available
+	ReplacementAvailable bool `json:"replacementAvailable" yaml:"replacementAvailable"`
 	// CustomColumns is a list of column headers to be displayed with -ocustom or -omarkdown
 	CustomColumns []string `json:"-" yaml:"-"`
 }
 
 // Instance is an instance of the API. This holds configuration for a "run" of Pluto
 type Instance struct {
-	Outputs            []*Output         `json:"items,omitempty" yaml:"items,omitempty"`
-	IgnoreDeprecations bool              `json:"-" yaml:"-"`
-	IgnoreRemovals     bool              `json:"-" yaml:"-"`
-	OnlyShowRemoved    bool              `json:"-" yaml:"-"`
-	NoHeaders          bool              `json:"-" yaml:"-"`
-	OutputFormat       string            `json:"-" yaml:"-"`
-	TargetVersions     map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
-	DeprecatedVersions []Version         `json:"-" yaml:"-"`
-	CustomColumns      []string          `json:"-" yaml:"-"`
-	Components         []string          `json:"-" yaml:"-"`
+	Outputs                       []*Output         `json:"items,omitempty" yaml:"items,omitempty"`
+	IgnoreDeprecations            bool              `json:"-" yaml:"-"`
+	IgnoreRemovals                bool              `json:"-" yaml:"-"`
+	IgnoreUnavailableReplacements bool              `json:"-" yaml:"-"`
+	OnlyShowRemoved               bool              `json:"-" yaml:"-"`
+	NoHeaders                     bool              `json:"-" yaml:"-"`
+	OutputFormat                  string            `json:"-" yaml:"-"`
+	TargetVersions                map[string]string `json:"target-versions,omitempty" yaml:"target-versions,omitempty"`
+	DeprecatedVersions            []Version         `json:"-" yaml:"-"`
+	CustomColumns                 []string          `json:"-" yaml:"-"`
+	Components                    []string          `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -155,6 +158,7 @@ func (instance *Instance) FilterOutput() {
 	for _, output := range instance.Outputs {
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
+		output.ReplacementAvailable = output.APIVersion.isReplacementAvailableIn(instance.TargetVersions)
 		switch instance.OnlyShowRemoved {
 		case false:
 			if output.Deprecated || output.Removed {
@@ -298,23 +302,34 @@ func (instance *Instance) csvOut(columns columnList) (*csv.Writer, error) {
 // takes a boolean to ignore any errors.
 // exit 2 - version deprecated
 // exit 3 - version removed
+// exit 4 - replacement is unavailable in target version
 func (instance *Instance) GetReturnCode() int {
 	returnCode := 0
 	var deprecations int
 	var removals int
+	var unavailableReplacements int
 	for _, output := range instance.Outputs {
 		if output.APIVersion.isRemovedIn(instance.TargetVersions) {
 			removals = removals + 1
 		}
 		if output.APIVersion.isDeprecatedIn(instance.TargetVersions) {
-			deprecations = deprecations + 1
+			if output.APIVersion.isReplacementAvailableIn(instance.TargetVersions) || !instance.IgnoreUnavailableReplacements {
+				deprecations = deprecations + 1
+			}
+		}
+		if !output.APIVersion.isReplacementAvailableIn(instance.TargetVersions) {
+			unavailableReplacements = unavailableReplacements + 1
 		}
 	}
+
 	if deprecations > 0 && !instance.IgnoreDeprecations {
 		returnCode = 2
 	}
 	if removals > 0 && !instance.IgnoreRemovals {
 		returnCode = 3
+	}
+	if unavailableReplacements > 0 && !instance.IgnoreUnavailableReplacements {
+		returnCode = 4
 	}
 	return returnCode
 }

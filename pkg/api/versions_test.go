@@ -55,6 +55,7 @@ var testVersionDeploymentString = `deprecated-versions:
   deprecated-in: v1.9.0
   removed-in: v1.16.0
   replacement-api: apps/v1
+  replacement-available-in: v1.10.0
   component: k8s
 target-versions:
   k8s: v1.16.0
@@ -62,12 +63,13 @@ target-versions:
   cert-manager: v0.15.1`
 
 var testVersionDeployment = Version{
-	Name:           "extensions/v1beta1",
-	Kind:           "Deployment",
-	DeprecatedIn:   "v1.9.0",
-	RemovedIn:      "v1.16.0",
-	ReplacementAPI: "apps/v1",
-	Component:      "k8s",
+	Name:                   "extensions/v1beta1",
+	Kind:                   "Deployment",
+	DeprecatedIn:           "v1.9.0",
+	RemovedIn:              "v1.16.0",
+	ReplacementAPI:         "apps/v1",
+	ReplacementAvailableIn: "v1.10.0",
+	Component:              "k8s",
 }
 
 func Test_jsonToStub(t *testing.T) {
@@ -425,34 +427,91 @@ func TestVersion_IsRemovedIn(t *testing.T) {
 	}
 }
 
+func TestVersion_isReplacementAvailableIn(t *testing.T) {
+	tests := []struct {
+		name                   string
+		targetVersions         map[string]string
+		component              string
+		want                   bool
+		replacementAvailableIn string
+	}{
+		{
+			name:                   "not available yet 1.15.0",
+			targetVersions:         map[string]string{"foo": "v1.15.0"},
+			component:              "foo",
+			replacementAvailableIn: "v1.16.0",
+			want:                   false,
+		},
+		{
+			name:                   "equal values",
+			targetVersions:         map[string]string{"foo": "v1.16.0"},
+			component:              "foo",
+			replacementAvailableIn: "v1.16.0",
+			want:                   true,
+		},
+		{
+			name:                   "greater than",
+			targetVersions:         map[string]string{"foo": "v1.17.0"},
+			component:              "foo",
+			replacementAvailableIn: "v1.16.0",
+			want:                   true,
+		},
+		{
+			name:                   "bad semVer",
+			targetVersions:         map[string]string{"foo": "foo"},
+			replacementAvailableIn: "v1.16.0",
+			want:                   false,
+		},
+		{
+			name:                   "blank replacementAvailableIn - is available",
+			targetVersions:         map[string]string{"foo": "v1.16.0"},
+			component:              "foo",
+			replacementAvailableIn: "",
+			want:                   true,
+		},
+		{
+			name:                   "targetVersions not included for component",
+			targetVersions:         map[string]string{"one": "v1.16.0"},
+			component:              "two",
+			replacementAvailableIn: "v1.16.0",
+			want:                   false,
+		},
+	}
+	for _, tt := range tests {
+		removedVersion := &Version{ReplacementAvailableIn: tt.replacementAvailableIn, Component: tt.component}
+		got := removedVersion.isReplacementAvailableIn(tt.targetVersions)
+		assert.Equal(t, tt.want, got, "test failed: "+tt.name)
+	}
+}
+
 func ExampleInstance_printVersionsTabular() {
 	instance := Instance{
 		DeprecatedVersions: []Version{
 			testVersionDeployment,
-			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", Component: "custom"},
+			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", ReplacementAvailableIn: "", Component: "custom"},
 		},
 	}
 	_ = instance.printVersionsTabular()
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
-	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- custom-----
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
+	// testkind---- testname------------ n/a------------ n/a--------- n/a---------- n/a------------ custom-----
 }
 
 func ExampleInstance_printVersionsTabular_noHeaders() {
 	instance := Instance{
 		DeprecatedVersions: []Version{
 			testVersionDeployment,
-			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", Component: "custom"},
+			{Kind: "testkind", Name: "testname", DeprecatedIn: "", RemovedIn: "", ReplacementAvailableIn: "", Component: "custom"},
 		},
 		NoHeaders: true,
 	}
 	_ = instance.printVersionsTabular()
 
 	// Output:
-	// Deployment-- extensions/v1beta1-- v1.9.0-- v1.16.0-- apps/v1-- k8s-----
-	// testkind---- testname------------ n/a----- n/a------ n/a------ custom--
+	// Deployment-- extensions/v1beta1-- v1.9.0-- v1.16.0-- apps/v1-- v1.10.0-- k8s-----
+	// testkind---- testname------------ n/a----- n/a------ n/a------ n/a------ custom--
 }
 
 func ExampleInstance_PrintVersionList_json() {
@@ -462,7 +521,7 @@ func ExampleInstance_PrintVersionList_json() {
 	_ = instance.PrintVersionList("json")
 
 	// Output:
-	// {"deprecated-versions":[{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","component":"k8s"}]}
+	// {"deprecated-versions":[{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","replacement-available-in":"v1.10.0","component":"k8s"}]}
 }
 
 func ExampleInstance_PrintVersionList_yaml() {
@@ -478,6 +537,7 @@ func ExampleInstance_PrintVersionList_yaml() {
 	//       deprecated-in: v1.9.0
 	//       removed-in: v1.16.0
 	//       replacement-api: apps/v1
+	//       replacement-available-in: v1.10.0
 	//       component: k8s
 }
 
@@ -488,8 +548,8 @@ func ExampleInstance_PrintVersionList_normal() {
 	_ = instance.PrintVersionList("normal")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
 }
 
 func ExampleInstance_PrintVersionList_wide() {
@@ -499,8 +559,8 @@ func ExampleInstance_PrintVersionList_wide() {
 	_ = instance.PrintVersionList("wide")
 
 	// Output:
-	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- COMPONENT--
-	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ k8s--------
+	// KIND-------- NAME---------------- DEPRECATED IN-- REMOVED IN-- REPLACEMENT-- REPL AVAIL IN-- COMPONENT--
+	// Deployment-- extensions/v1beta1-- v1.9.0--------- v1.16.0----- apps/v1------ v1.10.0-------- k8s--------
 }
 
 func ExampleInstance_PrintVersionList_badformat() {

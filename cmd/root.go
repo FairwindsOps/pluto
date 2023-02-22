@@ -316,16 +316,17 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode, err := detectHelm()
+		err := detectHelm()
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(exitCode)
+			os.Exit(1)
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
+		exitCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
 		os.Exit(exitCode)
 	},
@@ -336,16 +337,17 @@ var detectApiResourceCmd = &cobra.Command{
 	Short: "detect-api-resources",
 	Long:  `Detect Kubernetes apiVersions from an active cluster (using last-applied-configuration annotation)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		exitCode, err := detectAPIResources()
+		err := detectAPIResources()
 		if err != nil {
 			fmt.Println(err)
-			os.Exit(exitCode)
+			os.Exit(1)
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
+		exitCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
 		os.Exit(exitCode)
 	},
@@ -356,29 +358,25 @@ var detectAllInClusterCmd = &cobra.Command{
 	Short: "run all in-cluster detections",
 	Long:  `Detect Kubernetes apiVersions from an active cluster using all available methods (Helm releases, using the last-applied-configuration annotation)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		helmExitCode, err := detectHelm()
+		err := detectHelm()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		klog.V(5).Infof("after running detect-helm, exit-code is %d, and there are %d output items", helmExitCode, len(apiInstance.Outputs))
-		apiResourcesExitCode, err := detectAPIResources()
+		klog.V(5).Infof("after running detect-helm, exit-code is %d, and there are %d output items", apiInstance.GetReturnCode(), len(apiInstance.Outputs))
+		err = detectAPIResources()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		klog.V(5).Infof("after running detect-api-resources, exit-code is %d, and there are %d output items", apiResourcesExitCode, len(apiInstance.Outputs))
-		var exitCode int
-		if apiResourcesExitCode > helmExitCode {
-			exitCode = apiResourcesExitCode
-		} else {
-			exitCode = helmExitCode
-		}
+		klog.V(5).Infof("after running detect-api-resources, exit-code is %d, and there are %d output items", apiInstance.GetReturnCode(), len(apiInstance.Outputs))
+
 		err = apiInstance.DisplayOutput()
 		if err != nil {
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
+		exitCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
 		os.Exit(exitCode)
 	},
@@ -468,26 +466,26 @@ func Execute(VERSION string, COMMIT string, versionsFile []byte) {
 	}
 }
 
-func detectHelm() (exitCode int, err error) {
+func detectHelm() error {
 	h, err := helm.NewHelm(namespace, kubeContext, apiInstance)
 	if err != nil {
-		return 1, fmt.Errorf("error getting helm configuration: %v", err)
+		return fmt.Errorf("error getting helm configuration: %v", err)
 	}
 	err = h.FindVersions()
 	if err != nil {
-		return 1, fmt.Errorf("Error running helm-detect: %v", err)
+		return fmt.Errorf("Error running helm-detect: %v", err)
 	}
-	return apiInstance.GetReturnCode(), nil
+	return nil
 }
 
-func detectAPIResources() (exitCode int, err error) {
+func detectAPIResources() error {
 	disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance)
 	if err != nil {
-		return 1, fmt.Errorf("Error creating Discovery REST Client: %v", err)
+		return fmt.Errorf("Error creating Discovery REST Client: %v", err)
 	}
 	err = disCl.GetApiResources()
 	if err != nil {
-		return 1, fmt.Errorf("Error getting API resources using discovery client: %v", err)
+		return fmt.Errorf("Error getting API resources using discovery client: %v", err)
 	}
-	return apiInstance.GetReturnCode(), nil
+	return nil
 }

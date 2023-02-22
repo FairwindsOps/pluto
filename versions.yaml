@@ -4,72 +4,84 @@ deprecated-versions:
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta2
     kind: Deployment
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta1
     kind: Deployment
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta1
     kind: StatefulSet
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta2
     kind: StatefulSet
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: extensions/v1beta1
     kind: NetworkPolicy
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: networking.k8s.io/v1
+    replacement-available-in: v1.8.0
     component: k8s
   - version: extensions/v1beta1
     kind: Ingress
     deprecated-in: v1.14.0
     removed-in: v1.22.0
     replacement-api: networking.k8s.io/v1
+    replacement-available-in: v1.19.0
     component: k8s
   - version: networking.k8s.io/v1beta1
     kind: Ingress
     deprecated-in: v1.19.0
     removed-in: v1.22.0
     replacement-api: networking.k8s.io/v1
+    replacement-available-in: v1.19.0
     component: k8s
   - version: networking.k8s.io/v1beta1
     kind: IngressClass
     deprecated-in: v1.19.0
     removed-in: v1.22.0
     replacement-api: networking.k8s.io/v1
+    replacement-available-in: v1.19.0
     component: k8s
   - version: apps/v1beta2
     kind: DaemonSet
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: extensions/v1beta1
     kind: DaemonSet
     deprecated-in: v1.9.0
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: extensions/v1beta1
     kind: PodSecurityPolicy
     deprecated-in: v1.10.0
     removed-in: v1.16.0
     replacement-api: policy/v1beta1
+    replacement-available-in: v1.10.0
     component: k8s
   - version: policy/v1beta1
     kind: PodSecurityPolicy
@@ -82,24 +94,28 @@ deprecated-versions:
     deprecated-in: ""
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta1
     kind: ReplicaSet
     deprecated-in: ""
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: apps/v1beta2
     kind: ReplicaSet
     deprecated-in: ""
     removed-in: v1.16.0
     replacement-api: apps/v1
+    replacement-available-in: v1.9.0
     component: k8s
   - version: scheduling.k8s.io/v1beta1
     kind: PriorityClass
     deprecated-in: v1.14.0
     removed-in: v1.22.0
     replacement-api: scheduling.k8s.io/v1
+    replacement-available-in: v1.14.0
     component: k8s
   - version: scheduling.k8s.io/v1alpha1
     kind: PriorityClass
@@ -112,30 +128,35 @@ deprecated-versions:
     deprecated-in: v1.16.0
     removed-in: v1.22.0
     replacement-api: apiextensions.k8s.io/v1
+    replacement-available-in: v1.16.0
     component: k8s
   - version: admissionregistration.k8s.io/v1beta1
     kind: MutatingWebhookConfiguration
     deprecated-in: v1.16.0
     removed-in: v1.22.0
     replacement-api: admissionregistration.k8s.io/v1
+    replacement-available-in: v1.16.0
     component: k8s
   - version: admissionregistration.k8s.io/v1beta1
     kind: ValidatingWebhookConfiguration
     deprecated-in: v1.16.0
     removed-in: v1.22.0
     replacement-api: admissionregistration.k8s.io/v1
+    replacement-available-in: v1.16.0
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleBinding
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    replacement-available-in: v1.8.0
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRole
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    replacement-available-in: v1.8.0
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: ClusterRoleBindingList
@@ -154,12 +175,14 @@ deprecated-versions:
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    replacement-available-in: v1.8.0
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: RoleBinding
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    replacement-available-in: v1.8.0
     component: k8s
   - version: rbac.authorization.k8s.io/v1alpha1
     kind: RoleList
@@ -220,12 +243,20 @@ deprecated-versions:
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: rbac.authorization.k8s.io/v1
+    component: k8s
+  - version: node.k8s.io/v1beta1
+    kind: RuntimeClass
+    deprecated-in: v1.22.0
+    removed-in: v1.25.0
+    replacement-api: node.k8s.io/v1
+    replacement-available-in: v1.20.0
     component: k8s
   - version: policy/v1beta1
     kind: PodDisruptionBudget
     deprecated-in: v1.21.0
     removed-in: v1.25.0
     replacement-api: policy/v1
+    replacement-available-in: v1.21.0
     component: k8s
   - version: policy/v1beta1
     kind: PodDisruptionBudgetList
@@ -261,6 +292,7 @@ deprecated-versions:
   - version: batch/v1beta1
     kind: CronJob
     replacement-api: batch/v1
+    replacement-available-in: v1.21.0
     deprecated-in: v1.21.0
     removed-in: v1.25.0
     component: k8s
@@ -275,40 +307,47 @@ deprecated-versions:
     deprecated-in: v1.17.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.17.0
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSIDriver
     deprecated-in: v1.19.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.19.0
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: CSIStorageCapacity
     deprecated-in: v1.24.0
     removed-in: v1.27.0
     replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.24.0
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: StorageClass
     deprecated-in: v1.6.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.6.0
     component: k8s
   - version: storage.k8s.io/v1beta1
     kind: VolumeAttachment
     deprecated-in: v1.13.0
     removed-in: v1.22.0
     replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.13.0
     component: k8s
   - version: apiregistration.k8s.io/v1beta1
     kind: APIService
     removed-in: v1.22.0
     deprecated-in: v1.10.0
     replacement-api: apiregistration.k8s.io/v1
+    replacement-available-in: v1.10.0
     component: k8s
   - version: authentication.k8s.io/v1beta1
     kind: TokenReview
     replacement-api: authentication.k8s.io/v1
+    replacement-available-in: v1.6.0
     deprecated-in: v1.6.0
     removed-in: v1.22.0
     component: k8s
@@ -317,22 +356,26 @@ deprecated-versions:
     deprecated-in: v1.19.0
     removed-in: v1.22.0
     replacement-api: certificates.k8s.io/v1
+    replacement-available-in: v1.19.0
     component: k8s
   - version: coordination.k8s.io/v1beta1
     kind: Lease
     replacement-api: coordination.k8s.io/v1
+    replacement-available-in: v1.14.0
     deprecated-in: v1.14.0
     removed-in: v1.22.0
     component: k8s
   - version: events.k8s.io/v1beta1
     kind: Event
     replacement-api: events.k8s.io/v1
+    replacement-available-in: v1.19.0
     deprecated-in: v1.19.0
     removed-in: v1.25.0
     component: k8s
   - version: discovery.k8s.io/v1beta1
     kind: EndpointSlice
     replacement-api: discovery.k8s.io/v1
+    replacement-available-in: v1.21.0
     deprecated-in: v1.21.0
     removed-in: v1.25.0
     component: k8s

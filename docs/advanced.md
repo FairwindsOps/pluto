@@ -3,6 +3,7 @@ meta:
   - name: description
     content: "Fairwinds Pluto | Documentation on customizing behavior and output"
 ---
+
 # Advanced Usage Options
 
 Pluto has a wide variety of options that can be used to customize behavior and output.
@@ -57,17 +58,17 @@ $ pluto detect-helm -ojson | jq .
 
 ```yaml
 items:
-- name: cert-manager/cert-manager-webhook
-  namespace: cert-manager
-  api:
-    version: admissionregistration.k8s.io/v1beta1
-    kind: MutatingWebhookConfiguration
-    deprecated-in: v1.16.0
-    removed-in: v1.19.0
-    replacement-api: admissionregistration.k8s.io/v1
-    component: k8s
-  deprecated: true
-  removed: false
+  - name: cert-manager/cert-manager-webhook
+    namespace: cert-manager
+    api:
+      version: admissionregistration.k8s.io/v1beta1
+      kind: MutatingWebhookConfiguration
+      deprecated-in: v1.16.0
+      removed-in: v1.19.0
+      replacement-api: admissionregistration.k8s.io/v1
+      component: k8s
+    deprecated: true
+    removed: false
 target-versions:
   cert-manager: v0.15.1
   istio: v1.6.0
@@ -134,7 +135,7 @@ If you wish to bypass the generation of exit codes 2 and 3, you may do so with t
 
 ## Target Versions
 
-Pluto was originally designed with deprecations related to Kubernetes v1.16.0.  As more deprecations are introduced, we will try to keep it updated. Community contributions are welcome in this area.
+Pluto was originally designed with deprecations related to Kubernetes v1.16.0. As more deprecations are introduced, we will try to keep it updated. Community contributions are welcome in this area.
 
 Currently, Pluto defaults to a targetVersion of v1.22.0, however this is configurable (please continue reading)
 
@@ -170,12 +171,12 @@ The file should look something like this:
 target-versions:
   custom: v1.0.0
 deprecated-versions:
-- version: someother/v1beta1
-  kind: AnotherCRD
-  deprecated-in: v1.9.0
-  removed-in: v1.16.0
-  replacement-api: apps/v1
-  component: custom
+  - version: someother/v1beta1
+    kind: AnotherCRD
+    deprecated-in: v1.9.0
+    removed-in: v1.16.0
+    replacement-api: apps/v1
+    component: custom
 ```
 
 You can test that it's working by using `list-versions`:
@@ -208,8 +209,8 @@ When you run a command with a flag, the command line option takes precedence ove
 
 All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
 
-|         Flag          |        ENV variable       |
-|-----------------------|---------------------------|
+| Flag                  | ENV variable              |
+| --------------------- | ------------------------- |
 | --ignore-deprecations | PLUTO_IGNORE_DEPRECATIONS |
 | --ignore-removals     | PLUTO_IGNORE_REMOVALS     |
 | --target-versions     | PLUTO_TARGET_VERSIONS     |
@@ -219,3 +220,4 @@ All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
 | --columns             | PLUTO_COLUMNS             |
 | --components          | PLUTO_COMPONENTS          |
 | --no-headers          | PLUTO_NO_HEADERS          |
+| --no-footer           | PLUTO_NO_FOOTER           |

@@ -37,7 +37,16 @@ You can read the full policy [here](https://kubernetes.io/docs/reference/using-a
 
 Long story short, apiVersions get deprecated, and then they eventually get removed entirely. Pluto differentiates between these two, and will tell you if a version is `DEPRECATED` or `REMOVED`
 
+## Command Line Usage
+
+You can run the command-line tool directly via `go run`:
+
+```
+go run github.com/fairwindsops/pluto@latest detect foo.yaml
+```
+
 ## GitHub Action Usage
+
 Want to use pluto within your GitHub workflows?
 
 ```yaml

@@ -24,7 +24,7 @@ type column interface {
 
 type columnList map[int]column
 
-//PossibleColumnNames is the list of implmented columns
+// PossibleColumnNames is the list of implmented columns
 var PossibleColumnNames = []string{
 	"NAME",
 	"FILEPATH",
@@ -37,6 +37,8 @@ var PossibleColumnNames = []string{
 	"REMOVED",
 	"REMOVED IN",
 	"COMPONENT",
+	"REPL AVAIL",
+	"REPL AVAIL IN",
 }
 
 var possibleColumns = []column{
@@ -129,6 +131,22 @@ type component struct{}
 func (c component) header() string              { return "COMPONENT" }
 func (c component) value(output *Output) string { return output.APIVersion.Component }
 
+// replacementAvailable is the output for the boolean ReplacementAvailable
+type replacementAvailable struct{}
+
+func (ra replacementAvailable) header() string { return "REPL AVAIL" }
+func (ra replacementAvailable) value(output *Output) string {
+	return fmt.Sprintf("%t", output.ReplacementAvailable)
+}
+
+// replacementAvailableIn is the string value of when an output was ReplacementAvailableIn
+type replacementAvailableIn struct{}
+
+func (rai replacementAvailableIn) header() string { return "REPL AVAIL IN" }
+func (rai replacementAvailableIn) value(output *Output) string {
+	return output.APIVersion.ReplacementAvailableIn
+}
+
 // normalColumns returns the list of columns for -onormal
 func (instance *Instance) normalColumns() columnList {
 	columnList := columnList{
@@ -138,6 +156,7 @@ func (instance *Instance) normalColumns() columnList {
 		3: new(replacement),
 		4: new(removed),
 		5: new(deprecated),
+		6: new(replacementAvailable),
 	}
 	return columnList
 }
@@ -145,15 +164,17 @@ func (instance *Instance) normalColumns() columnList {
 // wideColumns returns the list of columns for -owide
 func (instance *Instance) wideColumns() columnList {
 	columnList := columnList{
-		0: new(name),
-		1: new(namespace),
-		2: new(kind),
-		3: new(version),
-		4: new(replacement),
-		5: new(deprecated),
-		6: new(deprecatedIn),
-		7: new(removed),
-		8: new(removedIn),
+		0:  new(name),
+		1:  new(namespace),
+		2:  new(kind),
+		3:  new(version),
+		4:  new(replacement),
+		5:  new(deprecated),
+		6:  new(deprecatedIn),
+		7:  new(removed),
+		8:  new(removedIn),
+		9:  new(replacementAvailable),
+		10: new(replacementAvailableIn),
 	}
 	return columnList
 }

@@ -48,23 +48,25 @@ import (
 )
 
 var (
-	version                string
-	versionCommit          string
-	versionFileData        []byte
-	additionalVersionsFile string
-	directory              string
-	outputFormat           string
-	ignoreDeprecations     bool
-	ignoreRemovals         bool
-	namespace              string
-	apiInstance            *api.Instance
-	targetVersions         map[string]string
-	customColumns          []string
-	componentsFromUser     []string
-	onlyShowRemoved        bool
-	kubeContext            string
-	noHeaders              bool
-	exitCode               int
+	version                       string
+	versionCommit                 string
+	versionFileData               []byte
+	additionalVersionsFile        string
+	directory                     string
+	outputFormat                  string
+	ignoreDeprecations            bool
+	ignoreRemovals                bool
+	ignoreUnavailableReplacements bool
+	namespace                     string
+	apiInstance                   *api.Instance
+	targetVersions                map[string]string
+	customColumns                 []string
+	componentsFromUser            []string
+	onlyShowRemoved               bool
+	kubeContext                   string
+	noHeaders                     bool
+	exitCode                      int
+	noFooter                      bool
 )
 
 const (
@@ -84,6 +86,7 @@ var outputOptions = []string{
 func init() {
 	rootCmd.PersistentFlags().BoolVar(&ignoreDeprecations, "ignore-deprecations", false, "Ignore the default behavior to exit 2 if deprecated apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVar(&ignoreRemovals, "ignore-removals", false, "Ignore the default behavior to exit 3 if removed apiVersions are found.")
+	rootCmd.PersistentFlags().BoolVar(&ignoreUnavailableReplacements, "ignore-unavailable-replacements", false, "Ignore the default behavior to exit 4 if deprecated but unavailable apiVersions are found.")
 	rootCmd.PersistentFlags().BoolVarP(&onlyShowRemoved, "only-show-removed", "r", false, "Only display the apiVersions that have been removed in the target version.")
 	rootCmd.PersistentFlags().BoolVarP(&noHeaders, "no-headers", "H", false, "When using the default or custom-column output format, don't print headers (default print headers).")
 	rootCmd.PersistentFlags().StringVarP(&additionalVersionsFile, "additional-versions", "f", "", "Additional deprecated versions file to add to the list. Cannot contain any existing versions")
@@ -91,6 +94,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown|csv)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print. Mandatory when using --output custom, optional with --output markdown")
 	rootCmd.PersistentFlags().StringSliceVar(&componentsFromUser, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
+	rootCmd.PersistentFlags().BoolVar(&noFooter, "no-footer", false, "Disable footer output")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -102,6 +106,10 @@ func init() {
 	rootCmd.AddCommand(detectApiResourceCmd)
 	detectApiResourceCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
 	detectApiResourceCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
+
+	rootCmd.AddCommand(detectAllInClusterCmd)
+	detectAllInClusterCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
+	detectAllInClusterCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
 	rootCmd.AddCommand(listVersionsCmd)
 	rootCmd.AddCommand(detectCmd)
@@ -155,6 +163,11 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+
+		if noFooter, err := cmd.Flags().GetBool("no-footer"); err == nil && noFooter {
+			os.Exit(exitCode)
+		}
+
 		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
 		os.Exit(exitCode)
 	},
@@ -268,15 +281,16 @@ var rootCmd = &cobra.Command{
 
 		// this apiInstance will be used by all detection methods
 		apiInstance = &api.Instance{
-			TargetVersions:     targetVersions,
-			OutputFormat:       outputFormat,
-			CustomColumns:      customColumns,
-			IgnoreDeprecations: ignoreDeprecations,
-			IgnoreRemovals:     ignoreRemovals,
-			OnlyShowRemoved:    onlyShowRemoved,
-			NoHeaders:          noHeaders,
-			DeprecatedVersions: deprecatedVersionList,
-			Components:         componentList,
+			TargetVersions:                targetVersions,
+			OutputFormat:                  outputFormat,
+			CustomColumns:                 customColumns,
+			IgnoreDeprecations:            ignoreDeprecations,
+			IgnoreRemovals:                ignoreRemovals,
+			IgnoreUnavailableReplacements: ignoreUnavailableReplacements,
+			OnlyShowRemoved:               onlyShowRemoved,
+			NoHeaders:                     noHeaders,
+			DeprecatedVersions:            deprecatedVersionList,
+			Components:                    componentList,
 		}
 
 		return nil
@@ -309,24 +323,19 @@ var detectHelmCmd = &cobra.Command{
 	Short: "detect-helm",
 	Long:  `Detect Kubernetes apiVersions in a helm release (in cluster)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		h, err := helm.NewHelm(namespace, kubeContext, apiInstance)
+		err := detectHelm()
 		if err != nil {
-			fmt.Printf("error getting helm configuration: %s\n", err.Error())
-			os.Exit(1)
-		}
-		err = h.FindVersions()
-		if err != nil {
-			fmt.Println("Error running helm-detect:", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
-			fmt.Println("Error Parsing Output:", err)
+			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
-		os.Exit(retCode)
+		exitCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
+		os.Exit(exitCode)
 	},
 }
 
@@ -335,23 +344,48 @@ var detectApiResourceCmd = &cobra.Command{
 	Short: "detect-api-resources",
 	Long:  `Detect Kubernetes apiVersions from an active cluster (using last-applied-configuration annotation)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance)
+		err := detectAPIResources()
 		if err != nil {
-			fmt.Println("Error creating Discovery REST Client: ", err)
-			os.Exit(1)
-		}
-		err = disCl.GetApiResources()
-		if err != nil {
-			fmt.Println("Error getting API resources using discovery client:", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 		err = apiInstance.DisplayOutput()
 		if err != nil {
-			fmt.Println("Error Parsing Output:", err)
+			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
-		exitCode = apiInstance.GetReturnCode()
+		exitCode := apiInstance.GetReturnCode()
 		klog.V(5).Infof("retCode: %d", exitCode)
+		os.Exit(exitCode)
+	},
+}
+
+var detectAllInClusterCmd = &cobra.Command{
+	Use:   "detect-all-in-cluster",
+	Short: "run all in-cluster detections",
+	Long:  `Detect Kubernetes apiVersions from an active cluster using all available methods (Helm releases, using the last-applied-configuration annotation)`,
+	Run: func(cmd *cobra.Command, args []string) {
+		err := detectHelm()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		klog.V(5).Infof("after running detect-helm, exit-code is %d, and there are %d output items", apiInstance.GetReturnCode(), len(apiInstance.Outputs))
+		err = detectAPIResources()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		klog.V(5).Infof("after running detect-api-resources, exit-code is %d, and there are %d output items", apiInstance.GetReturnCode(), len(apiInstance.Outputs))
+
+		err = apiInstance.DisplayOutput()
+		if err != nil {
+			fmt.Printf("Error Parsing Output: %v\n", err)
+			os.Exit(1)
+		}
+		exitCode := apiInstance.GetReturnCode()
+		klog.V(5).Infof("retCode: %d", exitCode)
+		os.Exit(exitCode)
 	},
 }
 
@@ -437,4 +471,28 @@ func Execute(VERSION string, COMMIT string, versionsFile []byte) {
 		klog.Error(err)
 		os.Exit(1)
 	}
+}
+
+func detectHelm() error {
+	h, err := helm.NewHelm(namespace, kubeContext, apiInstance)
+	if err != nil {
+		return fmt.Errorf("error getting helm configuration: %v", err)
+	}
+	err = h.FindVersions()
+	if err != nil {
+		return fmt.Errorf("Error running helm-detect: %v", err)
+	}
+	return nil
+}
+
+func detectAPIResources() error {
+	disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance)
+	if err != nil {
+		return fmt.Errorf("Error creating Discovery REST Client: %v", err)
+	}
+	err = disCl.GetApiResources()
+	if err != nil {
+		return fmt.Errorf("Error getting API resources using discovery client: %v", err)
+	}
+	return nil
 }

@@ -61,3 +61,15 @@ psp                   <UNKNOWN>     PodSecurityPolicy   policy/v1beta1          
 ```
 
 This indicates that the PodSecurityPolicy  was deployed with apps/v1beta1 which is deprecated in 1.21
+
+### helm and API resources (in-cluster)
+
+```
+$ pluto detect-all-in-cluster -o wide 2>/dev/null
+NAME              NAMESPACE   KIND                VERSION                     REPLACEMENT            DEPRECATED   DEPRECATED IN   REMOVED   REMOVED IN  
+testing/viahelm   viahelm     Ingress             networking.k8s.io/v1beta1   networking.k8s.io/v1   true         v1.19.0         true      v1.22.0     
+webapp            default     Ingress             networking.k8s.io/v1beta1   networking.k8s.io/v1   true         v1.19.0         true      v1.22.0     
+eks.privileged    <UNKNOWN>   PodSecurityPolicy   policy/v1beta1                                     true         v1.21.0         false     v1.25.0     
+```
+
+This combines all available in-cluster detections, showing results from Helm releases and API resources.

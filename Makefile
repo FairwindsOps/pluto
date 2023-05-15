@@ -1,5 +1,5 @@
 # Go parameters
-GOCMD=GO111MODULE=on go
+GOCMD=GO111MODULE=on CGO_ENABLED=0 go
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test

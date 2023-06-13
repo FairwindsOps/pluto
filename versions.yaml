@@ -544,4 +544,4 @@ deprecated-versions:
 target-versions:
     cert-manager: v1.5.3
     istio: v1.11.0
-    k8s: v1.22.0
+    k8s: v1.25.0

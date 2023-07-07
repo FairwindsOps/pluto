@@ -1,0 +1,11 @@
+- id: pluto
+  name: Detect deprecated Kubernetes resources
+  description: Find Kubernetes resources that have been deprecated
+  entry: pluto detect-files
+  language: golang
+  pass_filenames: false
+- id: pluto-docker
+  name: Detect deprecated Kubernetes resources
+  description: Find Kubernetes resources that have been deprecated
+  entry: us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 detect-files
+  language: docker_image

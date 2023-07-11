@@ -17,6 +17,9 @@ Currently, the only in-cluster check we are confident in supporting is helm. If 
 
 Pluto looks at the API Versions of objects in releases that are in a `Deployed` state, and Helm has an issue where it might list old revisions of a release as still being in a `Deployed` state. To fix this, look at the release revision history with `helm history <release name>`, and determine if older releases still show a `Deployed` state. If so, delete the Helm release secret(s) associated with the revision number(s). For example, `kubectl delete secret sh.helm.release.v1.my-release.v10` where `10` corresponds to the release number. Then run Pluto again to see if the object has been removed from the report.
 
-### Why API version check on a live cluster using the "last-applied-configuration" annotation is not reliable?
+### Why API is version check on a live cluster using the "last-applied-configuration" annotation not reliable?
 
-The annotation `kubectl.kubernetes.io/last-applied-configuration` on an object in your cluster holds the API version by which it was created. In fact, others have pointed out that updating the same object with `kubectl patch` will **remove** the annotation. Hence this is not a reliable method to detect deprecated API's from a live cluster.
+When using `--detect-api-resources` or `--detect-all-in-cluster`, there are some potential issues to be aware of:
+
+  * The annotation `kubectl.kubernetes.io/last-applied-configuration` on an object in your cluster holds the API version by which it was created. In fact, others have pointed out that updating the same object with `kubectl patch` will **remove** the annotation. Hence this is not a reliable method to detect deprecated API's from a live cluster.
+  * You may get false positives in the first change after fixing the apiVersion. Please see [this issue](https://github.com/FairwindsOps/pluto/issues/495) for more details.

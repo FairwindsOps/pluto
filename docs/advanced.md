@@ -125,12 +125,14 @@ Pluto has specific exit codes that is uses to indicate certain results:
 - Exit Code 1 - An error. A message will be displayed
 - Exit Code 2 - A deprecated apiVersion has been found.
 - Exit Code 3 - A removed apiVersion has been found.
+- Exit Code 4 - A replacement apiVersion is unavailable in the target version
 
 If you wish to bypass the generation of exit codes 2 and 3, you may do so with two different flags:
 
 ```shell
 --ignore-deprecations              Ignore the default behavior to exit 2 if deprecated apiVersions are found.
 --ignore-removals                  Ignore the default behavior to exit 3 if removed apiVersions are found.
+--ignore-unavailable-replacements  Ignore the default behavior to exit 4 if deprecated but unavailable apiVersions are found.
 ```
 
 ## Target Versions

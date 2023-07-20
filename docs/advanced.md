@@ -83,6 +83,8 @@ NAME                                         NAMESPACE
 cert-manager/cert-manager-webhook            cert-manager
 ```
 
+NOTE: Any columns with spaces will need to be escaped or quoted, such as `DEPRECATED\ IN` or `"DEPRECATED IN"`
+
 ### Markdown
 
 ```shell

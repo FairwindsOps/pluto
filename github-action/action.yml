@@ -2,8 +2,8 @@ name: "Download pluto binary"
 description: "Downloads the pluto binary by pulling the container image"
 inputs:
   IMAGE_PULL_URL:
-    description: "pull url for container image, i.e.: quay.io/fairwinds/pluto"
-    default: "quay.io/fairwinds/pluto"
+    description: "pull url for container image, i.e.: us-docker.pkg.dev/fairwinds-ops/oss/pluto"
+    default: "us-docker.pkg.dev/fairwinds-ops/oss/pluto"
     required: true
   IMAGE_TAG:
     description: "tag for container image, i.e.: v5"

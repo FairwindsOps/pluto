@@ -84,4 +84,4 @@ testcases:
   - script: pluto detect assets/deprecated116/deployment-extensions-v1beta1.yaml
     assertions:
     - result.code ShouldEqual 3
-    - result.systemerr ShouldContainSubstring  "extensions/v1beta1"
+    - result.systemout ShouldContainSubstring "extensions/v1beta1"

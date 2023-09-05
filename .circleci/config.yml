@@ -16,7 +16,7 @@ references:
     kind_node_image: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
     executor: golang-exec
     pre_script: e2e/pre.sh
-    store-test-results: /tmp/test-results
+    store-test-results: /tmp/test-results/
     script: e2e/test.sh
     requires:
       - test

@@ -165,10 +165,12 @@ var rootCmd = &cobra.Command{
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
 
 		if noFooter, err := cmd.Flags().GetBool("no-footer"); err == nil && noFooter {
+			klog.V(5).Infof("exiting with code %d", exitCode)
 			os.Exit(exitCode)
 		}
 
 		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
+		klog.V(5).Infof("exiting with code %d", exitCode)
 		os.Exit(exitCode)
 	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -333,9 +335,9 @@ var detectHelmCmd = &cobra.Command{
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", exitCode)
-		os.Exit(exitCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("exitCode: %d", exitCode)
+		return
 	},
 }
 
@@ -354,9 +356,9 @@ var detectApiResourceCmd = &cobra.Command{
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", exitCode)
-		os.Exit(exitCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("exitCode: %d", exitCode)
+		return
 	},
 }
 
@@ -383,9 +385,8 @@ var detectAllInClusterCmd = &cobra.Command{
 			fmt.Printf("Error Parsing Output: %v\n", err)
 			os.Exit(1)
 		}
-		exitCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", exitCode)
-		os.Exit(exitCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("exitCode: %d", exitCode)
 	},
 }
 
@@ -425,9 +426,9 @@ var detectCmd = &cobra.Command{
 				fmt.Println("Error parsing output:", err)
 				os.Exit(1)
 			}
-			retCode := apiInstance.GetReturnCode()
-			klog.V(5).Infof("retCode: %d", retCode)
-			os.Exit(retCode)
+			exitCode = apiInstance.GetReturnCode()
+			klog.V(5).Infof("exitCode: %d", exitCode)
+			return
 		}
 
 		// File input
@@ -445,8 +446,8 @@ var detectCmd = &cobra.Command{
 			fmt.Println("Error parsing output:", err)
 			os.Exit(1)
 		}
-		retCode := apiInstance.GetReturnCode()
-		klog.V(5).Infof("retCode: %d", retCode)
+		exitCode = apiInstance.GetReturnCode()
+		klog.V(5).Infof("exitCode: %d", exitCode)
 	},
 }
 

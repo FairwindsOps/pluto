@@ -78,3 +78,10 @@ testcases:
     - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
     - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
     - result.systemout ShouldNotContainSubstring "utilities   Deployment   apps/v1                            false     false"
+
+- name: exit code three for single file
+  steps:
+  - script: pluto detect assets/deprecated116/deployment-extensions-v1beta1.yaml
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemerr ShouldContainSubstring  "extensions/v1beta1"

@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@10.1.0
-  rok8s: fairwinds/rok8s-scripts@11
+  rok8s: fairwinds/rok8s-scripts@12
   oss-docs: fairwinds/oss-docs@0
 
 executors:
@@ -12,11 +12,11 @@ executors:
 
 references:
   e2e_config: &e2e_config
-    command_runner_image: quay.io/reactiveops/ci-images:v11-buster
-    kind_node_image: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
+    command_runner_image: quay.io/reactiveops/ci-images:v12-buster
+    kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
     executor: golang-exec
     pre_script: e2e/pre.sh
-    store-test-results: /tmp/test-results
+    store-test-results: /tmp/test-results/
     script: e2e/test.sh
     requires:
       - test
@@ -90,7 +90,7 @@ jobs:
   publish-dev-orb:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
-      - image: quay.io/reactiveops/ci-images:v11-alpine
+      - image: quay.io/reactiveops/ci-images:v12-alpine
     shell: /bin/bash
     steps:
       - checkout
@@ -105,7 +105,7 @@ jobs:
           token-variable: CIRCLECI_DEV_API_TOKEN
   request-orb-publish:
     docker:
-      - image: quay.io/reactiveops/ci-images:v11-alpine
+      - image: quay.io/reactiveops/ci-images:v12-alpine
     steps:
       - *install_vault_alpine
       - rok8s/get_vault_env:

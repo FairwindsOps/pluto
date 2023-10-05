@@ -114,7 +114,7 @@ func (cl *DiscoveryClient) GetApiResources() error {
 		klog.V(2).Infof("Retrieving : %s.%s.%s", g.Resource, g.Version, g.Group)
 		rs, err := ri.List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
-			klog.Error("Failed to retrieve: ", g, err)
+			klog.V(2).Infof("Failed to retrieve: ", g, err)
 			continue
 		}
 

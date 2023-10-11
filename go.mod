@@ -1,6 +1,6 @@
 module github.com/fairwindsops/pluto
 
-go 1.21.3
+go 1.21
 
 require (
 	github.com/fairwindsops/pluto/v5 v5.18.4

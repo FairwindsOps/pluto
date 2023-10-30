@@ -53,6 +53,8 @@ var possibleColumns = []column{
 	new(removedIn),
 	new(component),
 	new(filepath),
+	new(replacementAvailable),
+	new(replacementAvailableIn),
 }
 
 // name is the output name
@@ -181,7 +183,7 @@ func (instance *Instance) wideColumns() columnList {
 
 // customColumns returns a custom list of columns based on names
 func (instance *Instance) customColumns() columnList {
-	var outputColumns = make(map[int]column)
+	outputColumns := make(map[int]column)
 	for i, d := range instance.CustomColumns {
 		for _, c := range possibleColumns {
 			if d == c.header() {

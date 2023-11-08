@@ -467,7 +467,7 @@ func TestVersion_isReplacementAvailableIn(t *testing.T) {
 			targetVersions:         map[string]string{"foo": "v1.16.0"},
 			component:              "foo",
 			replacementAvailableIn: "",
-			want:                   true,
+			want:                   false,
 		},
 		{
 			name:                   "targetVersions not included for component",

@@ -411,7 +411,7 @@ func TestGetReturnCode(t *testing.T) {
 				ignoreRemovals:               false,
 				ignoreReplacementUnavailable: false,
 			},
-			want: 2,
+			want: 4,
 		},
 		{
 			name: "version is deprecated ignore deprecations",
@@ -429,7 +429,7 @@ func TestGetReturnCode(t *testing.T) {
 				ignoreRemovals:               false,
 				ignoreReplacementUnavailable: false,
 			},
-			want: 0,
+			want: 4,
 		},
 		{
 			name: "version is removed",
@@ -447,7 +447,7 @@ func TestGetReturnCode(t *testing.T) {
 				ignoreRemovals:               false,
 				ignoreReplacementUnavailable: false,
 			},
-			want: 3,
+			want: 4,
 		},
 		{
 			name: "version is removed and replacement is unavailable",

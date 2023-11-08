@@ -84,6 +84,7 @@ var testOutputDeprecatedNotRemoved = &Output{
 		ReplacementAPI: "none",
 		Component:      "foo",
 	},
+	ReplacementAvailable: false,
 }
 
 func init() {
@@ -109,7 +110,7 @@ func ExampleInstance_DisplayOutput_normal() {
 	// NAME-------------------- KIND-------- VERSION------------- REPLACEMENT-- REMOVED-- DEPRECATED-- REPL AVAIL--
 	// some name one----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
 	// some name two----------- Deployment-- extensions/v1beta1-- apps/v1------ true----- true-------- true--------
-	// deprecated not removed-- Deployment-- apps/v1------------- none--------- false---- true-------- true--------
+	// deprecated not removed-- Deployment-- apps/v1------------- none--------- false---- true-------- false--------
 }
 
 func ExampleInstance_DisplayOutput_onlyShowRemoved() {

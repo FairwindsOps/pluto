@@ -560,7 +560,7 @@ deprecated-versions:
     replacement-api: flowcontrol.apiserver.k8s.io/v1beta3
     component: k8s
   - version: flowcontrol.apiserver.k8s.io/v1beta1
-    kind: FLowSchema
+    kind: FlowSchema
     deprecated-in: v1.24.0
     removed-in: v1.29.0
     replacement-api: flowcontrol.apiserver.k8s.io/v1beta3

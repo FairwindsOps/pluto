@@ -1,7 +1,7 @@
 brews:
   - name: pluto
     goarm: 6
-    tap:
+    repository:
       owner: FairwindsOps
       name: homebrew-tap
     folder: Formula

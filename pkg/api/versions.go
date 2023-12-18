@@ -253,7 +253,7 @@ func (v *Version) isReplacementAvailableIn(targetVersions map[string]string) boo
 	}
 
 	if v.ReplacementAvailableIn == "" {
-		return true
+		return false
 	}
 
 	targetVersion, ok := targetVersions[v.Component]

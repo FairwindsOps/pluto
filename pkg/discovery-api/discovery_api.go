@@ -119,7 +119,7 @@ func (cl *DiscoveryClient) GetApiResources() error {
 		}
 
 		if len(rs.Items) == 0 {
-			klog.V(2).Infof("No annotations for ResourceVer %s", rs.GetAPIVersion())
+			klog.V(2).Infof("No managed fields for ResourceVer %s", rs.GetAPIVersion())
 			obj := rs.UnstructuredContent()
 			data, err := json.Marshal(obj)
 			if err != nil {
@@ -137,25 +137,6 @@ func (cl *DiscoveryClient) GetApiResources() error {
 
 		} else {
 			for _, r := range rs.Items {
-				if jsonManifest, ok := r.GetAnnotations()["kubectl.kubernetes.io/last-applied-configuration"]; ok {
-					var manifest map[string]interface{}
-
-					err := json.Unmarshal([]byte(jsonManifest), &manifest)
-					if err != nil {
-						klog.Error("failed to parse 'last-applied-configuration' annotation of resource %s/%s: %s", r.GetNamespace(), r.GetName(), err.Error())
-						continue
-					}
-					data, err := json.Marshal(manifest)
-					if err != nil {
-						klog.Error("Failed to marshal data ", err.Error())
-						return err
-					}
-					output, err := cl.Instance.IsVersioned(data)
-					if err != nil {
-						return err
-					}
-					cl.Instance.Outputs = append(cl.Instance.Outputs, output...)
-				}
 				for _, manager := range r.GetManagedFields() {
 					manifest := api.Stub{
 						APIVersion: manager.APIVersion,

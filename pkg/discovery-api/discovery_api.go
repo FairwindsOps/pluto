@@ -156,6 +156,25 @@ func (cl *DiscoveryClient) GetApiResources() error {
 					}
 					cl.Instance.Outputs = append(cl.Instance.Outputs, output...)
 				}
+				for _, manager := range r.GetManagedFields() {
+					manifest := api.Stub{
+						APIVersion: manager.APIVersion,
+						Kind:       r.GetKind(),
+						Metadata: api.StubMeta{
+							Name:      r.GetName(),
+							Namespace: r.GetNamespace(),
+						},
+					}
+					data, err := json.Marshal(manifest)
+					if err != nil {
+						return err
+					}
+					output, err := cl.Instance.IsVersioned(data)
+					if err != nil {
+						return err
+					}
+					cl.Instance.Outputs = append(cl.Instance.Outputs, output...)
+				}
 			}
 		}
 

@@ -66,10 +66,10 @@ or
 ## Other Projects from Fairwinds
 
 Enjoying Pluto? Check out some of our other projects:
-* [Polaris](https://github.com/FairwindsOps/Polaris) - Audit, enforce, and build policies for Kubernetes resources, including over 20 built-in checks for best practices
-* [Goldilocks](https://github.com/FairwindsOps/Goldilocks) - Right-size your Kubernetes Deployments by compare your memory and CPU settings against actual usage
-* [Nova](https://github.com/FairwindsOps/Nova) - Check to see if any of your Helm charts have updates available
-* [rbac-manager](https://github.com/FairwindsOps/rbac-manager) - Simplify the management of RBAC in your Kubernetes clusters
+* [Polaris](https://github.com/FairwindsOps/Polaris) - Audit, enforce, and build policies for Kubernetes resources, including over 20 built-in checks for best practices.
+* [Goldilocks](https://github.com/FairwindsOps/Goldilocks) - Right-size your Kubernetes Deployments by comparing your memory and CPU settings against actual usage.
+* [Nova](https://github.com/FairwindsOps/Nova) - Check to see if any of your Helm charts have updates available.
+* [rbac-manager](https://github.com/FairwindsOps/rbac-manager) - Simplify the management of RBAC in your Kubernetes clusters.
 
 Or [check out the full list](https://www.fairwinds.com/open-source-software?utm_source=pluto&utm_medium=pluto&utm_campaign=pluto)
 ## Fairwinds Insights

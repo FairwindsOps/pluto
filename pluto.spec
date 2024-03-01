@@ -8,6 +8,9 @@ Source0:        https://github.com/FairwindsOps/pluto/archive/v%{version}.tar.gz
 
 BuildRequires: make, git, golang, wget
 
+# there's no debug files in this build
+%define debug_package %{nil}
+
 %description
 Pluto is a tool for validating Kubernetes configuration files.
 

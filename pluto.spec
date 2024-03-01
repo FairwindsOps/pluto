@@ -19,7 +19,7 @@ Pluto is a tool for validating Kubernetes configuration files.
 %build
 export PATH=$PWD/go/bin:$PATH
 go version
-make %{?_smp_mflags} build build-linux
+make %{?_smp_mflags} build build-linux buildid
 
 %install
 mkdir -p %{buildroot}/usr/bin

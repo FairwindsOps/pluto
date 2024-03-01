@@ -8,7 +8,11 @@ URL:            https://github.com/FairwindsOps/pluto
 
 Source0:        https://github.com/FairwindsOps/pluto/archive/v%{version}.tar.gz
 
-BuildRequires:  make, git, golang, wget
+BuildRequires:
+    make
+    git
+    golang
+    wget
 
 %description
 Pluto is a tool for validating Kubernetes configuration files.
@@ -19,7 +23,7 @@ Pluto is a tool for validating Kubernetes configuration files.
 %build
 export PATH=$PWD/go/bin:$PATH
 go version
-make %{?_smp_mflags} build build-linux buildid
+make %{?_smp_mflags} build buildid
 
 %install
 mkdir -p %{buildroot}/usr/bin

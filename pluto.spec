@@ -8,7 +8,7 @@ URL:            https://github.com/FairwindsOps/pluto
 
 Source0:        https://github.com/FairwindsOps/pluto/archive/v%{version}.tar.gz
 
-BuildRequires:  make
+BuildRequires:  make, git, go, wget, go
 BuildRequires:  golang >= 1.16
 
 %description
@@ -29,5 +29,5 @@ install -m 755 bin/pluto %{buildroot}/usr/bin/pluto
 /usr/bin/pluto
 
 %changelog
-* Tue Mar 01 2024 Emanuele Ciurle <emanuele@ciurleo.com> - 5.19.0-1
+* Fri Mar 01 2024 Emanuele Ciurleo <emanuele@ciurleo.com> - 5.19.0-1
 - Initial package release

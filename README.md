@@ -37,6 +37,19 @@ You can read the full policy [here](https://kubernetes.io/docs/reference/using-a
 
 Long story short, apiVersions get deprecated, and then they eventually get removed entirely. Pluto differentiates between these two, and will tell you if a version is `DEPRECATED` or `REMOVED`
 
+## Install RPM 
+#### Supported Distros
+* Amazonlinux 2023
+* Redhat
+* openSUSE Tumbleweed
+* openSUSE Leap
+* Fedora
+* Centos-stream
+* Amazon Linux
+```
+sudo dnf copr enable emanuelec/Pluto
+sudo dnf install pluto
+```
 ## GitHub Action Usage
 Want to use pluto within your GitHub workflows?
 

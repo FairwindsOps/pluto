@@ -15,18 +15,21 @@ BuildRequires:  golang >= 1.16
 Pluto is a tool for validating Kubernetes configuration files.
 
 %prep
-%setup -q
+%autosetup -n %{name}-%{version}
 
 %build
-make build
+export PATH=$PWD/go/bin:$PATH
+go version
+make %{?_smp_mflags} build
 
 %install
 mkdir -p %{buildroot}/usr/bin
-install -m 755 bin/pluto %{buildroot}/usr/bin/pluto
+install -D -m 0755 %{_builddir}/%{name}-%{version}/execs/%{name} "%{buildroot}/%{_bindir}/%{name}"
 
 %files
 %license LICENSE
-/usr/bin/pluto
+%doc README.md
+%{_bindir}/%{name}
 
 %changelog
 * Fri Mar 01 2024 Emanuele Ciurleo <emanuele@ciurleo.com> - 5.19.0-1

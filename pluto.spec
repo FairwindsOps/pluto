@@ -20,7 +20,7 @@ go version
 make %{?_smp_mflags} build
 
 %install
-install -D -m 0755 %{_builddir}/%{name}-%{version}/execs/%{name} "%{buildroot}/%{_bindir}/%{name}"
+install -D -m 0755 %{_builddir}/%{name}-%{version}/pluto %{buildroot}/%{_bindir}/%{name}
 
 %files
 %license LICENSE

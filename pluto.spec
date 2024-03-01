@@ -24,7 +24,7 @@ make %{?_smp_mflags} build
 
 %install
 mkdir -p %{buildroot}/usr/bin
-install -D -m 0755 %{_builddir}/%{name}-%{version}/execs/%{name} "%{buildroot}/%{_bindir}/%{name}"
+install -D -m 0755 %{_builddir}/pluto-%{version}/pluto %{buildroot}/usr/bin/pluto
 
 %files
 %license LICENSE

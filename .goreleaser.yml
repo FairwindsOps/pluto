@@ -53,7 +53,7 @@ signs:
 
 docker_signs:
 - artifacts: all
-  args: ["sign", "--key=hashivault://cosign", "${digest}", "-r", "--yes"]
+  args: ["sign", "--key=hashivault://cosign", "us-docker.pkg.dev/fairwinds-ops/oss/pluto@${digest}", "-r", "--yes"]
 
 dockers:
 - image_templates:

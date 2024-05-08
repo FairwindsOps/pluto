@@ -140,19 +140,21 @@ workflows:
           <<: *e2e_config
   release:
     jobs:
-      - oss-docs/publish-docs:
-          repository: pluto
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^.*/
       - release:
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
+      - oss-docs/publish-docs:
+          requires:
+            - release
+          repository: pluto
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^.*/
   "Orb Test and Publish":
     jobs:
       - orb-tools/lint:

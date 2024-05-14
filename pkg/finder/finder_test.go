@@ -32,7 +32,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/fairwindsops/pluto/v5/pkg/api"
+	"github.com/fairwindsops/pluto/pkg/api"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -40,8 +40,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 
-	"github.com/fairwindsops/pluto/v5/pkg/api"
-	"github.com/fairwindsops/pluto/v5/pkg/kube"
+	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/pkg/kube"
 )
 
 // DiscoveryClient is the declaration to hold objects needed for client-go/discovery.

@@ -32,8 +32,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/fairwindsops/pluto/v5/pkg/api"
-        "github.com/fairwindsops/pluto/v5/pkg/kube"
+	"github.com/fairwindsops/pluto/pkg/api"
+	"github.com/fairwindsops/pluto/pkg/kube"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,10 +45,10 @@ import (
 var kubeClient *kube.Kube
 
 func getMockConfigInstance() *kube.Kube {
-        kubeClient = &kube.Kube{
-                Client: testclient.NewSimpleClientset(),
-        }
-        return kubeClient
+	kubeClient = &kube.Kube{
+		Client: testclient.NewSimpleClientset(),
+	}
+	return kubeClient
 }
 
 var (

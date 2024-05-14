@@ -1,9 +1,8 @@
-module github.com/fairwindsops/pluto
+module github.com/fairwindsops/pluto/v5
 
 go 1.21
 
 require (
-	github.com/fairwindsops/pluto/v5 v5.18.4
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rogpeppe/go-internal v1.11.0
 	github.com/spf13/cobra v1.7.0

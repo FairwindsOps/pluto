@@ -134,7 +134,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
 			err := v.BindEnv(f.Name, fmt.Sprintf("%s_%s", envPrefix, envVarSuffix))
 			if err != nil {
-				klog.Errorf("error binding flag %s to env var %s_%s: %w", f.Name, envPrefix, envVarSuffix, err)
+				klog.Errorf("error binding flag %s to env var %s_%s: %v", f.Name, envPrefix, envVarSuffix, err)
 				return
 			}
 		}
@@ -143,7 +143,7 @@ func bindFlags(cmd *cobra.Command, v *viper.Viper) {
 			val := v.Get(f.Name)
 			err := cmd.Flags().Set(f.Name, fmt.Sprintf("%v", val))
 			if err != nil {
-				klog.Errorf("error setting flag %s to %v: %w", f.Name, val, err)
+				klog.Errorf("error setting flag %s to %v: %v", f.Name, val, err)
 				return
 			}
 		}

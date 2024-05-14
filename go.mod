@@ -12,7 +12,7 @@ require (
 	github.com/thoas/go-funk v0.9.3
 	golang.org/x/mod v0.13.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.13.0
+	helm.sh/helm/v3 v3.14.2
 	k8s.io/api v0.28.2
 	k8s.io/apimachinery v0.28.2
 	k8s.io/client-go v0.28.2

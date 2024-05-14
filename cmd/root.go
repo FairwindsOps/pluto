@@ -35,12 +35,12 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/mod/semver"
+	"github.com/fairwindsops/pluto/v5/pkg/api"
+	discoveryapi "github.com/fairwindsops/pluto/v5/pkg/discovery-api"
+	"github.com/fairwindsops/pluto/v5/pkg/finder"
+	"github.com/fairwindsops/pluto/v5/pkg/helm"
+	"github.com/rogpeppe/go-internal/semver"
 
-	"github.com/fairwindsops/pluto/pkg/api"
-	discoveryapi "github.com/fairwindsops/pluto/pkg/discovery-api"
-	"github.com/fairwindsops/pluto/pkg/finder"
-	"github.com/fairwindsops/pluto/pkg/helm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"

@@ -145,6 +145,10 @@ func (cl *DiscoveryClient) GetApiResources() error {
 						klog.Errorf("failed to parse 'last-applied-configuration' annotation of resource %s/%s: %s", r.GetNamespace(), r.GetName(), err.Error())
 						continue
 					}
+					if r.Object["kind"] != manifest["kind"] {
+						klog.V(2).Infof("Object Kind %s does not match last-applied-configuration-kind %s. Skipping", r.Object["kind"], manifest["kind"])
+						continue
+					}
 					data, err := json.Marshal(manifest)
 					if err != nil {
 						klog.Error("Failed to marshal data ", err.Error())

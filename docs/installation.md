@@ -11,9 +11,8 @@ We have an [asdf](https://asdf-vm.com/#/) plugin [here](https://github.com/Fairw
 
 ```
 asdf plugin-add pluto
-asdf list-all pluto
-asdf install pluto <latest version>
-asdf local pluto <latest version>
+asdf install pluto latest
+asdf local pluto latest
 ```
 
 ## Binary

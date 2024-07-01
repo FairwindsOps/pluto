@@ -67,6 +67,7 @@ var (
 	noHeaders                     bool
 	exitCode                      int
 	noFooter                      bool
+	kubeconfig                    string
 )
 
 const (
@@ -104,6 +105,7 @@ func init() {
 	detectHelmCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
 	rootCmd.AddCommand(detectApiResourceCmd)
+	detectApiResourceCmd.PersistentFlags().StringVarP(&kubeconfig, "kubeconfig", "", "", "The path to the kubeconfig file to use. If blank, defaults to current kubeconfig.")
 	detectApiResourceCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
 	detectApiResourceCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 

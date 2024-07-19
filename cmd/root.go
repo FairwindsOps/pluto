@@ -67,7 +67,7 @@ var (
 	noHeaders                     bool
 	exitCode                      int
 	noFooter                      bool
-	kubeconfig                    string
+	kubeConfigPath                string
 )
 
 const (
@@ -101,15 +101,17 @@ func init() {
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
 
 	rootCmd.AddCommand(detectHelmCmd)
+	detectHelmCmd.PersistentFlags().StringVarP(&kubeConfigPath, "kubeconfig", "", "", "The path to the kubeconfig file to use. If blank, defaults to current kubeconfig.")
 	detectHelmCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect releases in a specific namespace.")
 	detectHelmCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
 	rootCmd.AddCommand(detectApiResourceCmd)
-	detectApiResourceCmd.PersistentFlags().StringVarP(&kubeconfig, "kubeconfig", "", "", "The path to the kubeconfig file to use. If blank, defaults to current kubeconfig.")
+	detectApiResourceCmd.PersistentFlags().StringVarP(&kubeConfigPath, "kubeconfig", "", "", "The path to the kubeconfig file to use. If blank, defaults to current kubeconfig.")
 	detectApiResourceCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
 	detectApiResourceCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
 	rootCmd.AddCommand(detectAllInClusterCmd)
+	detectAllInClusterCmd.PersistentFlags().StringVarP(&kubeConfigPath, "kubeconfig", "", "", "The path to the kubeconfig file to use. If blank, defaults to current kubeconfig.")
 	detectAllInClusterCmd.PersistentFlags().StringVarP(&namespace, "namespace", "n", "", "Only detect resources in a specific namespace.")
 	detectAllInClusterCmd.PersistentFlags().StringVar(&kubeContext, "kube-context", "", "The kube context to use. If blank, defaults to current context.")
 
@@ -477,7 +479,7 @@ func Execute(VERSION string, COMMIT string, versionsFile []byte) {
 }
 
 func detectHelm() error {
-	h, err := helm.NewHelm(namespace, kubeContext, apiInstance)
+	h, err := helm.NewHelm(namespace, kubeContext, apiInstance, kubeConfigPath)
 	if err != nil {
 		return fmt.Errorf("error getting helm configuration: %v", err)
 	}
@@ -489,7 +491,7 @@ func detectHelm() error {
 }
 
 func detectAPIResources() error {
-	disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance)
+	disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance, kubeConfigPath)
 	if err != nil {
 		return fmt.Errorf("Error creating Discovery REST Client: %v", err)
 	}

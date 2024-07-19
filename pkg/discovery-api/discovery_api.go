@@ -114,7 +114,7 @@ func (cl *DiscoveryClient) GetApiResources() error {
 		klog.V(2).Infof("Retrieving : %s.%s.%s", g.Resource, g.Version, g.Group)
 		rs, err := ri.List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
-			klog.V(2).Infof("Failed to retrieve: ", g, err)
+			klog.V(2).Info("Failed to retrieve: ", g, err)
 			continue
 		}
 
@@ -142,7 +142,11 @@ func (cl *DiscoveryClient) GetApiResources() error {
 
 					err := json.Unmarshal([]byte(jsonManifest), &manifest)
 					if err != nil {
-						klog.Error("failed to parse 'last-applied-configuration' annotation of resource %s/%s: %s", r.GetNamespace(), r.GetName(), err.Error())
+						klog.Errorf("failed to parse 'last-applied-configuration' annotation of resource %s/%s: %s", r.GetNamespace(), r.GetName(), err.Error())
+						continue
+					}
+					if r.Object["kind"] != manifest["kind"] {
+						klog.V(2).Infof("Object Kind %s does not match last-applied-configuration-kind %s. Skipping", r.Object["kind"], manifest["kind"])
 						continue
 					}
 					data, err := json.Marshal(manifest)

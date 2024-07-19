@@ -29,11 +29,11 @@
 package kube
 
 import (
+	"os"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 
 	// This is required to auth to cloud providers (i.e. GKE)
@@ -76,27 +76,19 @@ func GetConfigInstance(kubeContext string, kubeConfigPath string) (*Kube, error)
 
 // GetConfig returns the current kube config with a specific context
 func GetConfig(kubeContext string, kubeConfigPath string) (*rest.Config, error) {
-	var kubeConfig *rest.Config
-	var err error
 
 	if kubeContext != "" {
 		klog.V(3).Infof("using kube context: %s", kubeContext)
 	}
 
 	if kubeConfigPath != "" {
-		kubeConfig, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-			&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfigPath},
-			&clientcmd.ConfigOverrides{
-				CurrentContext: kubeContext,
-			}).ClientConfig()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		kubeConfig, err = config.GetConfigWithContext(kubeContext)
-		if err != nil {
-			return nil, err
-		}
+		klog.V(3).Infof("using kubeconfig at path: %s", kubeConfigPath)
+		os.Setenv("KUBECONFIG", kubeConfigPath)
+	}
+
+	kubeConfig, err := config.GetConfigWithContext(kubeContext)
+	if err != nil {
+		return nil, err
 	}
 
 	return kubeConfig, nil

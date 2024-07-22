@@ -39,7 +39,7 @@ import (
 	discoveryapi "github.com/fairwindsops/pluto/v5/pkg/discovery-api"
 	"github.com/fairwindsops/pluto/v5/pkg/finder"
 	"github.com/fairwindsops/pluto/v5/pkg/helm"
-	"github.com/rogpeppe/go-internal/semver"
+	"golang.org/x/mod/semver"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

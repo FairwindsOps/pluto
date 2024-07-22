@@ -24,34 +24,59 @@ import (
 
 func Test_getKubeClient(t *testing.T) {
 	tests := []struct {
-		name        string
-		kubeContext string
-		kubeConfig  string
-		wantErr     bool
+		name           string
+		kubeContext    string
+		kubeConfig     string
+		kubeConfigPath string
+		wantErr        bool
 	}{
 		{
-			name:        "context does not exist",
-			kubeContext: "farglebargle",
-			kubeConfig:  "testdata/kubeconfig",
-			wantErr:     true,
+			name:           "context does not exist",
+			kubeContext:    "farglebargle",
+			kubeConfig:     "testdata/kubeconfig",
+			kubeConfigPath: "",
+			wantErr:        true,
 		},
 		{
-			name:        "context exists",
-			kubeContext: "kind-kind",
-			kubeConfig:  "testdata/kubeconfig",
-			wantErr:     false,
+			name:           "context exists",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig",
+			kubeConfigPath: "",
+			wantErr:        false,
 		},
 		{
-			name:        "invalid kubeconfig",
-			kubeContext: "kind-kind",
-			kubeConfig:  "testdata/kubeconfig_invalid",
-			wantErr:     true,
+			name:           "invalid kubeconfig",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig_invalid",
+			kubeConfigPath: "",
+			wantErr:        true,
+		},
+		{
+			name:           "invalid kubeconfig",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig_invalid",
+			kubeConfigPath: "",
+			wantErr:        true,
+		},
+		{
+			name:           "valid kubeconfig path",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig_invalid",
+			kubeConfigPath: "testdata/kubeconfig",
+			wantErr:        false,
+		},
+		{
+			name:           "invalid kubeconfig path",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig",
+			kubeConfigPath: "testdata/kubeconfig_invalid",
+			wantErr:        true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			os.Setenv("KUBECONFIG", tt.kubeConfig)
-                        _, err := GetConfig(tt.kubeContext)
+			_, err := GetConfig(tt.kubeContext, tt.kubeConfigPath)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

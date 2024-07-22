@@ -54,13 +54,13 @@ type DiscoveryClient struct {
 }
 
 // NewDiscoveryClient returns a new struct with config portions complete.
-func NewDiscoveryClient(namespace string, kubeContext string, instance *api.Instance) (*DiscoveryClient, error) {
+func NewDiscoveryClient(namespace string, kubeContext string, instance *api.Instance, kubeConfigPath string) (*DiscoveryClient, error) {
 	cl := &DiscoveryClient{
 		Instance: instance,
 	}
 
 	var err error
-	cl.restConfig, err = kube.GetConfig(kubeContext)
+	cl.restConfig, err = kube.GetConfig(kubeContext, kubeConfigPath)
 	if err != nil {
 		return nil, err
 	}

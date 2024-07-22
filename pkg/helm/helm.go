@@ -74,8 +74,8 @@ type ChartMeta struct {
 }
 
 // NewHelm returns a basic helm struct with the version of helm requested
-func NewHelm(namespace string, kubeContext string, instance *api.Instance) (*Helm, error) {
-	config, err := kube.GetConfigInstance(kubeContext)
+func NewHelm(namespace string, kubeContext string, instance *api.Instance, kubeConfigPath string) (*Helm, error) {
+	config, err := kube.GetConfigInstance(kubeContext, kubeConfigPath)
 	if err != nil {
 		return nil, err
 	}

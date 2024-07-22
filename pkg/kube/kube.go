@@ -29,6 +29,7 @@
 package kube
 
 import (
+	"flag"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
@@ -48,15 +49,15 @@ var kubeClient *Kube
 var once sync.Once
 
 // GetConfigInstance returns a Pluto Kubernetes interface based on the current configuration
-func GetConfigInstance(kubeContext string) (*Kube, error) {
+func GetConfigInstance(kubeContext string, kubeConfigPath string) (*Kube, error) {
 	var err error
 	var client kubernetes.Interface
 	var kubeConfig *rest.Config
 
-	kubeConfig, err = GetConfig(kubeContext)
-        if err != nil {
-                return nil, err
-        }
+	kubeConfig, err = GetConfig(kubeContext, kubeConfigPath)
+	if err != nil {
+		return nil, err
+	}
 
 	once.Do(func() {
 		if kubeClient == nil {
@@ -74,15 +75,21 @@ func GetConfigInstance(kubeContext string) (*Kube, error) {
 }
 
 // GetConfig returns the current kube config with a specific context
-func GetConfig(kubeContext string) (*rest.Config, error) {
+func GetConfig(kubeContext string, kubeConfigPath string) (*rest.Config, error) {
+
 	if kubeContext != "" {
 		klog.V(3).Infof("using kube context: %s", kubeContext)
 	}
+
+	fs := flag.NewFlagSet("fs", flag.ContinueOnError)
+	fs.String("kubeconfig", kubeConfigPath, "")
+	config.RegisterFlags(fs)
 
 	kubeConfig, err := config.GetConfigWithContext(kubeContext)
 	if err != nil {
 		return nil, err
 	}
+
 	return kubeConfig, nil
 }
 

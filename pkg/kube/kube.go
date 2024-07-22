@@ -29,7 +29,7 @@
 package kube
 
 import (
-	"os"
+	"flag"
 	"sync"
 
 	"k8s.io/client-go/kubernetes"
@@ -81,10 +81,9 @@ func GetConfig(kubeContext string, kubeConfigPath string) (*rest.Config, error) 
 		klog.V(3).Infof("using kube context: %s", kubeContext)
 	}
 
-	if kubeConfigPath != "" {
-		klog.V(3).Infof("using kubeconfig at path: %s", kubeConfigPath)
-		os.Setenv("KUBECONFIG", kubeConfigPath)
-	}
+	fs := flag.NewFlagSet("fs", flag.ContinueOnError)
+	fs.String("kubeconfig", kubeConfigPath, "")
+	config.RegisterFlags(fs)
 
 	kubeConfig, err := config.GetConfigWithContext(kubeContext)
 	if err != nil {

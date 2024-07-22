@@ -58,6 +58,20 @@ func Test_getKubeClient(t *testing.T) {
 			kubeConfigPath: "",
 			wantErr:        true,
 		},
+		{
+			name:           "valid kubeconfig path",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig_invalid",
+			kubeConfigPath: "testdata/kubeconfig",
+			wantErr:        false,
+		},
+		{
+			name:           "invalid kubeconfig path",
+			kubeContext:    "kind-kind",
+			kubeConfig:     "testdata/kubeconfig",
+			kubeConfigPath: "testdata/kubeconfig_invalid",
+			wantErr:        true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

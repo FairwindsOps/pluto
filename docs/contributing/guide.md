@@ -96,7 +96,7 @@ There is a Makefile that can assist in validating and testing the orb locally.  
 
 ## Creating a new release
 
-Push a new annotated tag.  This tag should contain a changelog of pertinent changes. Goreleaser will take care of the rest.
+Push a new tag and Goreleaser will take care of the rest.
 
 ## Pre-commit
 

@@ -565,6 +565,60 @@ deprecated-versions:
     removed-in: v1.29.0
     replacement-api: flowcontrol.apiserver.k8s.io/v1beta3
     component: k8s
+  - version: audit.k8s.io/v1alpha1
+    kind: Policy
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1alpha1
+    kind: Policy
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1alpha1
+    kind: PolicyList
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1alpha1
+    kind: Event
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1alpha1
+    kind: EventList
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1beta1
+    kind: Policy
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1beta1
+    kind: PolicyList
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1beta1
+    kind: Event
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
+  - version: audit.k8s.io/v1beta1
+    kind: EventList
+    deprecated-in: v1.21.0
+    removed-in: v1.24.0
+    replacement-api: audit.k8s.io/v1
+    component: k8s
 target-versions:
     cert-manager: v1.5.3
     istio: v1.11.0

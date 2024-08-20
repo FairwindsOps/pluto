@@ -8,11 +8,11 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.21
+      - image: cimg/go:1.22
 
 references:
   e2e_config: &e2e_config
-    command_runner_image: quay.io/reactiveops/ci-images:v12-buster
+    command_runner_image: quay.io/reactiveops/ci-images:v14-bullseye
     kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
     executor: golang-exec
     pre_script: e2e/pre.sh
@@ -48,7 +48,7 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.21
+      - image: cimg/go:1.22
     steps:
       - checkout
       - run: go mod download && go mod verify
@@ -58,7 +58,7 @@ jobs:
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v1.22.1
+      - image: goreleaser/goreleaser:v1.26.2
         environment:
           GO111MODULE: "on"
     steps:
@@ -79,7 +79,7 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v1.22.1
+      - image: goreleaser/goreleaser:v1.26.2
     steps:
       - checkout
       - setup_remote_docker
@@ -90,7 +90,7 @@ jobs:
   publish-dev-orb:
     working_directory: /go/src/github.com/fairwindsops/pluto
     docker:
-      - image: quay.io/reactiveops/ci-images:v12-alpine
+      - image: quay.io/reactiveops/ci-images:v14-alpine
     shell: /bin/bash
     steps:
       - checkout
@@ -105,7 +105,7 @@ jobs:
           token-variable: CIRCLECI_DEV_API_TOKEN
   request-orb-publish:
     docker:
-      - image: quay.io/reactiveops/ci-images:v12-alpine
+      - image: quay.io/reactiveops/ci-images:v14-alpine
     steps:
       - *install_vault_alpine
       - rok8s/get_vault_env:

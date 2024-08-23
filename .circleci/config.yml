@@ -8,7 +8,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.22
+      - image: cimg/go:1.23
 
 references:
   e2e_config: &e2e_config
@@ -48,7 +48,7 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.22
+      - image: cimg/go:1.23
     steps:
       - checkout
       - run: go mod download && go mod verify
@@ -58,7 +58,7 @@ jobs:
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v1.26.2
+      - image: goreleaser/goreleaser:v2.2.0
         environment:
           GO111MODULE: "on"
     steps:
@@ -79,11 +79,11 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v1.26.2
+      - image: goreleaser/goreleaser:v2.2.0
     steps:
       - checkout
       - setup_remote_docker
-      - run: goreleaser --snapshot --skip-sign
+      - run: goreleaser --snapshot --skip=sign
       - store_artifacts:
           path: dist
           destination: snapshot

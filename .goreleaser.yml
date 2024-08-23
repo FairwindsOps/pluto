@@ -1,10 +1,11 @@
+version: 2
 brews:
   - name: pluto
     goarm: 6
     repository:
       owner: FairwindsOps
       name: homebrew-tap
-    folder: Formula
+    directory: Formula
     description: Detect deprecated Kubernetes apiVersions
     test: |
       system "#{bin}/pluto version"

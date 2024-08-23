@@ -1,6 +1,6 @@
 module github.com/fairwindsops/pluto/v5
 
-go 1.23.0
+go 1.22.6
 
 require (
 	github.com/olekukonko/tablewriter v0.0.5

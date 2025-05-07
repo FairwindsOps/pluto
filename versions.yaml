@@ -572,12 +572,6 @@ deprecated-versions:
     replacement-api: audit.k8s.io/v1
     component: k8s
   - version: audit.k8s.io/v1alpha1
-    kind: Policy
-    deprecated-in: v1.21.0
-    removed-in: v1.24.0
-    replacement-api: audit.k8s.io/v1
-    component: k8s
-  - version: audit.k8s.io/v1alpha1
     kind: PolicyList
     deprecated-in: v1.21.0
     removed-in: v1.24.0

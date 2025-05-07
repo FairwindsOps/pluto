@@ -296,9 +296,8 @@ func (instance *Instance) PrintVersionList(outputFormat string) error {
 		}
 		fmt.Println(string(data))
 	default:
-		errText := "The output format must one of (normal|wide|json|yaml)"
-		fmt.Println(errText)
-		return fmt.Errorf(errText)
+		fmt.Println("The output format must one of (normal|wide|json|yaml)")
+		return fmt.Errorf("The output format must one of (normal|wide|json|yaml)")
 	}
 	return nil
 }

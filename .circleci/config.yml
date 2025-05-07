@@ -56,8 +56,58 @@ jobs:
       - run:
           name: Check for duplicates in versions.yaml
           command: |
-            sudo apt-get update && sudo apt-get install -y python3-yaml
-            python3 scripts/check_duplicates.py versions.yaml
+            echo "Checking for duplicates in versions.yaml..."
+            
+            # Create a temporary file to store version-kind pairs
+            temp_file=$(mktemp)
+            
+            # Extract version and kind pairs
+            grep -A 1 "version:" versions.yaml | grep -v "^--$" | grep -v "^$" > "$temp_file"
+            
+            # Process the file to create version-kind pairs
+            version=""
+            kind=""
+            pairs=()
+            
+            while IFS= read -r line; do
+              if [[ "$line" =~ version:\ (.+) ]]; then
+                version="${BASH_REMATCH[1]}"
+              elif [[ "$line" =~ kind:\ (.+) ]]; then
+                kind="${BASH_REMATCH[1]}"
+                if [[ -n "$version" && -n "$kind" ]]; then
+                  pairs+=("$version:$kind")
+                  version=""
+                  kind=""
+                fi
+              fi
+            done < "$temp_file"
+            
+            # Find duplicates
+            duplicates=()
+            declare -A seen=()
+            
+            for pair in "${pairs[@]}"; do
+              if [[ -n "${seen[$pair]}" ]]; then
+                duplicates+=("$pair")
+              else
+                seen[$pair]=1
+              fi
+            done
+            
+            # Report results
+            if [[ ${#duplicates[@]} -gt 0 ]]; then
+              echo "ERROR: Duplicate entries found in versions.yaml:"
+              for dup in "${duplicates[@]}"; do
+                IFS=':' read -r ver k <<< "$dup"
+                echo "  - version: $ver, kind: $k"
+              done
+              rm "$temp_file"
+              exit 1
+            else
+              echo "No duplicates found in versions.yaml"
+              rm "$temp_file"
+              exit 0
+            fi
   release:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large

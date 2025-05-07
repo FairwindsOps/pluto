@@ -53,6 +53,11 @@ jobs:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+      - run:
+          name: Check for duplicates in versions.yaml
+          command: |
+            sudo apt-get update && sudo apt-get install -y python3-yaml
+            python3 scripts/check_duplicates.py versions.yaml
   release:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large

@@ -621,15 +621,17 @@ deprecated-versions:
     component: k8s
   - version: flowcontrol.apiserver.k8s.io/v1beta3
     kind: FlowSchema
-    deprecated-in: v1.24.0
+    deprecated-in: v1.29.0
     removed-in: v1.32.0
     replacement-api: flowcontrol.apiserver.k8s.io/v1
+    replacement-available-in: v1.29.0
     component: k8s
   - version: flowcontrol.apiserver.k8s.io/v1beta3
     kind: PriorityLevelConfiguration
-    deprecated-in: v1.31.0
+    deprecated-in: v1.29.0
     removed-in: v1.32.0
     replacement-api: flowcontrol.apiserver.k8s.io/v1
+    replacement-available-in: v1.29.0
     component: k8s
 target-versions:
     cert-manager: v1.5.3

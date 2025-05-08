@@ -48,9 +48,14 @@ checksum:
   name_template: "checksums.txt"
 
 signs:
-- cmd: cosign
-  args: ["sign-blob", "--yes", "--key=hashivault://cosign", "--output-signature=${signature}", "${artifact}"]
-  artifacts: checksum
+  - cmd: cosign
+    args:
+      - "sign-blob"
+      - "--key=hashivault://cosign"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: all
 
 docker_signs:
 - artifacts: all

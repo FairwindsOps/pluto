@@ -570,7 +570,7 @@ func ExampleInstance_PrintVersionList_badformat() {
 	_ = instance.PrintVersionList("foo")
 
 	// Output:
-	// The output format must one of (normal|wide|json|yaml)
+	// The output format must be one of (normal|wide|json|yaml)
 }
 
 func Test_isDuplicate(t *testing.T) {

@@ -1,0 +1,821 @@
+version: "2"
+name: "Additional CLI Coverage"
+testcases:
+- name: pluto version
+  steps:
+  - script: pluto version
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "Pluto version:"
+
+- name: detect-files -ojson
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.16.0 -ojson
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldEqual {"items":[{"name":"utilities","namespace":"<UNKNOWN>","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","replacement-available-in":"v1.9.0","component":"k8s"},"deprecated":true,"removed":true,"replacementAvailable":true,"filepath":"tests/assets/deprecated116/deployment-extensions-v1beta1.yaml"}],"target-versions":{"cert-manager":"v1.5.3","istio":"v1.11.0","k8s":"v1.16.0"}}
+
+- name: detect-files -oyaml
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.16.0 -oyaml
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "items:"
+    - result.systemout ShouldContainSubstring "- name: utilities"
+    - result.systemout ShouldContainSubstring "  namespace: <UNKNOWN>"
+    - result.systemout ShouldContainSubstring "  api:"
+    - result.systemout ShouldContainSubstring "    version: extensions/v1beta1"
+    - result.systemout ShouldContainSubstring "    kind: Deployment"
+    - result.systemout ShouldContainSubstring "    deprecated-in: v1.9.0"
+    - result.systemout ShouldContainSubstring "    removed-in: v1.16.0"
+    - result.systemout ShouldContainSubstring "    replacement-api: apps/v1"
+    - result.systemout ShouldContainSubstring "  deprecated: true"
+    - result.systemout ShouldContainSubstring "  removed: true"
+    - result.systemout ShouldContainSubstring "  filepath: tests/assets/deprecated116/deployment-extensions-v1beta1.yaml"
+    - result.systemout ShouldContainSubstring "target-versions:"
+    - result.systemout ShouldContainSubstring "  k8s: v1.16.0"
+
+- name: detect-files -omarkdown
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.16.0 -omarkdown
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "| NAME      | NAMESPACE   | KIND       | VERSION            | REPLACEMENT   | DEPRECATED   | REMOVED   |" # Header check
+    - result.systemout ShouldContainSubstring "| utilities | <UNKNOWN>   | Deployment | extensions/v1beta1 | apps/v1       | true         | true      |" # Data check
+
+- name: detect-files --ignore-deprecations
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.15.0 --ignore-deprecations
+    assertions:
+    - result.code ShouldEqual 0 # Deprecated in 1.15, but ignored
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       false     true"
+
+- name: detect-files --ignore-removals
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.16.0 --ignore-removals
+    assertions:
+    - result.code ShouldEqual 0 # Removed in 1.16, but ignored
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true      true"
+
+- name: detect-files --ignore-replacement-available
+  steps:
+  - script: pluto detect-files -d assets/deprecated116 --target-versions k8s=v1.16.0 --ignore-replacement-available
+    assertions:
+    - result.code ShouldEqual 0 # Removed in 1.16, replacement available, and ignored
+    - result.systemout ShouldContainSubstring "NAME        KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "utilities   Deployment   extensions/v1beta1   apps/v1       true      true"
+
+- name: setup helm assets for yaml and markdown output
+  steps:
+  - script: |
+      kubectl create ns demo-helm-formats || true
+      kubectl apply -f assets/helm3 -n demo-helm-formats
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: detect-helm -oyaml
+  steps:
+  - script: pluto detect-helm --target-versions k8s=v1.16.0 -oyaml -n demo-helm-formats
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "items:"
+    - result.systemout ShouldContainSubstring "- name: test/test-helm3chart-v1beta1"
+    - result.systemout ShouldContainSubstring "  namespace: demo-helm-formats"
+    - result.systemout ShouldContainSubstring "  api:"
+    - result.systemout ShouldContainSubstring "    version: extensions/v1beta1"
+    - result.systemout ShouldContainSubstring "    kind: Deployment"
+    - result.systemout ShouldContainSubstring "target-versions:"
+    - result.systemout ShouldContainSubstring "  k8s: v1.16.0"
+
+- name: detect-helm -omarkdown
+  steps:
+  - script: pluto detect-helm --target-versions k8s=v1.16.0 -omarkdown -n demo-helm-formats
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "| NAME                           | NAMESPACE         | KIND         | VERSION            | REPLACEMENT   | DEPRECATED   | REMOVED   |" # Header
+    - result.systemout ShouldContainSubstring "| test/test-helm3chart-v1beta1   | demo-helm-formats | Deployment   | extensions/v1beta1 | apps/v1       | true         | true      |" # Data
+
+- name: cleanup helm assets for yaml and markdown output
+  steps:
+  - script: |
+      kubectl delete -f assets/helm3 -n demo-helm-formats
+      kubectl delete ns demo-helm-formats
+
+- name: setup helm assets for ignore replacement available
+  steps:
+  - script: |
+      kubectl create ns demo-helm-ira || true
+      kubectl apply -f assets/helm3 -n demo-helm-ira
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: detect-helm --ignore-replacement-available
+  steps:
+  - script: pluto detect-helm --target-versions k8s=v1.16.0 --ignore-replacement-available -n demo-helm-ira
+    assertions:
+    - result.code ShouldEqual 0 # Removed in 1.16, replacement available, and ignored
+    - result.systemout ShouldContainSubstring "NAME                           KIND         VERSION              REPLACEMENT   REMOVED   DEPRECATED"
+    - result.systemout ShouldContainSubstring "test/test-helm3chart-v1beta1   Deployment   extensions/v1beta1   apps/v1       true      true"
+
+- name: cleanup helm assets for ignore replacement available
+  steps:
+  - script: |
+      kubectl delete -f assets/helm3 -n demo-helm-ira
+      kubectl delete ns demo-helm-ira
+
+- name: detect single file -ojson
+  steps:
+  - script: pluto detect assets/deprecated116/deployment-extensions-v1beta1.yaml --target-versions k8s=v1.16.0 -ojson
+    assertions:
+    - result.code ShouldEqual 3
+    # Assuming filepath for single file detect is also mapped under tests/assets by the runner
+    - result.systemout ShouldEqual {"items":[{"name":"utilities","namespace":"<UNKNOWN>","api":{"version":"extensions/v1beta1","kind":"Deployment","deprecated-in":"v1.9.0","removed-in":"v1.16.0","replacement-api":"apps/v1","replacement-available-in":"v1.9.0","component":"k8s"},"deprecated":true,"removed":true,"replacementAvailable":true,"filepath":"tests/assets/deprecated116/deployment-extensions-v1beta1.yaml"}],"target-versions":{"cert-manager":"v1.5.3","istio":"v1.11.0","k8s":"v1.16.0"}}
+
+- name: detect single file -oyaml
+  steps:
+  - script: pluto detect assets/deprecated116/deployment-extensions-v1beta1.yaml --target-versions k8s=v1.16.0 -oyaml
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "items:"
+    - result.systemout ShouldContainSubstring "- name: utilities"
+    - result.systemout ShouldContainSubstring "  filepath: tests/assets/deprecated116/deployment-extensions-v1beta1.yaml"
+    - result.systemout ShouldContainSubstring "target-versions:"
+    - result.systemout ShouldContainSubstring "  k8s: v1.16.0"
+
+- name: detect single file -omarkdown
+  steps:
+  - script: pluto detect assets/deprecated116/deployment-extensions-v1beta1.yaml --target-versions k8s=v1.16.0 -omarkdown
+    assertions:
+    - result.code ShouldEqual 3
+    - result.systemout ShouldContainSubstring "| NAME      | NAMESPACE   | KIND       | VERSION            | REPLACEMENT   | DEPRECATED   | REMOVED   |" # Header
+    - result.systemout ShouldContainSubstring "| utilities | <UNKNOWN>   | Deployment | extensions/v1beta1 | apps/v1       | true         | true      |" # Data
+
+- name: list-versions -ojson
+  steps:
+  - script: pluto list-versions -ojson
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "\"versions\":["
+    - result.systemout ShouldContainSubstring "\"kind\":\"APIService\",\"api-version\":\"apiregistration.k8s.io/v1beta1\",\"deprecated-in\":\"v1.10.0\",\"removed-in\":\"v1.19.0\",\"replacement-api\":\"apiregistration.k8s.io/v1\",\"component\":\"k8s\""
+
+- name: list-versions -oyaml
+  steps:
+  - script: pluto list-versions -oyaml
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "versions:"
+    - result.systemout ShouldContainSubstring "- kind: APIService"
+    - result.systemout ShouldContainSubstring "  api-version: apiregistration.k8s.io/v1beta1"
+    - result.systemout ShouldContainSubstring "  deprecated-in: v1.10.0"
+    - result.systemout ShouldContainSubstring "  removed-in: v1.19.0"
+    - result.systemout ShouldContainSubstring "  replacement-api: apiregistration.k8s.io/v1"
+    - result.systemout ShouldContainSubstring "  component: k8s"
+
+- name: list-versions -omarkdown
+  steps:
+  - script: pluto list-versions -omarkdown
+    assertions:
+    - result.code ShouldEqual 0
+    - result.systemout ShouldContainSubstring "| KIND   | API_VERSION   | DEPRECATED_IN   | REMOVED_IN   | REPLACEMENT_API   | COMPONENT   |" # Header
+    - result.systemout ShouldContainSubstring "| APIService | apiregistration.k8s.io/v1beta1 | v1.10.0 | v1.19.0 | apiregistration.k8s.io/v1 | k8s |" # Data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        This new file adds a variety of tests that should help improve the coverage of Pluto's CLI functionality. Remember to adjust the assertions, especially the JSON `ShouldEqual` parts, if the default target versions for components like `cert-manager` or `istio` change in your Pluto setup, or if the `filepath` mapping in your test environment differs from `tests/assets/...`.
+
+Let me know if you'd like any specific areas to be tested further!

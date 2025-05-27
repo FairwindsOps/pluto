@@ -14,18 +14,12 @@ release:
   footer: |
     You can verify the signatures of both the checksums.txt file and the published docker images using [cosign](https://github.com/sigstore/cosign).
 
-    cosign 1.x
-    ```
-    cosign verify-blob checksums.txt --signature=checksums.txt.sig  --key https://artifacts.fairwinds.com/cosign.pub
-    ```
-
-    cosign 2.x
-    ```
-    cosign verify-blob checksums.txt --signature=checksums.txt.sig  --key https://artifacts.fairwinds.com/cosign.pub --insecure-ignore-tlog
+    ```bash
+    cosign verify-blob checksums.txt --signature=checksums.txt.sig  --key https://artifacts.fairwinds.com/cosign-p256.pub
     ```
 
     ```
-    cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 --key https://artifacts.fairwinds.com/cosign.pub
+    cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 --key https://artifacts.fairwinds.com/cosign-p256.pub
     ```
 builds:
   - ldflags:

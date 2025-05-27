@@ -51,7 +51,7 @@ signs:
   - cmd: cosign
     args:
       - "sign-blob"
-      - "--key=hashivault://cosign"
+      - "--key=hashivault://cosign-p256"
       - "--output-signature=${signature}"
       - "${artifact}"
       - "--yes"
@@ -59,7 +59,7 @@ signs:
 
 docker_signs:
 - artifacts: all
-  args: ["sign", "--key=hashivault://cosign", "us-docker.pkg.dev/fairwinds-ops/oss/pluto@${digest}", "-r", "--yes"]
+  args: ["sign", "--key=hashivault://cosign-p256", "us-docker.pkg.dev/fairwinds-ops/oss/pluto@${digest}", "-r", "--yes"]
 
 dockers:
 - image_templates:

@@ -23,6 +23,8 @@ import (
 	"text/tabwriter"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 
 	"gopkg.in/yaml.v3"
 )
@@ -121,8 +123,6 @@ func (instance *Instance) DisplayOutput() error {
 		}
 		t := instance.markdownOut(c)
 		if t != nil {
-			t.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-			t.SetCenterSeparator("|")
 			t.Render()
 		}
 	case "csv":
@@ -224,7 +224,11 @@ func (instance *Instance) tabOut(columns columnList) *tabwriter.Writer {
 }
 
 func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
-	table := tablewriter.NewWriter(os.Stdout)
+	table := tablewriter.NewTable(
+		os.Stdout,
+		tablewriter.WithRenderer(renderer.NewMarkdown()),
+		tablewriter.WithHeaderAlignment(tw.AlignNone), // retain parity with previous versions
+	)
 
 	if len(instance.Outputs) == 0 {
 		_, _ = fmt.Println("No output to display")
@@ -243,7 +247,8 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 			headers = append(headers, columns[k].header())
 		}
 
-		table.SetHeader(headers)
+		// table.SetHeader(headers)
+		table.Header(headers)
 	}
 
 	for _, o := range instance.Outputs {

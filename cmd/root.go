@@ -164,6 +164,10 @@ var rootCmd = &cobra.Command{
 		}
 		os.Exit(1)
 	},
+	PersistentPostRun: func(cmd *cobra.Command, args []string) {
+		klog.V(5).Infof("exiting with code %d", exitCode)
+		os.Exit(exitCode)
+	},
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		err := initializeConfig(cmd)
 		if err != nil {

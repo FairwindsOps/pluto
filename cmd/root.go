@@ -66,7 +66,6 @@ var (
 	kubeContext                   string
 	noHeaders                     bool
 	exitCode                      int
-	noFooter                      bool
 	kubeConfigPath                string
 )
 
@@ -95,7 +94,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown|csv)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print. Mandatory when using --output custom, optional with --output markdown")
 	rootCmd.PersistentFlags().StringSliceVar(&componentsFromUser, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
-	rootCmd.PersistentFlags().BoolVar(&noFooter, "no-footer", false, "Disable footer output")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -167,13 +165,6 @@ var rootCmd = &cobra.Command{
 		os.Exit(1)
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-
-		if noFooter, err := cmd.Flags().GetBool("no-footer"); err == nil && noFooter {
-			klog.V(5).Infof("exiting with code %d", exitCode)
-			os.Exit(exitCode)
-		}
-
-		os.Stderr.WriteString("\n\nWant more? Automate Pluto for free with Fairwinds Insights!\n 🚀 https://fairwinds.com/insights-signup/pluto 🚀 \n")
 		klog.V(5).Infof("exiting with code %d", exitCode)
 		os.Exit(exitCode)
 	},

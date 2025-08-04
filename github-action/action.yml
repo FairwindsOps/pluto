@@ -44,8 +44,8 @@ runs:
         DEST="/usr/local/bin/pluto"
 
         if [[ "$ENGINE" == "podman" ]]; then
-          "$ENGINE" pull "$IMAGE"
-          "$ENGINE" cp $("${ENGINE}" create --rm "$IMAGE":/pluto) "$DEST"
+          podman pull ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}
+          podman cp $(podman create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
         elif [[ "$ENGINE" == "docker" ]]; then
           "$ENGINE" pull "$IMAGE"
           CID=$("$ENGINE" create "$IMAGE")

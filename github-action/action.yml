@@ -43,17 +43,21 @@ runs:
         IMAGE="${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}"
         DEST="/usr/local/bin/pluto"
 
-        if [[ "$ENGINE" == "podman" ]]; then
-          "$ENGINE" pull "$IMAGE"
-          "$ENGINE" cp $($ENGINE create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
-        elif [[ "$ENGINE" == "docker" ]]; then
-          "$ENGINE" pull "$IMAGE"
-          CID=$("$ENGINE" create "$IMAGE")
-          "$ENGINE" cp "$CID":/pluto "$DEST"
-          "$ENGINE" rm "$CID"
-        else
-          echo "Unknown engine: $ENGINE" >&2
-          exit 2
-        fi
+        # Maybe the engine doesn't matter?
+        "$ENGINE" pull "$IMAGE"
+        "$ENGINE" cp $($ENGINE create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
+
+        # if [[ "$ENGINE" == "podman" ]]; then
+        #   "$ENGINE" pull "$IMAGE"
+        #   "$ENGINE" cp $($ENGINE create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
+        # elif [[ "$ENGINE" == "docker" ]]; then
+        #   "$ENGINE" pull "$IMAGE"
+        #   CID=$("$ENGINE" create "$IMAGE")
+        #   "$ENGINE" cp "$CID":/pluto "$DEST"
+        #   "$ENGINE" rm "$CID"
+        # else
+        #   echo "Unknown engine: $ENGINE" >&2
+        #   exit 2
+        # fi
         chmod +x "$DEST"
         "$DEST" --help

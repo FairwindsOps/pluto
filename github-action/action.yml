@@ -9,13 +9,43 @@ inputs:
     description: "tag for container image, i.e.: v5"
     default: "v5"
     required: true
+  CONTAINER_ENGINE:
+    description: "Optional: explicitly set container engine (docker/podman)"
+    required: false
+
 runs:
   using: "composite"
   steps:
+    - name: Determine container engine
+      id: detect_engine
+      shell: bash
+      run: |
+        set -e
+        # Respect explicit override
+        if [[ -n "${{ inputs.CONTAINER_ENGINE }}" ]]; then
+          echo "engine=${{ inputs.CONTAINER_ENGINE }}" >> "$GITHUB_OUTPUT"
+        else
+          if command -v podman >/dev/null 2>&1; then
+            echo "engine=podman" >> "$GITHUB_OUTPUT"
+          elif command -v docker >/dev/null 2>&1; then
+            echo "engine=docker" >> "$GITHUB_OUTPUT"
+          else
+            echo "Neither podman nor docker found in PATH" >&2
+            exit 1
+          fi
+        fi
+
     - name: Download pluto binary
       shell: bash
       run: |
-        podman pull ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}
-        podman cp $(podman create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
+        set -e
+        ENGINE="${{ steps.detect_engine.outputs.engine }}"
 
-        pluto --help
+        # Pull image
+        "$ENGINE" pull "${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}"
+
+        # Extract binary
+        # shellcheck disable=SC2046
+        "$ENGINE" cp $("${ENGINE}" create --rm "${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}":/pluto) /usr/local/bin/pluto
+
+        /usr/local/bin/pluto --help

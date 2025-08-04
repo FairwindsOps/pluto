@@ -55,5 +55,5 @@ runs:
           echo "Unknown engine: $ENGINE" >&2
           exit 2
         fi
-
+        chmod +x "$DEST"
         "$DEST" --help

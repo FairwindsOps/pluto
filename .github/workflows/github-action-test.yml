@@ -11,8 +11,6 @@ jobs:
 
       - name: Download pluto
         uses: ./github-action
-        with:
-          CONTAINER_ENGINE: docker
 
       - name: Pluto exists?
         run: |

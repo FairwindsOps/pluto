@@ -40,12 +40,20 @@ runs:
       run: |
         set -e
         ENGINE="${{ steps.detect_engine.outputs.engine }}"
+        IMAGE="${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}"
+        DEST="/usr/local/bin/pluto"
 
-        # Pull image
-        "$ENGINE" pull "${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}"
+        if [[ "$ENGINE" == "podman" ]]; then
+          "$ENGINE" pull "$IMAGE"
+          "$ENGINE" cp $("${ENGINE}" create --rm "$IMAGE":/pluto) "$DEST"
+        elif [[ "$ENGINE" == "docker" ]]; then
+          "$ENGINE" pull "$IMAGE"
+          CID=$("$ENGINE" create "$IMAGE")
+          "$ENGINE" cp "$CID":/pluto "$DEST"
+          "$ENGINE" rm "$CID"
+        else
+          echo "Unknown engine: $ENGINE" >&2
+          exit 2
+        fi
 
-        # Extract binary
-        # shellcheck disable=SC2046
-        "$ENGINE" cp $("${ENGINE}" create --rm "${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}":/pluto) /usr/local/bin/pluto
-
-        /usr/local/bin/pluto --help
+        "$DEST" --help

@@ -45,7 +45,7 @@ runs:
 
         if [[ "$ENGINE" == "podman" ]]; then
           "$ENGINE" pull "$IMAGE"
-          podman cp $(podman create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
+          "$ENGINE" cp $(podman create --rm ${{ inputs.IMAGE_PULL_URL }}:${{ inputs.IMAGE_TAG }}):/pluto /usr/local/bin/pluto
         elif [[ "$ENGINE" == "docker" ]]; then
           "$ENGINE" pull "$IMAGE"
           CID=$("$ENGINE" create "$IMAGE")

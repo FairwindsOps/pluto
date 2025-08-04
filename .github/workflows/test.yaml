@@ -1,0 +1,20 @@
+---
+name: Test Pluto DL
+on:
+    workflow_dispatch:
+
+jobs:
+    integration-tests:
+        runs-on: ubuntu-latest
+        permissions:
+            # Required for workflows in private repositories
+            contents: read
+        steps:
+            ##
+            # Can't use this as is; required PODMAN
+            # See: https://github.com/FairwindsOps/pluto/issues/576https://github.com/FairwindsOps/pluto/issues/576
+            ##
+            - name: Download Pluto
+              id: install-pluto
+              # uses: FairwindsOps/pluto/github-action@v5.22.2
+              uses: kquinsland/pluto/github-action@add-docker-support-to-gha

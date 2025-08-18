@@ -79,7 +79,7 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v2.12-0-nightly
+      - image: goreleaser/goreleaser:v2.12.0-nightly
     steps:
       - checkout
       - setup_remote_docker

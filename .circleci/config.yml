@@ -58,7 +58,7 @@ jobs:
     resource_class: large
     shell: /bin/bash
     docker:
-      - image: goreleaser/goreleaser:v2.12.0-nightly
+      - image: goreleaser/goreleaser:v2.12-nightly
         environment:
           GO111MODULE: "on"
     steps:
@@ -79,7 +79,7 @@ jobs:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
     docker:
-      - image: goreleaser/goreleaser:v2.10.2
+      - image: goreleaser/goreleaser:v2.12-nightly
     steps:
       - checkout
       - setup_remote_docker

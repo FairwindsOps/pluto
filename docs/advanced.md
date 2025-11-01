@@ -224,4 +224,3 @@ All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
 | --columns             | PLUTO_COLUMNS             |
 | --components          | PLUTO_COMPONENTS          |
 | --no-headers          | PLUTO_NO_HEADERS          |
-| --no-footer           | PLUTO_NO_FOOTER           |

@@ -10,12 +10,6 @@ executors:
     docker:
       - image: cimg/go:1.25.5
 
-commands:
-  install_goreleaser_dependencies:
-    description: Register QEMU/binfmt for multi-arch Docker builds (arm64, armv7)
-    steps:
-      - run: docker run --privileged --rm tonistiigi/binfmt --install all
-
 references:
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v14-bullseye

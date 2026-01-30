@@ -10,6 +10,12 @@ executors:
     docker:
       - image: cimg/go:1.25.5
 
+commands:
+  install_goreleaser_dependencies:
+    description: Register QEMU/binfmt for multi-arch Docker builds (arm64, armv7)
+    steps:
+      - run: docker run --privileged --rm tonistiigi/binfmt --install all
+
 references:
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v14-bullseye
@@ -74,6 +80,7 @@ jobs:
           command: |
             docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
+      - install_goreleaser_dependencies
       - run: goreleaser
   snapshot:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto

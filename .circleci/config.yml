@@ -74,7 +74,6 @@ jobs:
           command: |
             docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
-      - install_goreleaser_dependencies
       - run: goreleaser
   snapshot:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto

@@ -23,7 +23,8 @@ release:
     ```
 builds:
   # amd64 and arm64 on all platforms (windows/arm is not supported by Go)
-  - ldflags:
+  - id: pluto
+    ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
     main: cmd/pluto/main.go
     goarch:
@@ -36,7 +37,8 @@ builds:
       - darwin
       - windows
   # 32-bit ARM only on linux/darwin (exclude windows/arm)
-  - ldflags:
+  - id: pluto-arm
+    ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
     main: cmd/pluto/main.go
     goarch:

@@ -33,7 +33,7 @@ import (
 	"testing"
 
 	"github.com/fairwindsops/pluto/v5/pkg/api"
-        "github.com/fairwindsops/pluto/v5/pkg/kube"
+	"github.com/fairwindsops/pluto/v5/pkg/kube"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,10 +45,10 @@ import (
 var kubeClient *kube.Kube
 
 func getMockConfigInstance() *kube.Kube {
-        kubeClient = &kube.Kube{
-                Client: testclient.NewSimpleClientset(),
-        }
-        return kubeClient
+	kubeClient = &kube.Kube{
+		Client: testclient.NewSimpleClientset(),
+	}
+	return kubeClient
 }
 
 var (
@@ -370,14 +370,14 @@ func TestHelm_getManifest_badClient(t *testing.T) {
 func Test_helmToRelease(t *testing.T) {
 	tests := []struct {
 		name        string
-		helmRelease interface{}
+		helmRelease any
 		want        *Release
 		wantErr     bool
 		errMsg      string
 	}{
 		{
 			name:        "test err in json.Marshal",
-			helmRelease: map[string]interface{}{"foo": make(chan int)},
+			helmRelease: map[string]any{"foo": make(chan int)},
 			want:        nil,
 			wantErr:     true,
 			errMsg:      "error marshaling release: json: unsupported type: chan int",

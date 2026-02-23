@@ -22,12 +22,12 @@ release:
     cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 --key https://artifacts.fairwinds.com/cosign-p256.pub
     ```
 builds:
+  # amd64 and arm64 on all platforms (windows/arm is not supported by Go)
   - ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
     main: cmd/pluto/main.go
     goarch:
       - amd64
-      - arm
       - arm64
     env:
       - CGO_ENABLED=0
@@ -35,6 +35,17 @@ builds:
       - linux
       - darwin
       - windows
+  # 32-bit ARM only on linux/darwin (exclude windows/arm)
+  - ldflags:
+      - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
+    main: cmd/pluto/main.go
+    goarch:
+      - arm
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
     goarm:
       - 6
       - 7

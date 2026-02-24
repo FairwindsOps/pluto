@@ -104,7 +104,7 @@ func (cl *DiscoveryClient) GetApiResources() error {
 		}
 	}
 
-	var results []map[string]interface{}
+	var results []map[string]any
 	for _, g := range gvrs {
 		nri := cl.ClientSet.Resource(g)
 		var ri dynamic.ResourceInterface = nri
@@ -138,7 +138,7 @@ func (cl *DiscoveryClient) GetApiResources() error {
 		} else {
 			for _, r := range rs.Items {
 				if jsonManifest, ok := r.GetAnnotations()["kubectl.kubernetes.io/last-applied-configuration"]; ok {
-					var manifest map[string]interface{}
+					var manifest map[string]any
 
 					err := json.Unmarshal([]byte(jsonManifest), &manifest)
 					if err != nil {

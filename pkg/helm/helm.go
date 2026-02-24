@@ -184,7 +184,7 @@ func (h *Helm) checkForAPIVersion(manifest []byte) ([]*api.Output, error) {
 	return outputs, nil
 }
 
-func helmToRelease(helmRelease interface{}) (*Release, error) {
+func helmToRelease(helmRelease any) (*Release, error) {
 	jsonRel, err := json.Marshal(helmRelease)
 	if err != nil {
 		return nil, fmt.Errorf("error marshaling release: %s", err.Error())

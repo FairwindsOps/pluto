@@ -631,6 +631,97 @@ deprecated-versions:
     removed-in: v1.32.0
     replacement-api: flowcontrol.apiserver.k8s.io/v1
     component: k8s
+  - version: admissionregistration.k8s.io/v1alpha1
+    kind: ValidatingAdmissionPolicy
+    deprecated-in: v1.28.0
+    removed-in: v1.33.0
+    replacement-api: admissionregistration.k8s.io/v1
+    replacement-available-in: v1.30.0
+    component: k8s
+  - version: admissionregistration.k8s.io/v1alpha1
+    kind: ValidatingAdmissionPolicyBinding
+    deprecated-in: v1.28.0
+    removed-in: v1.33.0
+    replacement-api: admissionregistration.k8s.io/v1
+    replacement-available-in: v1.30.0
+    component: k8s
+  - version: resource.k8s.io/v1beta1
+    kind: ResourceSlice
+    deprecated-in: v1.33.0
+    removed-in: v1.36.0
+    replacement-api: resource.k8s.io/v1beta2
+    replacement-available-in: v1.33.0
+    component: k8s
+  - version: resource.k8s.io/v1beta1
+    kind: ResourceClaim
+    deprecated-in: v1.33.0
+    removed-in: v1.36.0
+    replacement-api: resource.k8s.io/v1beta2
+    replacement-available-in: v1.33.0
+    component: k8s
+  - version: resource.k8s.io/v1beta1
+    kind: DeviceClass
+    deprecated-in: v1.33.0
+    removed-in: v1.36.0
+    replacement-api: resource.k8s.io/v1beta2
+    replacement-available-in: v1.33.0
+    component: k8s
+  - version: resource.k8s.io/v1beta1
+    kind: ResourceClaimTemplate
+    deprecated-in: v1.33.0
+    removed-in: v1.36.0
+    replacement-api: resource.k8s.io/v1beta2
+    replacement-available-in: v1.33.0
+    component: k8s
+  - version: resource.k8s.io/v1alpha3
+    kind: ResourceSlice
+    deprecated-in: v1.32.0
+    removed-in: v1.34.0
+    replacement-api: resource.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: resource.k8s.io/v1alpha3
+    kind: ResourceClaim
+    deprecated-in: v1.32.0
+    removed-in: v1.34.0
+    replacement-api: resource.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: resource.k8s.io/v1alpha3
+    kind: DeviceClass
+    deprecated-in: v1.32.0
+    removed-in: v1.34.0
+    replacement-api: resource.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: resource.k8s.io/v1alpha3
+    kind: ResourceClaimTemplate
+    deprecated-in: v1.32.0
+    removed-in: v1.34.0
+    replacement-api: resource.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: storage.k8s.io/v1beta1
+    kind: VolumeAttributesClass
+    deprecated-in: v1.34.0
+    removed-in: ""
+    replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: storage.k8s.io/v1alpha1
+    kind: VolumeAttributesClass
+    deprecated-in: v1.31.0
+    removed-in: v1.35.0
+    replacement-api: storage.k8s.io/v1
+    replacement-available-in: v1.34.0
+    component: k8s
+  - version: storagemigration.k8s.io/v1alpha1
+    kind: StorageVersionMigration
+    deprecated-in: v1.35.0
+    removed-in: v1.35.0
+    replacement-api: storagemigration.k8s.io/v1beta1
+    replacement-available-in: v1.35.0
+    component: k8s
 target-versions:
     cert-manager: v1.5.3
     istio: v1.11.0

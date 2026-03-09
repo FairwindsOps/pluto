@@ -1,5 +1,7 @@
 FROM alpine:3.23.3
 
+RUN apk -U upgrade
+
 LABEL org.opencontainers.image.authors="FairwindsOps, Inc." \
       org.opencontainers.image.vendor="FairwindsOps, Inc." \
       org.opencontainers.image.title="pluto" \

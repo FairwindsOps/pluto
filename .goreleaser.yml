@@ -85,7 +85,7 @@ dockers:
   goarch: arm64
   dockerfile: Dockerfile
   build_flag_templates:
-  - "--platform=linux/arm64"
+  - "--platform=linux/arm64/v8"
 - image_templates:
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"

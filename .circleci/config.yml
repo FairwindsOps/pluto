@@ -10,6 +10,13 @@ executors:
     docker:
       - image: cimg/go:1.26.0
 
+  # Machine executor: Docker and binfmt run on the VM host so armv7 builds work (QEMU).
+  release-machine:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: large
+    shell: /bin/bash
+
 commands:
   install_goreleaser_dependencies:
     description: Register Docker platforms for multi-arch builds (arm64, armv7)
@@ -17,6 +24,15 @@ commands:
       - run: docker run --privileged --rm tonistiigi/binfmt --install all
 
 references:
+  install_vault_ubuntu: &install_vault_ubuntu
+    run:
+      name: install hashicorp vault (Ubuntu)
+      command: |
+        sudo apt-get update -qq && sudo apt-get install -y -qq unzip curl
+        curl -sLo /tmp/vault.zip https://releases.hashicorp.com/vault/1.12.2/vault_1.12.2_linux_amd64.zip
+        echo "116c143de377a77a7ea455a367d5e9fe5290458e8a941a6e2dd85d92aaedba67  /tmp/vault.zip" | sha256sum -c -
+        unzip -o /tmp/vault.zip -d /tmp && sudo mv /tmp/vault /usr/local/bin/vault
+        vault version
   e2e_config: &e2e_config
     command_runner_image: quay.io/reactiveops/ci-images:v14-bullseye
     kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
@@ -82,6 +98,33 @@ jobs:
       - install_goreleaser_dependencies
       - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
       - run: goreleaser
+
+  # Uses machine executor so Docker + binfmt run on same host; armv7 image builds succeed.
+  release_machine:
+    executor: release-machine
+    working_directory: ~/pluto
+    steps:
+      - checkout
+      - *install_vault_ubuntu
+      - rok8s/get_vault_env:
+          vault_path: repo/global/env
+      - rok8s/get_vault_env:
+          vault_path: repo/pluto/env
+      - run:
+          name: docker login
+          command: |
+            docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
+      - install_goreleaser_dependencies
+      - run:
+          name: run goreleaser (host Docker + binfmt for armv7)
+          command: |
+            export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"
+            docker run --rm \
+              -v "$(pwd)":/workspace \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -w /workspace \
+              --env-file <(env) \
+              goreleaser/goreleaser:v2.14.0
   snapshot:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     resource_class: large
@@ -147,7 +190,7 @@ workflows:
           <<: *e2e_config
   release:
     jobs:
-      - release:
+      - release_machine:
           filters:
             branches:
               ignore: /.*/
@@ -155,7 +198,7 @@ workflows:
               only: /.*/
       - oss-docs/publish-docs:
           requires:
-            - release
+            - release_machine
           repository: pluto
           filters:
             branches:

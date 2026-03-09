@@ -91,7 +91,9 @@ dockers:
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-armv7"
   use: buildx
-  goarch: arm64
+  goarch: arm
+  goarm: 7
+  goos: linux
   dockerfile: Dockerfile
   build_flag_templates:
   - "--platform=linux/arm/v7"

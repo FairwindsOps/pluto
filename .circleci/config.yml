@@ -97,7 +97,7 @@ jobs:
               -v "$(pwd):/workspace" -w /workspace \
               -e GORELEASER_CURRENT_TAG -e CIRCLE_TAG -e CIRCLE_SHA1 \
               -e GO111MODULE=on \
-              goreleaser/goreleaser:v2.14.0
+              goreleaser/goreleaser:v2.14.2
   snapshot:
     machine:
       image: ubuntu-2204:current
@@ -112,7 +112,7 @@ jobs:
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$(pwd):/workspace" -w /workspace \
               -e CIRCLE_SHA1 -e CIRCLE_BRANCH -e CIRCLE_TAG \
-              goreleaser/goreleaser:v2.14.0 --snapshot --skip=sign
+              goreleaser/goreleaser:v2.14.2 --snapshot --skip=sign
       - store_artifacts:
           path: dist
           destination: snapshot

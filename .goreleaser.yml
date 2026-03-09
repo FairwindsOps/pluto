@@ -85,29 +85,17 @@ dockers:
   goarch: arm64
   dockerfile: Dockerfile
   build_flag_templates:
-  - "--platform=linux/arm64/v8"
-- image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-armv7"
-  use: buildx
-  goarch: arm64
-  dockerfile: Dockerfile
-  build_flag_templates:
-  - "--platform=linux/arm/v7"
+  - "--platform=linux/arm64"
 docker_manifests:
 - name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}
   image_templates:
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-amd64"
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
 - name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}
   image_templates:
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-amd64"
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"
 - name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}
   image_templates:
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-amd64"
   - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-armv7"

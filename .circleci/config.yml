@@ -95,7 +95,7 @@ jobs:
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$(pwd):/workspace" -w /workspace \
-              -v "${HOME}/.docker:/root/.docker:ro" \
+              -v "${HOME}/.docker:/root/.docker" \
               -e GORELEASER_CURRENT_TAG -e CIRCLE_TAG -e CIRCLE_SHA1 \
               -e GO111MODULE=on \
               -e GITHUB_TOKEN \

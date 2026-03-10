@@ -98,6 +98,7 @@ jobs:
               -e GORELEASER_CURRENT_TAG -e CIRCLE_TAG -e CIRCLE_SHA1 \
               -e GO111MODULE=on \
               -e GITHUB_TOKEN \
+              -e VAULT_ADDR -e VAULT_TOKEN \
               goreleaser/goreleaser:v2.14.2 release
   snapshot:
     machine:

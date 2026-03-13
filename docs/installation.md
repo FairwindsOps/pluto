@@ -16,6 +16,14 @@ asdf install pluto <latest version>
 asdf local pluto <latest version>
 ```
 
+## mise-en-place
+
+You can install `pluto` using [mise](https://jdx.mise.dev) with a command like this:
+
+``` shell
+mise use -g pluto@latest
+```
+
 ## Binary
 
 Install the binary from our [releases](https://github.com/FairwindsOps/pluto/releases) page.

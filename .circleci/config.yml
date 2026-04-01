@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  orb-tools: circleci/orb-tools@10.1.0
   rok8s: fairwinds/rok8s-scripts@14
   oss-docs: fairwinds/oss-docs@0
 
@@ -163,19 +162,6 @@ workflows:
               ignore: /.*/
             tags:
               only: /^.*/
-  "Orb Test and Publish":
-    jobs:
-      - orb-tools/lint:
-          name: "Lint Orb Files"
-          pre-steps:
-            - run:
-                command: apk add git openssh
-          lint-dir: orb
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
       - request-orb-publish:
           name: "Request Orb Publishing"
           filters:

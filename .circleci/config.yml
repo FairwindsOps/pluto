@@ -1,14 +1,13 @@
 version: 2.1
 
 orbs:
-  orb-tools: circleci/orb-tools@10.1.0
-  rok8s: fairwinds/rok8s-scripts@12
+  rok8s: fairwinds/rok8s-scripts@14
   oss-docs: fairwinds/oss-docs@0
 
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.24.6
+      - image: cimg/go:1.26.0
 
 references:
   e2e_config: &e2e_config
@@ -31,40 +30,45 @@ references:
       command: |
         apk --update add curl yq
         cd /tmp
-        curl -LO https://releases.hashicorp.com/vault/1.12.2/vault_1.12.2_linux_amd64.zip
-        sha256sum vault_1.12.2_linux_amd64.zip | grep 116c143de377a77a7ea455a367d5e9fe5290458e8a941a6e2dd85d92aaedba67
-        unzip vault_1.12.2_linux_amd64.zip
+        curl -LO https://releases.hashicorp.com/vault/1.21.4/vault_1.21.4_linux_amd64.zip
+        sha256sum vault_1.21.4_linux_amd64.zip | grep 889b681990fe221b884b7932fa9c9dd0ee9811b9349554f1aa287ab63c9f3dae
+        unzip vault_1.21.4_linux_amd64.zip
         mv vault /usr/bin/vault
-  install_circleci: &install_circleci
+  install_vault_machine: &install_vault_machine
     run:
-      name: Install CircleCI CLI
+      name: install hashicorp vault
       command: |
+        sudo apt-get update -y && sudo apt-get install -y curl unzip
         cd /tmp
-        curl -LO https://github.com/CircleCI-Public/circleci-cli/releases/download/v0.1.16535/circleci-cli_0.1.16535_linux_amd64.tar.gz
-        tar -zxvf circleci-cli_0.1.16535_linux_amd64.tar.gz
-        mv circleci-cli_0.1.16535_linux_amd64/circleci /bin/circleci
-        circleci version
+        curl -LO https://releases.hashicorp.com/vault/1.21.4/vault_1.21.4_linux_amd64.zip
+        echo '889b681990fe221b884b7932fa9c9dd0ee9811b9349554f1aa287ab63c9f3dae  vault_1.21.4_linux_amd64.zip' | sha256sum -c
+        unzip -o vault_1.21.4_linux_amd64.zip
+        sudo mv vault /usr/bin/vault
+  setup_qemu_binfmt: &setup_qemu_binfmt
+    run:
+      name: Setup QEMU for multi-arch Docker builds
+      command: |
+        sudo apt-get update -y
+        sudo apt-get install -y qemu-user-static binfmt-support
+        docker buildx create --use || true
+        docker buildx inspect --bootstrap
 jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.24.6
+      - image: cimg/go:1.26.0
     steps:
       - checkout
       - run: go mod download && go mod verify
       - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
   release:
-    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
+    machine:
+      image: ubuntu-2204:current
     resource_class: large
     shell: /bin/bash
-    docker:
-      - image: goreleaser/goreleaser:v2.12.0-nightly
-        environment:
-          GO111MODULE: "on"
     steps:
       - checkout
-      - setup_remote_docker
-      - *install_vault_alpine
+      - *install_vault_machine
       - rok8s/get_vault_env:
           vault_path: repo/global/env
       - rok8s/get_vault_env:
@@ -73,36 +77,38 @@ jobs:
           name: docker login
           command: |
             docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
-      - run: echo 'export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"' >> $BASH_ENV
-      - run: goreleaser
+      - *setup_qemu_binfmt
+      - run:
+          name: Run GoReleaser release
+          command: |
+            export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$(pwd):/workspace" -w /workspace \
+              -v "${HOME}/.docker:/root/.docker" \
+              -e GORELEASER_CURRENT_TAG -e CIRCLE_TAG -e CIRCLE_SHA1 \
+              -e GO111MODULE=on \
+              -e GITHUB_TOKEN \
+              -e VAULT_ADDR -e VAULT_TOKEN \
+              goreleaser/goreleaser:v2.14.2 release
   snapshot:
-    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
+    machine:
+      image: ubuntu-2204:current
     resource_class: large
-    docker:
-      - image: goreleaser/goreleaser:v2.12.0-nightly
     steps:
       - checkout
-      - setup_remote_docker
-      - run: goreleaser --snapshot --skip=sign
+      - *setup_qemu_binfmt
+      - run:
+          name: Run GoReleaser snapshot
+          command: |
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$(pwd):/workspace" -w /workspace \
+              -e CIRCLE_SHA1 -e CIRCLE_BRANCH -e CIRCLE_TAG \
+              goreleaser/goreleaser:v2.14.2 release --snapshot --skip=sign
       - store_artifacts:
           path: dist
           destination: snapshot
-  publish-dev-orb:
-    working_directory: /go/src/github.com/fairwindsops/pluto
-    docker:
-      - image: quay.io/reactiveops/ci-images:v14-alpine
-    shell: /bin/bash
-    steps:
-      - checkout
-      - *install_vault_alpine
-      - rok8s/get_vault_env:
-          vault_path: repo/global/env
-      - *install_circleci
-      - orb-tools/pack:
-          source: orb/
-      - orb-tools/publish:
-          orb-ref: fairwinds/pluto@dev:${CIRCLE_BRANCH}
-          token-variable: CIRCLECI_DEV_API_TOKEN
   request-orb-publish:
     docker:
       - image: quay.io/reactiveops/ci-images:v14-alpine
@@ -141,6 +147,7 @@ workflows:
   release:
     jobs:
       - release:
+          context: org-global
           filters:
             branches:
               ignore: /.*/
@@ -155,28 +162,6 @@ workflows:
               ignore: /.*/
             tags:
               only: /^.*/
-  "Orb Test and Publish":
-    jobs:
-      - orb-tools/lint:
-          name: "Lint Orb Files"
-          pre-steps:
-            - run:
-                command: apk add git openssh
-          lint-dir: orb
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - publish-dev-orb:
-          name: Publish Dev Orb
-          requires:
-            - "Lint Orb Files"
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              ignore: /.*/
       - request-orb-publish:
           name: "Request Orb Publishing"
           filters:

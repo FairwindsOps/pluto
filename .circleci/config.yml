@@ -7,7 +7,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.26.0
+      - image: cimg/go:1.26.2
 
 references:
   e2e_config: &e2e_config
@@ -56,7 +56,7 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.26.0
+      - image: cimg/go:1.26.2
     steps:
       - checkout
       - run: go mod download && go mod verify
@@ -90,7 +90,7 @@ jobs:
               -e GO111MODULE=on \
               -e GITHUB_TOKEN \
               -e VAULT_ADDR -e VAULT_TOKEN \
-              goreleaser/goreleaser:v2.14.2 release
+              goreleaser/goreleaser:v2.15.4 release
   snapshot:
     machine:
       image: ubuntu-2204:current
@@ -105,7 +105,7 @@ jobs:
               -v /var/run/docker.sock:/var/run/docker.sock \
               -v "$(pwd):/workspace" -w /workspace \
               -e CIRCLE_SHA1 -e CIRCLE_BRANCH -e CIRCLE_TAG \
-              goreleaser/goreleaser:v2.14.2 release --snapshot --skip=sign
+              goreleaser/goreleaser:v2.15.4 release --snapshot --skip=sign
       - store_artifacts:
           path: dist
           destination: snapshot

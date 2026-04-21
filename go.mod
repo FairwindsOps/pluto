@@ -1,6 +1,6 @@
 module github.com/fairwindsops/pluto/v5
 
-go 1.26.0
+go 1.26.2
 
 require (
 	github.com/olekukonko/tablewriter v1.1.4
@@ -9,12 +9,12 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/thoas/go-funk v0.9.3
-	golang.org/x/mod v0.34.0
+	golang.org/x/mod v0.35.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.20.1
-	k8s.io/api v0.35.3
-	k8s.io/apimachinery v0.35.3
-	k8s.io/client-go v0.35.3
+	helm.sh/helm/v3 v3.20.2
+	k8s.io/api v0.35.4
+	k8s.io/apimachinery v0.35.4
+	k8s.io/client-go v0.35.4
 	k8s.io/klog/v2 v2.140.0
 	sigs.k8s.io/controller-runtime v0.23.3
 )

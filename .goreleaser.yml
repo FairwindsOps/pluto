@@ -1,4 +1,8 @@
+## DO NOT EDIT - Managed by Terraform
+# yaml-language-server: $$schema=https://goreleaser.com/static/schema.json
+
 version: 2
+project_name: pluto
 brews:
   - name: pluto
     goarm: 6
@@ -9,20 +13,7 @@ brews:
     description: Detect deprecated Kubernetes apiVersions
     test: |
       system "#{bin}/pluto version"
-release:
-  prerelease: auto
-  footer: |
-    You can verify the signatures of both the checksums.txt file and the published docker images using [cosign](https://github.com/sigstore/cosign).
-
-    ```bash
-    cosign verify-blob checksums.txt --signature=checksums.txt.sig  --key https://artifacts.fairwinds.com/cosign-p256.pub
-    ```
-
-    ```
-    cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:v5 --key https://artifacts.fairwinds.com/cosign-p256.pub
-    ```
 builds:
-  # amd64 and arm64 on all platforms (windows/arm is not supported by Go)
   - id: pluto
     ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
@@ -36,7 +27,6 @@ builds:
       - linux
       - darwin
       - windows
-  # 32-bit ARM only on linux/darwin (exclude windows/arm)
   - id: pluto-arm
     ldflags:
       - -X main.version={{.Version}} -X main.commit={{.Commit}} -s -w
@@ -51,65 +41,78 @@ builds:
     goarm:
       - 6
       - 7
+release:
+  disable: '{{ eq (envOrDefault "GORELEASER_SKIP_RELEASE" "false") "true" }}'
+  prerelease: auto
+  github:
+    owner: FairwindsOps
+    name: pluto
+  footer: |
+    You can verify the signatures of both the checksums.txt file and the published docker images using [cosign](https://github.com/sigstore/cosign).
+
+    ```bash
+    cosign verify-blob checksums.txt --bundle=checksums.txt.sigstore.json --key https://artifacts.fairwinds.com/cosign-p256.pub
+    ```
+
+    ```bash
+    cosign verify us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }} --key https://artifacts.fairwinds.com/cosign-p256.pub
+    ```
 checksum:
   name_template: "checksums.txt"
-
 signs:
   - cmd: cosign
+    signature: "${artifact}.sigstore.json"
     args:
       - "sign-blob"
       - "--key=hashivault://cosign-p256"
-      - "--output-signature=${signature}"
+      - "--bundle=${signature}"
       - "${artifact}"
       - "--yes"
     artifacts: all
-
 docker_signs:
-- artifacts: all
-  args: ["sign", "--key=hashivault://cosign-p256", "us-docker.pkg.dev/fairwinds-ops/oss/pluto@${digest}", "-r", "--yes"]
-
+  - artifacts: all
+    args: ["sign", "--key=hashivault://cosign-p256", "us-docker.pkg.dev/fairwinds-ops/oss/pluto@${digest}", "-r", "--yes"]
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
 dockers:
-- image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-amd64"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-amd64"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-amd64"
-  use: buildx
-  dockerfile: Dockerfile
-  build_flag_templates:
-  - "--platform=linux/amd64"
-- image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-arm64v8"
-  use: buildx
-  goarch: arm64
-  dockerfile: Dockerfile
-  build_flag_templates:
-  - "--platform=linux/arm64/v8"
-- image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-armv7"
-  use: buildx
-  goarch: arm
-  goarm: 7
-  goos: linux
-  dockerfile: Dockerfile
-  build_flag_templates:
-  - "--platform=linux/arm/v7"
+   - image_templates:
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-amd64"
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-amd64"
+     use: buildx
+     dockerfile: Dockerfile
+     build_flag_templates:
+        - "--platform=linux/amd64"
+   - image_templates:
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-arm64v8"
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-arm64v8"
+     use: buildx
+     goarch: arm64
+     goos: linux
+     dockerfile: Dockerfile
+     build_flag_templates:
+        - "--platform=linux/arm64/v8"
+   - image_templates:
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
+        - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-armv7"
+     use: buildx
+     goarch: arm
+     goarm: 7
+     goos: linux
+     dockerfile: Dockerfile
+     build_flag_templates:
+        - "--platform=linux/arm/v7"
 docker_manifests:
-- name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}
-  image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-amd64"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"
-- name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}
-  image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-amd64"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}-armv7"
-- name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}
-  image_templates:
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-amd64"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-arm64v8"
-  - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:v{{ .Major }}.{{ .Minor }}-armv7"
+  - name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}
+    image_templates:
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-amd64"
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-arm64v8"
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .Tag }}-armv7"
+  - name_template: us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}
+    image_templates:
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-amd64"
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-arm64v8"
+      - "us-docker.pkg.dev/fairwinds-ops/oss/pluto:{{ .FullCommit }}-armv7"

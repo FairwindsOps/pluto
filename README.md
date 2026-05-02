@@ -49,6 +49,44 @@ Want to use pluto within your GitHub workflows?
     pluto detect-files -d pkg/finder/testdata
 ```
 
+## Notice: Registry Migration and Immutable Images (v5.23.6 → v5.24.0)
+
+Starting with **v5.24.0**:
+
+- Images moved to `us-docker.pkg.dev/fairwinds-ops/oss/pluto`
+- `quay.io/fairwinds/pluto` is deprecated
+
+### Required action
+
+```diff
+- quay.io/fairwinds/pluto:<tag>
++ us-docker.pkg.dev/fairwinds-ops/oss/pluto:<tag>
+```
+
+---
+
+## Immutable and signed images
+
+* Images are now **signed**
+* Tags are **immutable**
+* No more floating tags:
+
+  * `v5`
+  * `v5.23`
+  * `latest`
+
+Use full version tags:
+
+```
+us-docker.pkg.dev/fairwinds-ops/oss/pluto:v<major>.<minor>.<patch>
+```
+
+Or pin by digest:
+
+```
+us-docker.pkg.dev/fairwinds-ops/oss/pluto@sha256:<digest>
+```
+
 <!-- Begin boilerplate -->
 ## Join the Fairwinds Open Source Community
 

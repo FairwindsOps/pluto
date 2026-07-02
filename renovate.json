@@ -1,0 +1,112 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
+  "labels": ["dependencies"],
+  "assignees": ["sudermanjr", "transient1"],
+  "prConcurrentLimit": 10,
+  "branchConcurrentLimit": 10,
+  "enabledManagers": ["gomod", "dockerfile", "circleci", "custom.regex"],
+  "packageRules": [
+    {
+      "description": "Group all non-major (minor + patch) updates into a single PR",
+      "matchUpdateTypes": ["minor", "patch", "digest", "lockFileMaintenance"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-non-major",
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Keep major updates separate and also enforce minimum age",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Disable replace updates",
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["replace"],
+      "enabled": false
+    },
+    {
+      "description": "Every upgrade: upstream release must be at least 7 days old (applies to all enabled managers)",
+      "matchManagers": ["gomod", "dockerfile", "circleci", "custom.regex"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Keep GoReleaser image in sync across CircleCI docker run commands",
+      "groupName": "GoReleaser",
+      "matchManagers": ["circleci", "custom.regex"],
+      "matchDepNames": ["goreleaser/goreleaser"]
+    },
+    {
+      "description": "Keep CircleCI cimg/go aligned with go.mod",
+      "groupName": "Go toolchain",
+      "matchManagers": ["circleci", "gomod"],
+      "matchDepNames": ["go", "cimg/go"]
+    },
+    {
+      "description": "Group HashiCorp Vault version bumps (sha256 checksum still needs manual update)",
+      "groupName": "HashiCorp Vault",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["hashicorp/vault"]
+    },
+    {
+      "description": "Group kindest/node images for rok8s kubernetes_e2e_tests jobs",
+      "groupName": "K8s e2e test tooling",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["kindest/node"]
+    }
+  ],
+  "minimumReleaseAge": "7 days",
+  "gomod": {
+    "enabled": true
+  },
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "customManagers": [
+    {
+      "description": "GoReleaser image in CircleCI docker run commands",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)\\.circleci/config\\.yml$/"],
+      "matchStrings": [
+        "goreleaser/goreleaser:v(?<currentValue>[0-9.]+)"
+      ],
+      "depNameTemplate": "goreleaser/goreleaser",
+      "datasourceTemplate": "docker",
+      "autoReplaceStringTemplate": "goreleaser/goreleaser:v{{{newValue}}}"
+    },
+    {
+      "description": "HashiCorp Vault download URL in CircleCI install_vault",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)\\.circleci/config\\.yml$/"],
+      "matchStrings": [
+        "https://releases\\.hashicorp\\.com/vault/(?<currentValue>[\\d.]+)/vault_[\\d.]+_linux_amd64\\.zip"
+      ],
+      "depNameTemplate": "hashicorp/vault",
+      "datasourceTemplate": "hashicorp-releases",
+      "autoReplaceStringTemplate": "https://releases.hashicorp.com/vault/{{{newValue}}}/vault_{{{newValue}}}_linux_amd64.zip"
+    },
+    {
+      "description": "HashiCorp Vault archive name in CircleCI install_vault (sha256 line must be updated manually)",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)\\.circleci/config\\.yml$/"],
+      "matchStrings": [
+        "vault_(?<currentValue>[\\d.]+)_linux_amd64\\.zip"
+      ],
+      "depNameTemplate": "hashicorp/vault",
+      "datasourceTemplate": "hashicorp-releases",
+      "autoReplaceStringTemplate": "vault_{{{newValue}}}_linux_amd64.zip"
+    },
+    {
+      "description": "kindest/node image for rok8s kubernetes_e2e_tests (sha256 digest must be updated manually)",
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)\\.circleci/config\\.yml$/"],
+      "matchStrings": [
+        "kind_node_image:\\s*\"kindest/node:(?<currentValue>v[0-9.]+)@sha256:"
+      ],
+      "depNameTemplate": "kindest/node",
+      "datasourceTemplate": "docker",
+      "autoReplaceStringTemplate": "kind_node_image: \"kindest/node:{{{newValue}}}@sha256:"
+    }
+  ]
+}

@@ -90,6 +90,9 @@ func GetConfig(kubeContext string, kubeConfigPath string) (*rest.Config, error) 
 		return nil, err
 	}
 
+	// Suppress deprecation warnings from the Kubernetes API server
+	kubeConfig.WarningHandler = rest.NoWarnings{}
+
 	return kubeConfig, nil
 }
 

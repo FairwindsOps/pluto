@@ -62,6 +62,7 @@ var (
 	targetVersions                map[string]string
 	customColumns                 []string
 	componentsFromUser            []string
+	ignoredKinds                  []string
 	onlyShowRemoved               bool
 	kubeContext                   string
 	noHeaders                     bool
@@ -94,6 +95,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output", "o", "normal", "The output format to use. (normal|wide|custom|json|yaml|markdown|csv)")
 	rootCmd.PersistentFlags().StringSliceVar(&customColumns, "columns", nil, "A list of columns to print. Mandatory when using --output custom, optional with --output markdown")
 	rootCmd.PersistentFlags().StringSliceVar(&componentsFromUser, "components", nil, "A list of components to run checks for. If nil, will check for all found in versions.")
+	rootCmd.PersistentFlags().StringSliceVar(&ignoredKinds, "ignore-kinds", nil, "A list of resource kinds to exclude from the results (e.g. CronJob,Ingress).")
 
 	rootCmd.AddCommand(detectFilesCmd)
 	detectFilesCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "", "The directory to scan. If blank, defaults to current working dir.")
@@ -288,6 +290,7 @@ var rootCmd = &cobra.Command{
 			NoHeaders:                     noHeaders,
 			DeprecatedVersions:            deprecatedVersionList,
 			Components:                    componentList,
+			IgnoredKinds:                  ignoredKinds,
 		}
 
 		return nil

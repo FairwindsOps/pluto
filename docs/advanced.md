@@ -161,6 +161,10 @@ Notice that there is no output, despite the fact that we might have recognized a
 
 By default Pluto will scan for all components in the versionsList that it can find. If you wish to only see deprecations for a specific component, you can use the `--components` flag to specify a list.
 
+## Ignore Kinds
+
+If you wish to exclude specific resource kinds from the results, you can use the `--ignore-kinds` flag to specify a list. For example, `--ignore-kinds CronJob,Ingress` will hide any detections for kinds named `CronJob` or `Ingress`. The match is case-sensitive and applies to the kind of the deprecated apiVersion.
+
 ## Only Show Removed
 
 If you are targeting an upgrade, you may only wish to see apiVersions that have been `removed` rather than both `deprecated` and `removed`. You can pass the `--only-show-removed` or `-r` flag for this. It will remove any detections that are deprecated, but not yet removed. This will affect the exit code of the command as well as the json and yaml output.
@@ -223,4 +227,5 @@ All environment variables are prefixed with `PLUTO` and use `_` instead of `-`.
 | --output              | PLUTO_OUTPUT              |
 | --columns             | PLUTO_COLUMNS             |
 | --components          | PLUTO_COMPONENTS          |
+| --ignore-kinds        | PLUTO_IGNORE_KINDS        |
 | --no-headers          | PLUTO_NO_HEADERS          |

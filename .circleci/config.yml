@@ -7,7 +7,7 @@ orbs:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.26.2
+      - image: cimg/go:1.26.5
 
 references:
   e2e_config: &e2e_config
@@ -56,7 +56,7 @@ jobs:
   test:
     working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
-      - image: cimg/go:1.26.2
+      - image: cimg/go:1.26.5
     steps:
       - checkout
       - run: go mod download && go mod verify

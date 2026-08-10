@@ -5,14 +5,8 @@
   <a href="https://github.com/FairwindsOps/pluto/releases">
     <img src="https://img.shields.io/github/v/release/FairwindsOps/pluto">
   </a>
-  <a href="https://goreportcard.com/report/github.com/FairwindsOps/pluto">
-    <img src="https://goreportcard.com/badge/github.com/FairwindsOps/pluto">
-  </a>
   <a href="https://circleci.com/gh/FairwindsOps/pluto.svg">
     <img src="https://circleci.com/gh/FairwindsOps/pluto.svg?style=svg">
-  </a>
-  <a href="https://insights.fairwinds.com/gh/FairwindsOps/pluto">
-    <img src="https://insights.fairwinds.com/v0/gh/FairwindsOps/pluto/badge.svg">
   </a>
 </div>
 

@@ -45,17 +45,25 @@ references:
 executors:
   golang-exec:
     docker:
-      - image: cimg/go:1.26.5
+      - image: cimg/go:1.26.6
 
 jobs:
   test:
     docker:
-      - image: cimg/go:1.26.5
+      - image: cimg/go:1.26.6
     steps:
       - checkout
       - run:
           name: Go Mod Download
           command: go mod download && go mod verify
+      - run:
+          name: golangci-lint
+          command: |
+            curl -fsSL -o golangci-lint.tar.gz https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.tar.gz
+            echo '8df580d2670fed8fa984aac0507099af8df275e665215f5c7a2ae3943893a553  golangci-lint.tar.gz' | sha256sum -c
+            tar -xzf golangci-lint.tar.gz
+            mv golangci-lint-2.12.2-linux-amd64/golangci-lint "$(go env GOPATH)/bin/golangci-lint"
+            golangci-lint run --timeout 5m
       - run:
           name: test
           command: |
@@ -152,7 +160,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^testing-.*/
+              only: /.*/
       - release:
           requires:
             - test
@@ -161,7 +169,7 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^testing-.*/
+              only: /.*/
       - oss-docs/publish-docs:
           requires:
             - release
@@ -170,4 +178,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              ignore: /^testing-.*/
+              only: /.*/

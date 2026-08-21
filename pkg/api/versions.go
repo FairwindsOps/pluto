@@ -297,7 +297,7 @@ func (instance *Instance) PrintVersionList(outputFormat string) error {
 		fmt.Println(string(data))
 	default:
 		fmt.Println("The output format must be one of (normal|wide|json|yaml)")
-		return fmt.Errorf("The output format must be one of (normal|wide|json|yaml)")
+		return fmt.Errorf("the output format must be one of (normal|wide|json|yaml)")
 	}
 	return nil
 }
@@ -307,7 +307,7 @@ func (instance *Instance) printVersionsTabular() error {
 	w.Init(os.Stdout, 0, 15, 2, padChar, 0)
 
 	if !instance.NoHeaders {
-		fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t REPL AVAIL IN\t COMPONENT\t")
+		_, _ = fmt.Fprintln(w, "KIND\t NAME\t DEPRECATED IN\t REMOVED IN\t REPLACEMENT\t REPL AVAIL IN\t COMPONENT\t")
 	}
 
 	for _, version := range instance.DeprecatedVersions {

@@ -123,7 +123,10 @@ func (instance *Instance) DisplayOutput() error {
 		}
 		t := instance.markdownOut(c)
 		if t != nil {
-			t.Render()
+			err = t.Render()
+			if err != nil {
+				return err
+			}
 		}
 	case "csv":
 		var c columnList
@@ -256,7 +259,7 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 		for _, k := range columnIndexes {
 			row = append(row, columns[k].value(o))
 		}
-		table.Append(row)
+		_ = table.Append(row)
 	}
 
 	return table

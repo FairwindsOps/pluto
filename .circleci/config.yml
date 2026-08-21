@@ -1,39 +1,11 @@
+## DO NOT EDIT - Managed by Terraform
 version: 2.1
 
 orbs:
-  rok8s: fairwinds/rok8s-scripts@14
+  rok8s: fairwinds/rok8s-scripts@16.0.0
   oss-docs: fairwinds/oss-docs@0
 
-executors:
-  golang-exec:
-    docker:
-      - image: cimg/go:1.26.5
-
 references:
-  e2e_config: &e2e_config
-    command_runner_image: quay.io/reactiveops/ci-images:v14-bullseye
-    kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
-    executor: golang-exec
-    pre_script: e2e/pre.sh
-    store-test-results: /tmp/test-results/
-    script: e2e/test.sh
-    requires:
-      - test
-    filters:
-      branches:
-        only: /.*/
-      tags:
-        ignore: /.*/
-  install_vault_alpine: &install_vault_alpine
-    run:
-      name: install hashicorp vault
-      command: |
-        apk --update add curl yq
-        cd /tmp
-        curl -LO https://releases.hashicorp.com/vault/1.21.4/vault_1.21.4_linux_amd64.zip
-        sha256sum vault_1.21.4_linux_amd64.zip | grep 889b681990fe221b884b7932fa9c9dd0ee9811b9349554f1aa287ab63c9f3dae
-        unzip vault_1.21.4_linux_amd64.zip
-        mv vault /usr/bin/vault
   install_vault_machine: &install_vault_machine
     run:
       name: install hashicorp vault
@@ -52,15 +24,72 @@ references:
         sudo apt-get install -y qemu-user-static binfmt-support
         docker buildx create --use || true
         docker buildx inspect --bootstrap
+  e2e_configuration: &e2e_configuration
+    executor: golang-exec
+    pre_script: e2e/pre.sh
+    script: e2e/test.sh
+    command_runner_image: quay.io/reactiveops/ci-images:v14.1-bullseye
+    enable_docker_layer_caching: true
+    store-test-results: /tmp/test-results
+    attach-workspace: true
+    requires:
+      - test
+      - snapshot
+    filters:
+      branches:
+        only: /.*/
+        ignore: /pull\/[0-9]+/
+      tags:
+        ignore: /.*/
+
+executors:
+  golang-exec:
+    docker:
+      - image: cimg/go:1.26.5
+
 jobs:
   test:
-    working_directory: /home/circleci/go/src/github.com/fairwindsops/pluto
     docker:
       - image: cimg/go:1.26.5
     steps:
       - checkout
-      - run: go mod download && go mod verify
-      - run: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+      - run:
+          name: Go Mod Download
+          command: go mod download && go mod verify
+      - run:
+          name: test
+          command: |
+            go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+            go vet ./...
+  snapshot:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large
+    steps:
+      - checkout
+      - *setup_qemu_binfmt
+      - run:
+          name: Run GoReleaser snapshot
+          command: |
+            docker run --rm \
+              -v /var/run/docker.sock:/var/run/docker.sock \
+              -v "$$(pwd):/workspace" -w /workspace \
+              -e CIRCLE_SHA1 \
+              -e CIRCLE_BRANCH \
+              -e CIRCLE_TAG \
+              goreleaser/goreleaser:v2.17.1 release --snapshot --skip=sign
+      - run:
+          name: Save snapshot amd64 image for e2e
+          command: |
+            mkdir -p /tmp/workspace/docker_save
+            docker save us-docker.pkg.dev/fairwinds-ops/oss/pluto:${CIRCLE_SHA1}-amd64 > /tmp/workspace/docker_save/pluto_${CIRCLE_SHA1}-amd64.tar
+      - persist_to_workspace:
+          root: /tmp/workspace/
+          paths:
+            - docker_save
+      - store_artifacts:
+          path: dist
+          destination: snapshot
   release:
     machine:
       image: ubuntu-2204:current
@@ -74,9 +103,9 @@ jobs:
       - rok8s/get_vault_env:
           vault_path: repo/pluto/env
       - run:
-          name: docker login
+          name: docker login Google Artifact Registry
           command: |
-            docker login -u _json_key -p "$(echo $GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
+            docker login -u _json_key -p "$$(echo $$GCP_ARTIFACTREADWRITE_JSON_KEY | base64 -d)" us-docker.pkg.dev
       - *setup_qemu_binfmt
       - run:
           name: Run GoReleaser release
@@ -84,75 +113,55 @@ jobs:
             export GORELEASER_CURRENT_TAG="${CIRCLE_TAG}"
             docker run --rm \
               -v /var/run/docker.sock:/var/run/docker.sock \
-              -v "$(pwd):/workspace" -w /workspace \
+              -v "$$(pwd):/workspace" -w /workspace \
               -v "${HOME}/.docker:/root/.docker" \
-              -e GORELEASER_CURRENT_TAG -e CIRCLE_TAG -e CIRCLE_SHA1 \
+              -e GORELEASER_CURRENT_TAG \
+              -e CIRCLE_TAG \
+              -e CIRCLE_SHA1 \
               -e GO111MODULE=on \
               -e GITHUB_TOKEN \
-              -e VAULT_ADDR -e VAULT_TOKEN \
-              goreleaser/goreleaser:v2.15.4 release
-  snapshot:
-    machine:
-      image: ubuntu-2204:current
-    resource_class: large
-    steps:
-      - checkout
-      - *setup_qemu_binfmt
-      - run:
-          name: Run GoReleaser snapshot
-          command: |
-            docker run --rm \
-              -v /var/run/docker.sock:/var/run/docker.sock \
-              -v "$(pwd):/workspace" -w /workspace \
-              -e CIRCLE_SHA1 -e CIRCLE_BRANCH -e CIRCLE_TAG \
-              goreleaser/goreleaser:v2.15.4 release --snapshot --skip=sign
-      - store_artifacts:
-          path: dist
-          destination: snapshot
-  request-orb-publish:
-    docker:
-      - image: quay.io/reactiveops/ci-images:v14-alpine
-    steps:
-      - *install_vault_alpine
-      - rok8s/get_vault_env:
-          vault_path: repo/pluto/env
-      - run:
-          name: "Request Orb Publish"
-          command: |
-            apk --update add curl
-            curl -X POST --data-urlencode "payload={\"text\": \"Please publish a new pluto orb by checking out $CIRCLE_TAG and running release-orb.sh\"}" $SLACK_URL
+              -e VAULT_ADDR \
+              -e VAULT_TOKEN \
+              goreleaser/goreleaser:v2.17.1 release
+
 workflows:
   version: 2
-  test:
+  test_and_build:
     jobs:
-      - test
+      - test:
+          filters:
+            tags:
+              ignore: /.*/
       - snapshot:
           requires:
             - test
           filters:
             branches:
               only: /.*/
+              ignore: /pull\/[0-9]+/
             tags:
               ignore: /.*/
       - rok8s/kubernetes_e2e_tests:
-          requires:
-            - test
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              ignore: /.*/
-          name: functional tests
-          <<: *e2e_config
+          name: "functional tests"
+          kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
+          <<: *e2e_configuration
   release:
     jobs:
+      - test:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              ignore: /^testing-.*/
       - release:
+          requires:
+            - test
           context: org-global
           filters:
             branches:
               ignore: /.*/
             tags:
-              only: /.*/
+              ignore: /^testing-.*/
       - oss-docs/publish-docs:
           requires:
             - release
@@ -161,11 +170,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^.*/
-      - request-orb-publish:
-          name: "Request Orb Publishing"
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^v.*/
+              ignore: /^testing-.*/

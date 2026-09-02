@@ -66,6 +66,7 @@ type Instance struct {
 	DeprecatedVersions            []Version         `json:"-" yaml:"-"`
 	CustomColumns                 []string          `json:"-" yaml:"-"`
 	Components                    []string          `json:"-" yaml:"-"`
+	IgnoredKinds                  []string          `json:"-" yaml:"-"`
 }
 
 // DisplayOutput prints the output based on desired variables
@@ -156,6 +157,10 @@ func (instance *Instance) DisplayOutput() error {
 func (instance *Instance) FilterOutput() {
 	var usableOutputs []*Output
 	for _, output := range instance.Outputs {
+		// skip any kinds that the user has asked to ignore
+		if StringInSlice(output.APIVersion.Kind, instance.IgnoredKinds) {
+			continue
+		}
 		output.Deprecated = output.APIVersion.isDeprecatedIn(instance.TargetVersions)
 		output.Removed = output.APIVersion.isRemovedIn(instance.TargetVersions)
 		output.ReplacementAvailable = output.APIVersion.isReplacementAvailableIn(instance.TargetVersions)

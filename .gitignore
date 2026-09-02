@@ -12,6 +12,5 @@ pkged.go
 node_modules
 /dist
 
-orb.yml
 venom.*.log
 docs/README.md

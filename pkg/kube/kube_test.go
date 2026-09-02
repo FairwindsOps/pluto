@@ -15,7 +15,6 @@
 package kube
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -75,7 +74,7 @@ func Test_getKubeClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			os.Setenv("KUBECONFIG", tt.kubeConfig)
+			t.Setenv("KUBECONFIG", tt.kubeConfig)
 			_, err := GetConfig(tt.kubeContext, tt.kubeConfigPath)
 			if tt.wantErr {
 				assert.Error(t, err)

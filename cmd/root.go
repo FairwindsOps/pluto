@@ -332,7 +332,6 @@ var detectHelmCmd = &cobra.Command{
 		}
 		exitCode = apiInstance.GetReturnCode()
 		klog.V(5).Infof("exitCode: %d", exitCode)
-		return
 	},
 }
 
@@ -353,7 +352,6 @@ var detectApiResourceCmd = &cobra.Command{
 		}
 		exitCode = apiInstance.GetReturnCode()
 		klog.V(5).Infof("exitCode: %d", exitCode)
-		return
 	},
 }
 
@@ -476,7 +474,7 @@ func detectHelm() error {
 	}
 	err = h.FindVersions()
 	if err != nil {
-		return fmt.Errorf("Error running helm-detect: %v", err)
+		return fmt.Errorf("error running helm-detect: %v", err)
 	}
 	return nil
 }
@@ -484,11 +482,11 @@ func detectHelm() error {
 func detectAPIResources() error {
 	disCl, err := discoveryapi.NewDiscoveryClient(namespace, kubeContext, apiInstance, kubeConfigPath)
 	if err != nil {
-		return fmt.Errorf("Error creating Discovery REST Client: %v", err)
+		return fmt.Errorf("error creating Discovery REST Client: %v", err)
 	}
 	err = disCl.GetApiResources()
 	if err != nil {
-		return fmt.Errorf("Error getting API resources using discovery client: %v", err)
+		return fmt.Errorf("error getting API resources using discovery client: %v", err)
 	}
 	return nil
 }

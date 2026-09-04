@@ -117,6 +117,11 @@ func init() {
 	rootCmd.AddCommand(detectCmd)
 
 	klog.InitFlags(nil)
+	// Opt into the new klog behavior so that -stderrthreshold is honored even
+	// when -logtostderr=true (the default).
+	// Ref: kubernetes/klog#212, kubernetes/klog#432
+	_ = flag.Set("legacy_stderr_threshold_behavior", "false") //nolint:errcheck
+	_ = flag.Set("stderrthreshold", "INFO")                   //nolint:errcheck
 	pflag.CommandLine.AddGoFlag(flag.CommandLine.Lookup("v"))
 }
 

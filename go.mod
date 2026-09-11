@@ -11,7 +11,7 @@ require (
 	github.com/thoas/go-funk v0.9.3
 	golang.org/x/mod v0.38.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.21.3
+	helm.sh/helm/v4 v4.2.4
 	k8s.io/api v0.36.3
 	k8s.io/apimachinery v0.36.3
 	k8s.io/client-go v0.36.3

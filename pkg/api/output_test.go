@@ -523,3 +523,70 @@ func TestGetReturnCode(t *testing.T) {
 		})
 	}
 }
+
+func TestFilterOutput(t *testing.T) {
+	newOutputs := func() []*Output {
+		return []*Output{
+			{
+				Name: "cronjob one",
+				APIVersion: &Version{
+					Name:         "batch/v1beta1",
+					Kind:         "CronJob",
+					DeprecatedIn: "v1.21.0",
+					RemovedIn:    "v1.25.0",
+					Component:    "k8s",
+				},
+			},
+			{
+				Name: "ingress one",
+				APIVersion: &Version{
+					Name:         "extensions/v1beta1",
+					Kind:         "Ingress",
+					DeprecatedIn: "v1.14.0",
+					RemovedIn:    "v1.22.0",
+					Component:    "k8s",
+				},
+			},
+		}
+	}
+
+	tests := []struct {
+		name         string
+		ignoredKinds []string
+		wantNames    []string
+	}{
+		{
+			name:         "no ignored kinds keeps everything",
+			ignoredKinds: nil,
+			wantNames:    []string{"cronjob one", "ingress one"},
+		},
+		{
+			name:         "ignored kind is excluded",
+			ignoredKinds: []string{"CronJob"},
+			wantNames:    []string{"ingress one"},
+		},
+		{
+			name:         "all kinds ignored",
+			ignoredKinds: []string{"CronJob", "Ingress"},
+			wantNames:    []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			instance := &Instance{
+				Outputs:        newOutputs(),
+				TargetVersions: map[string]string{"k8s": "v1.26.0"},
+				Components:     []string{"k8s"},
+				IgnoredKinds:   tt.ignoredKinds,
+			}
+			instance.FilterOutput()
+
+			gotNames := []string{}
+			for _, o := range instance.Outputs {
+				gotNames = append(gotNames, o.Name)
+			}
+			assert.Equal(t, tt.wantNames, gotNames)
+		})
+	}
+}

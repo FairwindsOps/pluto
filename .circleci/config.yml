@@ -138,7 +138,7 @@ workflows:
               ignore: /.*/
       - rok8s/kubernetes_e2e_tests:
           name: "functional tests"
-          kind_node_image: "kindest/node:v1.26.6@sha256:6e2d8b28a5b601defe327b98bd1c2d1930b49e5d8c512e1895099e4504007adb"
+          kind_node_image: "kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed"
           <<: *e2e_configuration
   release:
     jobs:

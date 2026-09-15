@@ -29,10 +29,6 @@ module.exports = {
         path: "/faq",
       },
       {
-        title: "CircleCI Orb",
-        path: "/orb",
-      },
-      {
         title: "Contributing",
         children: [
           {

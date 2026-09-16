@@ -1,0 +1,6 @@
+parameters:
+  version:
+    type: string
+    default: "stable"
+docker:
+  - image: cimg/base:<<parameters.version>>

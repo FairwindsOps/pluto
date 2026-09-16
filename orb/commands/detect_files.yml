@@ -1,0 +1,16 @@
+description: Detecting deprecated Kubernetes apiVersions within your repository.
+parameters:
+  directory:
+    description: The directory to scan. If blank defaults to current directory.
+    type: string
+    default: ""
+  executor:
+    description: The name of custom executor to use. Only recommended for development.
+    type: executor
+    default: default
+steps:
+  - run:
+      name: Pluto detect-files
+      environment:
+        PLUTO_DIRECTORY: <<parameters.directory>>
+      command: <<include(scripts/detect_files.sh)>>

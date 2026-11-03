@@ -230,7 +230,7 @@ func (instance *Instance) markdownOut(columns columnList) *tablewriter.Table {
 	table := tablewriter.NewTable(
 		os.Stdout,
 		tablewriter.WithRenderer(renderer.NewMarkdown()),
-		tablewriter.WithHeaderAlignment(tw.AlignNone), // retain parity with previous versions
+		tablewriter.WithHeaderAlignment(tw.AlignNone),
 	)
 
 	if len(instance.Outputs) == 0 {

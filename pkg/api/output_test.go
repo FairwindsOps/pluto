@@ -192,7 +192,7 @@ func ExampleInstance_DisplayOutput_markdown() {
 
 	// Output:
 	// |     NAME      |    NAMESPACE    |    KIND    |      VERSION       | REPLACEMENT | DEPRECATED | DEPRECATED IN | REMOVED | REMOVED IN | REPL AVAIL | REPL AVAIL IN |
-	// |---------------|-----------------|------------|--------------------|-------------|------------|---------------|---------|------------|------------|---------------|
+	// |:--------------|:----------------|:-----------|:-------------------|:------------|:-----------|:--------------|:--------|:-----------|:-----------|:--------------|
 	// | some name one | pluto-namespace | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true       | v1.10.0       |
 	// | some name two | <UNKNOWN>       | Deployment | extensions/v1beta1 | apps/v1     | true       | v1.9.0        | true    | v1.16.0    | true       | v1.10.0       |
 }
@@ -214,7 +214,7 @@ func ExampleInstance_DisplayOutput_markdown_customcolumns() {
 
 	// Output:
 	// |    NAMESPACE    |     NAME      | DEPRECATED IN | DEPRECATED | REPLACEMENT |      VERSION       |    KIND    | COMPONENT |   FILEPATH   |
-	// |-----------------|---------------|---------------|------------|-------------|--------------------|------------|-----------|--------------|
+	// |:----------------|:--------------|:--------------|:-----------|:------------|:-------------------|:-----------|:----------|:-------------|
 	// | pluto-namespace | some name one | v1.9.0        | true       | apps/v1     | extensions/v1beta1 | Deployment | foo       | path-to-file |
 	// | <UNKNOWN>       | some name two | v1.9.0        | true       | apps/v1     | extensions/v1beta1 | Deployment | foo       | <UNKNOWN>    |
 }

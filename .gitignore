@@ -15,3 +15,6 @@ node_modules
 venom.*.log
 docs/README.md
 orb.yml
+docs/index.md
+docs/.vitepress/cache
+docs/.vitepress/dist

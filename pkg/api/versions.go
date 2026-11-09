@@ -97,6 +97,19 @@ func (instance *Instance) checkVersion(stub *Stub) *Version {
 	return nil
 }
 
+// ChecksKind returns true if any known version could match an object of
+// the given kind. A rule with an empty kind deprecates a whole API, so it
+// matches every kind. A rule for the list kind counts as well, because
+// the discovery check inspects the list response of an empty resource.
+func (instance *Instance) ChecksKind(kind string) bool {
+	for _, version := range instance.DeprecatedVersions {
+		if version.Kind == "" || version.Kind == kind || version.Kind == kind+"List" {
+			return true
+		}
+	}
+	return false
+}
+
 // IsVersioned returns a version if the file data sent
 // can be unmarshaled into a stub and matches a known
 // version in the VersionList

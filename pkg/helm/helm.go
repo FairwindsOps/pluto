@@ -34,10 +34,9 @@ import (
 	"fmt"
 
 	"github.com/thoas/go-funk"
-	"helm.sh/helm/v3/pkg/release"
-	"helm.sh/helm/v3/pkg/releaseutil"
-	helmstoragev3 "helm.sh/helm/v3/pkg/storage"
-	driverv3 "helm.sh/helm/v3/pkg/storage/driver"
+	"helm.sh/helm/v4/pkg/release"
+	"helm.sh/helm/v4/pkg/storage"
+	"helm.sh/helm/v4/pkg/storage/driver"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
@@ -106,10 +105,11 @@ func (h *Helm) FindVersions() error {
 	return h.getReleasesVersionThree()
 }
 
-// getReleasesVersionThree retrieves helm 3 releases from Secrets
+// getReleasesVersionThree retrieves deployed Helm releases from Secrets.
+// ListDeployed already keeps only releases with status deployed.
 func (h *Helm) getReleasesVersionThree() error {
-	hs := driverv3.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
-	helmClient := helmstoragev3.Init(hs)
+	hs := driver.NewSecrets(h.Kube.Client.CoreV1().Secrets(h.Namespace))
+	helmClient := storage.Init(hs)
 	namespaces, err := h.Kube.Client.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -123,11 +123,17 @@ func (h *Helm) getReleasesVersionThree() error {
 		if h.Namespace != "" && ns != h.Namespace {
 			continue
 		}
-		filteredReleases := h.deployedReleasesPerNamespace(ns, releases)
-		for _, r := range filteredReleases {
+		for _, r := range releases {
+			acc, err := release.NewAccessor(r)
+			if err != nil {
+				return fmt.Errorf("error reading helm release: %w", err)
+			}
+			if acc.Namespace() != ns {
+				continue
+			}
 			rel, err := helmToRelease(r)
 			if err != nil {
-				return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", r.Namespace, r.Name, err)
+				return fmt.Errorf("error converting helm r '%s/%s' to internal object\n   %w", acc.Namespace(), acc.Name(), err)
 			}
 			if funk.Contains(h.Releases, rel) {
 				klog.Warningf("found duplicate release %s/%s in a deployed state - this may produce inconsistent results", rel.Namespace, rel.Name)
@@ -139,20 +145,6 @@ func (h *Helm) getReleasesVersionThree() error {
 		return err
 	}
 	return nil
-}
-
-func (h *Helm) deployedReleasesPerNamespace(namespace string, releases []*release.Release) []*release.Release {
-	return releaseutil.All(deployed, relNamespace(namespace)).Filter(releases)
-}
-
-func deployed(rls *release.Release) bool {
-	return rls.Info.Status == release.StatusDeployed
-}
-
-func relNamespace(ns string) releaseutil.FilterFunc {
-	return func(rls *release.Release) bool {
-		return rls.Namespace == ns
-	}
 }
 
 func (h *Helm) findVersions() error {

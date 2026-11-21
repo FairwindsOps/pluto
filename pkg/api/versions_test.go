@@ -768,3 +768,48 @@ func TestInstance_checkVersion(t *testing.T) {
 		})
 	}
 }
+
+func TestInstance_ChecksKind(t *testing.T) {
+	tests := []struct {
+		name     string
+		versions []Version
+		kind     string
+		want     bool
+	}{
+		{
+			name:     "kind has a rule",
+			versions: []Version{{Name: "extensions/v1beta1", Kind: "Deployment"}},
+			kind:     "Deployment",
+			want:     true,
+		},
+		{
+			name:     "only the list kind has a rule",
+			versions: []Version{{Name: "rbac.authorization.k8s.io/v1beta1", Kind: "RoleList"}},
+			kind:     "Role",
+			want:     true,
+		},
+		{
+			name:     "empty kind deprecates a whole API",
+			versions: []Version{{Name: "extensions/v1beta1", Kind: ""}},
+			kind:     "ConfigMap",
+			want:     true,
+		},
+		{
+			name:     "no rule for the kind",
+			versions: []Version{{Name: "extensions/v1beta1", Kind: "Deployment"}},
+			kind:     "ConfigMap",
+			want:     false,
+		},
+		{
+			name: "no rules",
+			kind: "Deployment",
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			instance := &Instance{DeprecatedVersions: tt.versions}
+			assert.Equal(t, tt.want, instance.ChecksKind(tt.kind))
+		})
+	}
+}

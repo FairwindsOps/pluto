@@ -97,6 +97,12 @@ func (cl *DiscoveryClient) GetApiResources() error {
 			if cl.namespace != "" && !rl.APIResources[i].Namespaced {
 				continue
 			}
+			// The apiVersion that gets checked comes from last-applied-configuration
+			// and can differ from the one served here, so only the kind can be compared.
+			if !cl.Instance.ChecksKind(rl.APIResources[i].Kind) {
+				klog.V(2).Infof("Skipping %s.%s, no known versions for kind %s", rl.APIResources[i].Name, rl.GroupVersion, rl.APIResources[i].Kind)
+				continue
+			}
 			gv, _ := schema.ParseGroupVersion(rl.GroupVersion)
 			ResourceName := rl.APIResources[i].Name
 			g := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: ResourceName}
